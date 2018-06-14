@@ -1,0 +1,32 @@
+{
+   "browser_action": {
+      "default_icon": {
+         "19": "img/badge_on.png"
+      },
+      "default_popup": "html/popup.html",
+      "default_title": "Youtube Filter",
+      "name": "Youtube Filter"
+   },
+   "content_scripts": [ {
+      "js": [ "js/jquery-3.3.1.min.js", "js/text_utility.js", "js/storage_data.js", "js/content.js" ],
+      "matches": [ "https://www.youtube.com/*",
+                   "http://www.youtube.com/*",
+                   "https://www.google.com/*",
+                   "http://www.google.com/*",
+                   "https://www.google.co.jp/*",
+                   "http://www.google.co.jp/*"],
+      "run_at": "document_start"
+   } ],
+   "description": "Youtubeとgoogle検索に動画チャンネルフィルタ機能を追加するChrome拡張です。「チャンネル及びタイトル指定での動画非表示」が行えます。",
+   "icons": {
+      "19": "img/badge_on.png",
+      "48": "img/icon_48.png"
+   },
+   "manifest_version": 2,
+   "name": "Youtubeフィルタ",
+   "author": "aaa",
+   "permissions": [ "tabs", "storage", "unlimitedStorage", "https://www.youtube.com/*", "http://www.youtube.com/*","https://www.google.com/*","http://www.google.com/*" ],
+   "short_name": "Youtube Filter",
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "1.0.0"
+}

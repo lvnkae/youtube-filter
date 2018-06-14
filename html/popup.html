@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Youtubeフィルタ</title>
+        <style type="text/css">
+
+            body {
+                width:384px;
+            }
+        </style>
+
+    </head>
+    <body>
+
+        <div class="main">
+          
+            <input name="sw_filter" type="checkbox">フィルタを有効にする</input><br>
+
+            <select name="select_filter">
+                <option value="ng_channel">非表示チャンネル</option>
+                <option value="ng_title">非表示タイトル</option>
+            </select>
+            <p><textarea name="filter_channel" class="form-control" rows="8" cols="48"></textarea></p>
+            <p><textarea name="filter_title" class="form-control" rows="8" cols="48" style="display:none"></textarea></p>
+            <p><textarea name="filter_ex_title" class="form-control" rows="8" cols="48" style="display:none"></textarea></p>
+            <input id="regexp" type="checkbox" style="display:none">
+            <label id="regexp" for="regexp" style="display:none">正規表現</label>
+            <input id="perfectmatch" type="checkbox" style="display:none">
+            <label id="perfectmatch" for="perfectmatch" style="display:none">完全一致</label>
+            <input id="normalize" type="checkbox" style="display:none">
+            <label id="normalize" for="normalize" style="display:none">大/小文字区別なし</label>
+            <button name="req_save" align="center" disabled>変更を保存する</button>
+
+          </div>
+        </div>
+        <script src="../js/jquery-3.3.1.min.js"></script>
+        <script src="../js/text_utility.js"></script>
+        <script src="../js/storage_data.js"></script>
+        <script src="../js/popup.js"></script>
+  </body>
+</html>
