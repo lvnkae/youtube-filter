@@ -1,3 +1,3 @@
-[Ú×]
-YoutubeNG(ƒtƒBƒ‹ƒ^)‚àì‚Á‚½
+[è©³ç´°]
+YoutubeNG(ãƒ•ã‚£ãƒ«ã‚¿)ã‚‚ä½œã£ãŸ
 https://anond.hatelabo.jp/20180614193138
