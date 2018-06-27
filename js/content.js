@@ -101,8 +101,6 @@ class YoutubeFilter {
     constructor() {
         this.after_domloaded_observer = null;
         this.filtering_timer = null;
-        this.last_num_ytd_video_renderer = 0;
-        this.last_num_grid_video_renderer = 0;
         //
         this.initialize();
     }
@@ -164,10 +162,6 @@ class YoutubeFilter {
         if (this.storage.json.active) {
             const loc = gContent.current_location;
             if (loc.in_youtube()) {
-                if (change_url) {
-                    this.last_num_ytd_video_renderer = 0;
-                    this.last_num_grid_video_renderer = 0;
-                }
                 if (loc.in_youtube_search_page() || loc.in_youtube_trending()) {
                     this.filtering_youtube_search_movie();
                     this.filtering_youtube_search_channel();
@@ -193,19 +187,10 @@ class YoutubeFilter {
      */
     filtering_youtube_search_movie()
     {
-        var videos = $(".text-wrapper.style-scope.ytd-video-renderer");
-        // 新規追加分だけフィルタかける(高速化のつもり)
-        // ※"ホーム""急上昇""検索結果"以外のページは途中に差し込まれることがあるのでNG
-        const num = videos.length;
-        var start_pos = 0;
-        if (num >= this.last_num_ytd_video_renderer) {
-            start_pos = this.last_num_ytd_video_renderer;
-            this.last_num_ytd_video_renderer = num;
-        } else {
-            this.last_num_ytd_video_renderer = 0;
-        }
-        for (var inx = start_pos; inx < num; inx++) {
-            const elem = videos[inx];
+        $(".text-wrapper.style-scope.ytd-video-renderer").each((inx, elem)=> {
+            if ($(elem).attr("filtered") != null) {
+                return;
+            }
             const elem_title
                 = $(elem).find(".yt-simple-endpoint.style-scope.ytd-video-renderer");
             const elem_channel
@@ -217,8 +202,10 @@ class YoutubeFilter {
             const channel = $(elem_channel[0]).text();
             if (this.youtube_movie_filter(channel, title)) {
                 $(elem).parent().parent().detach();
+                return;
             }
-        }
+            $(elem).attr("filtered", "");
+        });
     }
     /*!
      *  @brief  チャンネル(Youtube検索)にフィルタを掛ける
@@ -353,7 +340,8 @@ class YoutubeFilter {
                 return;
             }
             const ano_text = $(elem_ano[0]).text();
-            if (ano_text != "おすすめのチャンネル") {
+            if (ano_text != "おすすめのチャンネル" &&
+                ano_text != "あなたにおすすめのチャンネル") {
                 return;
             }
             const elem_name
@@ -375,6 +363,9 @@ class YoutubeFilter {
     filtering_youtube_home_movie()
     {
         $("div#dismissable.style-scope.ytd-grid-video-renderer").each((inx, elem)=> {
+            if ($(elem).attr("filtered") != null) {
+                return;
+            }
             const elem_title
                 = $(elem).find(".yt-simple-endpoint.style-scope.ytd-grid-video-renderer");
             const elem_channel
@@ -386,7 +377,9 @@ class YoutubeFilter {
             const channel = $(elem_channel[0]).text();
             if (this.youtube_movie_filter(channel, title)) {
                 $(elem).parent().detach();
+                return;
             }
+            $(elem).attr("filtered", "");
         });
     }
     /*!

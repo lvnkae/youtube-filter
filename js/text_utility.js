@@ -14,7 +14,7 @@ class TextUtil {
             if (word.length > 0 &&
                 word != "\r\n" &&
                 word != "\r" &&
-                word !== "\n") {
+                word != "\n") {
                 ret.push(word);
             }
         }
