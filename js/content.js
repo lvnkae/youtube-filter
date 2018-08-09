@@ -185,14 +185,24 @@ class YoutubeFilter {
     filtering_youtube_search_movie()
     {
         $(".text-wrapper.style-scope.ytd-video-renderer").each((inx, elem)=> {
-            if ($(elem).attr("filtered") != null) {
-                return;
-            }
             const elem_title
                 = $(elem).find(".yt-simple-endpoint.style-scope.ytd-video-renderer");
+            if (elem_title.length != 1) {
+                return;
+            }
+            const marker = this.get_filtered_marker(elem);
+            // ytd-video-rendererノードは使い回されることがあり(フィルタ条件変更時など)
+            // ただマークするだけだと動画が差し替えられた時にフィルタされない
+            // → 動画ハッシュをマーカーとし、前回と一致した場合のみ弾く
+            const hash = this.get_movie_hash($(elem_title[0]).attr("href"));
+            if (marker != null && hash == marker) {
+                return;
+            }
+            this.remove_filtered_marker(elem);
+            //
             const elem_channel
                 = $(elem).find(".yt-simple-endpoint.style-scope.yt-formatted-string");
-            if (elem_title.length != 1 || elem_channel.length != 1) {
+            if (elem_channel.length != 1) {
                 return;
             }
             const title = $(elem_title[0]).text();
@@ -201,7 +211,8 @@ class YoutubeFilter {
                 $(elem).parent().parent().detach();
                 return;
             }
-            $(elem).attr("filtered", "");
+            //
+            this.set_filtered_marker(elem, hash);
         });
     }
     /*!
@@ -269,18 +280,26 @@ class YoutubeFilter {
      */
     filtering_youtube_channel_channel()
     {
-        //  小区分(個別チャンネル)ページ用
+        //  小区分(個別チャンネル)ページ用 - 水平リスト
         $("span.title.style-scope.ytd-mini-channel-renderer").each((inx, elem)=> {
             const channel = $(elem).text();
             if (this.storage.channel_filter(channel)) {
                 $(elem).parent().parent().detach();
             }
         });
-        //  大区分(ゲーム、スポーツ等)ページ用
+        //  大区分(ゲーム、スポーツ等)ページ用 - 水平リスト
         $("span#title.style-scope.ytd-grid-channel-renderer").each((inx, elem)=> {
             const channel = this.get_channel_from_topic($(elem).text());
             if (this.storage.channel_filter(channel)) {
                 $(elem).parent().parent().parent().detach();
+            }
+        });
+        // 大区分(ゲーム,スポーツ等)ページ用2 - 単独表示
+        $("h3#channel-title.style-scope.ytd-channel-renderer").each((inx, elem)=> {
+            const ch_str = $($(elem).find("span")[0]).text();
+            const channel = this.get_channel_from_topic(ch_str);
+            if (this.storage.channel_filter(channel)) {
+                $(elem).parent().parent().parent().parent().parent().detach();
             }
         });
     }
@@ -311,6 +330,21 @@ class YoutubeFilter {
      */
     filtering_youtube_home_category()
     {
+        var ano_text_rcch = null;
+        {
+            const elem_edp = $("a#endpoint.yt-simple-endpoint.style-scope.ytd-guide-entry-renderer");
+            const word_home = text_utility.remove_new_line_and_space($(elem_edp[0]).text());
+            if (word_home == "ホーム") {
+                // JP
+                ano_text_rcch = "おすすめのチャンネル";
+            } else if (word_home == "Home") {
+                // ENG(US/UK)
+                ano_text_rcch = "Recommended channel";
+            } else {
+                return;
+            }
+        }
+
         $("h2.style-scope.ytd-shelf-renderer").each((inx, elem)=> {
             const elem_ano
                 = $(elem).find("yt-formatted-string#title-annotation.style-scope.ytd-shelf-renderer");
@@ -318,8 +352,7 @@ class YoutubeFilter {
                 return;
             }
             const ano_text = $(elem_ano[0]).text();
-            if (ano_text != "おすすめのチャンネル" &&
-                ano_text != "あなたにおすすめのチャンネル") {
+            if (ano_text.indexOf(ano_text_rcch) < 0) {
                 return;
             }
             const elem_name
@@ -341,14 +374,22 @@ class YoutubeFilter {
     filtering_youtube_home_movie()
     {
         $("div#dismissable.style-scope.ytd-grid-video-renderer").each((inx, elem)=> {
-            if ($(elem).attr("filtered") != null) {
-                return;
-            }
             const elem_title
                 = $(elem).find(".yt-simple-endpoint.style-scope.ytd-grid-video-renderer");
+            if (elem_title.length != 1) {
+                return;
+            }
+            //
+            const marker = this.get_filtered_marker(elem);
+            const hash = this.get_movie_hash($(elem_title[0]).attr("href"));
+            if (marker != null && hash == marker) {
+                return;
+            }
+            this.remove_filtered_marker(elem);
+            //
             const elem_channel
                 = $(elem).find(".yt-simple-endpoint.style-scope.yt-formatted-string");
-            if (elem_title.length != 1 || elem_channel.length != 1) {
+            if (elem_channel.length != 1) {
                 return;
             }
             const title = $(elem_title[0]).text();
@@ -357,7 +398,8 @@ class YoutubeFilter {
                 $(elem).parent().detach();
                 return;
             }
-            $(elem).attr("filtered", "");
+            //
+            this.set_filtered_marker(elem, hash);
         });
     }
     /*!
@@ -478,12 +520,31 @@ class YoutubeFilter {
             return "";
         } else { 
             var channel = "";
-            const num = (text_div[len-1] == " トピック") ?len-1 :len;
+            const num = (text_div[len-1] == " トピック" ||
+                         text_div[len-1] == " Topic")
+                         ?len-1 :len;
             for (var inx = 0; inx < num; inx++) {
                 channel += text_div[inx];
             }
             return channel;
         }
+    }
+
+    /*!
+     *  @brief  動画リンクからハッシュを切り出す
+     */
+    get_movie_hash(movie_href) {
+        return movie_href.split("?v=")[1];
+    }
+
+    get_filtered_marker(element) {
+        return $(element).attr("marker");
+    }
+    remove_filtered_marker(element) {
+        $(element).removeAttr("marker");
+    }
+    set_filtered_marker(element, marker) {
+        return $(element).attr("marker", marker);
     }
 
     /*
