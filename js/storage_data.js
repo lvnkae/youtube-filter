@@ -13,7 +13,7 @@ class StorageData {
 
     load() {
         return new Promise((resolve, reject) => {
-            chrome.storage.local.get((items) => {
+            browser.storage.local.get((items) => {
                 if (this.filter_key() in items) {
                     this.json = JSON.parse(items[this.filter_key()]);
                     this.update_text();
@@ -28,13 +28,13 @@ class StorageData {
     save() {
         var jobj = {};
         jobj[this.filter_key()] = JSON.stringify(this.json);
-        chrome.storage.local.set(jobj);
+        browser.storage.local.set(jobj);
     }
     
     clear() {
         this.json = {}
         this.json.active = true;        // フィルタ 有効/無効
-        this.json.ng_thumbnail = false; // サムネイル除去 有効/無効
+        this.json.stop_autoplay = false;// 自動再生停止 有効/無効
         this.json.ng_channel = [];      // チャンネルフィルタ
         this.json.ng_title = [];        // タイトルフィルタ
 

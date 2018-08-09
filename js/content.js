@@ -126,7 +126,7 @@ class YoutubeFilter {
                         clearInterval(this.observer_timer);
                         this.observer_timer = null;
                     }
-                });
+                }, 33); /* 1/30sec */
             }
         }
     }
@@ -550,37 +550,52 @@ class YoutubeFilter {
     /*
      */
     initialize() {
+        // ポップアップメニューからのメッセージを監視
+        browser.runtime.onMessage.addListener((request, sender, sendResponse)=> {
+            console.log("Message from the popup script: " + request.greeting);
+            return true;
+        });
+
+        // DOM構築完了後のノード追加observer
         this.after_domloaded_observer = new MutationObserver((records)=> {
             // 自動再生をオフにする
-            {
-                var button = $("paper-toggle-button#improved-toggle.style-scope.ytd-compact-autoplay-renderer");
-                if (button.length > 0) {
-                    if ($(button[0]).prop("aria-pressed")) {
-                        button.click();
+            if (this.storage.json.stop_autoplay) {
+                $("paper-toggle-button#toggle.style-scope.ytd-compact-autoplay-renderer").each((inx, btn)=> {
+                    const press = $(btn).attr("aria-pressed");
+                    if (press != null && press == "true") {
+                        btn.click();
                     }
+                });
+                $("paper-toggle-button#improved-toggle.style-scope.ytd-compact-autoplay-renderer").each((inx, btn)=> {
+                    const press = $(btn).attr("aria-pressed");
+                    if (press != null && press == "true") {
+                        btn.click();
+                    }
+                });
+            }
+            if (this.storage.json.active) {
+                // マウスオーバによるアイテム追加は弾きたい
+                if (records[0].target.id.indexOf('-overlay') >= 0) {
+                    return; 
                 }
-            }
-            // マウスオーバによるアイテム追加は弾きたい
-            if (records[0].target.id.indexOf('-overlay') >= 0) {
-                return; 
-            }
-            // 短時間の連続追加はまとめて処理したい気持ち
-            if (null == this.filtering_timer) {
-                this.filtering_timer = setTimeout(()=> {
-                    const prev_url = gContent.current_location.url;
-                    gContent.current_location = new urlWrapper(location.href);
-                    const b_change_url = prev_url != gContent.current_location.url;
-                    if (b_change_url) {
-                        this.storage.load().then(()=> {
+                // 短時間の連続追加はまとめて処理したい気持ち
+                if (null == this.filtering_timer) {
+                    this.filtering_timer = setTimeout(()=> {
+                        const prev_url = gContent.current_location.url;
+                        gContent.current_location = new urlWrapper(location.href);
+                        const b_change_url = prev_url != gContent.current_location.url;
+                        if (b_change_url) {
+                            this.storage.load().then(()=> {
+                                this.filtering();
+                            });
+                        } else {
                             this.filtering();
-                        });
-                    } else {
-                        this.filtering();
-                    }
-                    //
-                    clearTimeout(this.filtering_timer);
-                    this.filtering_timer = null;
-                }, 200);
+                        }
+                        //
+                        clearTimeout(this.filtering_timer);
+                        this.filtering_timer = null;
+                    }, 200);
+                }
             }
         });
     }
