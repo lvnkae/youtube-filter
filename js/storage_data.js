@@ -34,7 +34,7 @@ class StorageData {
     clear() {
         this.json = {}
         this.json.active = true;        // フィルタ 有効/無効
-        this.json.ng_thumbnail = false; // サムネイル除去 有効/無効
+        this.json.stop_autoplay = false;// 自動再生停止 有効/無効
         this.json.ng_channel = [];      // チャンネルフィルタ
         this.json.ng_title = [];        // タイトルフィルタ
 

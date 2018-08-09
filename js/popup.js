@@ -52,6 +52,9 @@ class Popup {
         this.checkbox_sw_filter().change(()=> {
             this.button_save_enable();
         });
+        this.checkbox_sw_stop_autoplay().change(()=> {
+            this.button_save_enable();
+        });
         this.checkbox_regexp().change(()=> {
             this.button_save_enable();
         });
@@ -86,6 +89,9 @@ class Popup {
 
     checkbox_sw_filter() {
         return  $("input[name=sw_filter]");
+    }
+    checkbox_sw_stop_autoplay() {
+        return  $("input[name=sw_stop_autoplay]");
     }
     checkbox_regexp() {
         return  $("input#regexp");
@@ -279,7 +285,10 @@ class Popup {
             }
         }
         this.storage.json.active = this.checkbox_sw_filter().prop("checked");
+        this.storage.json.stop_autoplay = this.checkbox_sw_stop_autoplay().prop("checked");
         this.storage.save();
+        chrome.runtime.sendMessage("save data", (response)=> {
+        })
         //
         this.button_save_disable();
         this.badge.update(this.storage);
@@ -295,6 +304,9 @@ class Popup {
     updateCheckbox() {
         var json = this.storage.json;
         this.checkbox_sw_filter().prop("checked", json.active);
+        this.checkbox_sw_stop_autoplay().prop("checked",
+            json.stop_autoplay == null ?false
+                                       :json.stop_autoplay);
     }
 
     updateTextarea() {
