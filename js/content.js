@@ -15,85 +15,6 @@ class Content {
 }
 
 /*!
- *  @brief  urlWrapper
- *  @note   urlを扱いやすくしたもの
- */
-class urlWrapper {
-
-    constructor(url) {
-        var href_div = (function() {
-            const href_header = [
-                'http://',
-                'https://'
-            ];
-            for (const headar of href_header) {
-                if (url.substr(0, headar.length) == headar) {
-                    return url.substr(headar.length).split('/');
-                }
-            }
-            return [];
-        })();
-        this.url = url;
-        if (href_div.length > 0) {
-            this.domain = href_div[0];
-        } else {
-            this.domain = '';
-        }
-        this.subdir = [];
-        if (href_div.length > 1) {
-            for (var i = 1; i < href_div.length; i++) {
-                this.subdir.push(href_div[i]);
-            }
-        }
-    }
-
-    in_youtube()
-    {
-        return this.domain.indexOf("www.youtube.com") >= 0;
-    }
-    in_google()
-    {
-        return this.domain == 'www.google.com' ||
-               this.domain == 'www.google.co.jp';
-    }
-    in_top_page()
-    {
-        return this.subdir.length == 0 ||
-               this.subdir[0].length == 0;
-    }
-    in_youtube_movie_page()
-    {
-        return this.subdir.length >=1 &&
-               this.subdir[0].indexOf('watch?') >= 0;
-    }
-    in_youtube_playlist_page()
-    {
-        return this.subdir.length >=1 &&
-               this.subdir[0].indexOf('playlist?') >= 0;
-    }
-    in_youtube_channel_page()
-    {
-        return (this.subdir.length >=1 && this.subdir[0] == 'channel');
-    }
-    in_youtube_user_page()
-    {
-        return (this.subdir.length >=1 && this.subdir[0] == 'user');
-    }
-    in_youtube_search_page()
-    {
-        return this.subdir.length >= 1 &&
-               this.subdir[0].indexOf('results?') >= 0 &
-               this.subdir[0].indexOf('search_query=') >= 0;
-    }
-    in_youtube_trending()
-    {
-        return this.subdir.length >= 2 &&
-               this.subdir[0] == 'feed' &&
-               this.subdir[1] == 'trending';
-    }
-}
-
-/*!
  *  @brief  Youtubeフィルタ
  */
 class YoutubeFilter {
@@ -552,7 +473,10 @@ class YoutubeFilter {
     initialize() {
         // ポップアップメニューからのメッセージを監視
         chrome.runtime.onMessage.addListener((request, sender, sendResponse)=> {
-            console.log("Message from the popup script: " + request.greeting);
+            if (request == "update") {
+                // 設定が更新されたらリロード
+                this.storage.load().then();
+            }
             return true;
         });
 
@@ -581,17 +505,8 @@ class YoutubeFilter {
                 // 短時間の連続追加はまとめて処理したい気持ち
                 if (null == this.filtering_timer) {
                     this.filtering_timer = setTimeout(()=> {
-                        const prev_url = gContent.current_location.url;
                         gContent.current_location = new urlWrapper(location.href);
-                        const b_change_url = prev_url != gContent.current_location.url;
-                        if (b_change_url) {
-                            this.storage.load().then(()=> {
-                                this.filtering();
-                            });
-                        } else {
-                            this.filtering();
-                        }
-                        //
+                        this.filtering();
                         clearTimeout(this.filtering_timer);
                         this.filtering_timer = null;
                     }, 200);

@@ -8,7 +8,7 @@
       "name": "Youtube Filter"
    },
    "content_scripts": [ {
-      "js": [ "js/jquery-3.3.1.min.js", "js/text_utility.js", "js/storage_data.js", "js/content.js" ],
+      "js": [ "js/jquery-3.3.1.min.js", "js/text_utility.js", "js/url_wrapper.js", "js/storage_data.js", "js/content.js" ],
       "matches": [ "https://www.youtube.com/*",
                    "http://www.youtube.com/*",
                    "https://www.google.com/*",
@@ -17,7 +17,7 @@
                    "http://www.google.co.jp/*"],
       "run_at": "document_start"
    } ],
-   "description": "Youtubeとgoogle検索に動画チャンネルフィルタ機能を追加するChrome拡張です。「チャンネル及びタイトル指定での動画非表示」が行えます。",
+   "description": "Youtubeとgoogle検索にフィルタ機能を追加するChrome拡張です。「チャンネル及び動画タイトル指定でのフィルタリング」「自動再生の無効化」が行えます。",
    "icons": {
       "19": "img/badge_on.png",
       "48": "img/icon_48.png"
