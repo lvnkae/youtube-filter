@@ -287,8 +287,7 @@ class Popup {
         this.storage.json.active = this.checkbox_sw_filter().prop("checked");
         this.storage.json.stop_autoplay = this.checkbox_sw_stop_autoplay().prop("checked");
         this.storage.save();
-        browser.runtime.sendMessage("save data", (response)=> {
-        })
+        this.send_message_to_relative_tab("update");
         //
         this.button_save_disable();
         this.badge.update(this.storage);
@@ -330,6 +329,19 @@ class Popup {
 
         }
     }
+
+    send_message_to_relative_tab(message) {
+        browser.tabs.query({}, (tabs)=> {
+            for (const tab of tabs) {
+                const url = new urlWrapper(tab.url);
+                if (url.in_youtube() || url.in_google()) {
+                    browser.tabs.sendMessage(tab.id, message, (response)=> {
+                    });
+                }
+            }
+        });
+    }
+
 };
 
 var popup = new Popup();
