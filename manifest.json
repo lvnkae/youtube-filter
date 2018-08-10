@@ -24,9 +24,9 @@
    },
    "manifest_version": 2,
    "name": "Youtubeフィルタ",
-   "author": "aaa",
+   "author": "lvnkae",
    "permissions": [ "tabs", "storage", "unlimitedStorage", "https://www.youtube.com/*", "http://www.youtube.com/*","https://www.google.com/*","http://www.google.com/*" ],
-   "short_name": "Youtube Filter",
+   "short_name": "YoutubeFilter",
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "1.0.2"
+   "version": "1.0.3"
 }
