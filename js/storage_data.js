@@ -203,8 +203,8 @@ class StorageData {
      *  @retval true    持ってる
      */
     have_ng_comment_data() {
-        return this.ng_comment_by_user_text != '' &&
-               this.ng_comment_by_id_text != '' &&
+        return this.ng_comment_by_user_text != '' ||
+               this.ng_comment_by_id_text != '' ||
                this.ng_comment_by_word_text != '';
     }
 }
