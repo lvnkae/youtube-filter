@@ -21,6 +21,29 @@ class TextUtil {
         return ret;
     }
 
+    /*!
+     *  @brief  空行削除
+     *  @note   空(0文字、または空白のみ)の行を削除し、残りを連結して返す
+     */
+    remove_blank_line(string) {
+        const div_nl = this.split_by_new_line(string);
+        var ret_string = '';
+        for (const dv of div_nl) {
+            if (this.remove_line_head_space(dv) != '') {
+                ret_string += dv;
+            }
+        }
+        return ret_string;
+    }
+    /*!
+     *  @brief  行頭スペースを削除
+     */
+    remove_line_head_space(string) {
+        return string.replace(/^\s+/g, "");
+    }
+    /*!
+     *  @brief  改行とスペースを削除
+     */
     remove_new_line_and_space(string) {
         return string.replace(/[\s|\r\n|\r|\n]+/g, "");
     }

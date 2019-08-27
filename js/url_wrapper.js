@@ -40,6 +40,12 @@ class urlWrapper {
         return this.domain == 'www.google.com' ||
                this.domain == 'www.google.co.jp';
     }
+    in_google_searched_youtube()
+    {
+        return this.in_youtube() ||
+                    this.domain.indexOf("m.youtube.com") >= 0 ||
+                    this.domain.indexOf("gaming.youtube.com") >= 0;
+    }
     in_top_page()
     {
         return this.subdir.length == 0 ||
@@ -74,5 +80,9 @@ class urlWrapper {
         return this.subdir.length >= 2 &&
                this.subdir[0] == 'feed' &&
                this.subdir[1] == 'trending';
+    }
+    in_youtube_gaming()
+    {
+        return (this.subdir.length >=1 && this.subdir[0] == 'gaming');
     }
 }
