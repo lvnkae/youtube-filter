@@ -17,7 +17,7 @@
                    "http://www.google.co.jp/*"],
       "run_at": "document_start"
    } ],
-   "description": "Youtubeとgoogle検索にフィルタ機能を追加するアドオンです。「チャンネル及び動画タイトル指定でのフィルタリング」「自動再生の無効化」が行えます。",
+   "description": "Youtubeとgoogle検索にフィルタ機能を追加するアドオンです。「チャンネル及びタイトル指定での動画フィルタ」「コメントフィルタ」「自動再生の無効化」が行えます。",
    "icons": {
       "19": "img/badge_on.png",
       "48": "img/icon_48.png"
@@ -31,5 +31,5 @@
    "name": "Youtubeフィルタ",
    "permissions": [ "tabs", "storage", "https://www.youtube.com/*", "http://www.youtube.com/*","https://www.google.com/*","http://www.google.com/*" ],
    "short_name": "YoutubeFilter",
-   "version": "1.0.0"
+   "version": "1.0.1"
 }
