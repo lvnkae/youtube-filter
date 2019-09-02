@@ -240,7 +240,7 @@ class YoutubeFilter {
             const elem_title
                 = $(elem).find("span#video-title.style-scope.ytd-compact-video-renderer");
             const elem_channel
-                = $(elem).find("yt-formatted-string#byline.style-scope.ytd-video-meta-block");
+                = $(elem).find("yt-formatted-string#text.style-scope.ytd-channel-name");
             if (elem_title.length != 1 || elem_channel.length != 1) {
                 return;
             }
@@ -416,12 +416,19 @@ class YoutubeFilter {
     filtering_google_movie()
     {
         $("div.g").each((inx, elem)=> {
+            if (elem.className != "g") {
+                return; // 検索要素じゃない
+            }
             const elem_title = $(elem).find("h3");
             if (elem_title.length != 1) {
                 return;
             }
             const a_tag = $(elem_title).parent();
-            const url = new urlWrapper($(a_tag[0]).attr("href"));
+            const href = $(a_tag[0]).attr("href");
+            if (href == null) {
+                return;
+            }
+            const url = new urlWrapper(href);
             if (!url.in_google_searched_youtube()) {
                 return; // tubeじゃない
             }
@@ -461,12 +468,8 @@ class YoutubeFilter {
             }
         });
 
-        {
-            var scr = $("g-scrolling-carousel");
-            if (scr.length != 1) {
-                return;
-            }
-            var c0_div = $(scr[0]).children("div");
+        $("g-scrolling-carousel").each((inx, scr)=> {
+            var c0_div = $(scr).children("div");
             if (c0_div.length <= 0) {
                 return;
             }
@@ -494,7 +497,7 @@ class YoutubeFilter {
                     $(mov).detach();
                 }
             }
-        }
+        });
     }
 
 
