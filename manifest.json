@@ -31,5 +31,5 @@
    "name": "Youtubeフィルタ",
    "permissions": [ "tabs", "storage", "https://www.youtube.com/*", "http://www.youtube.com/*","https://www.google.com/*","http://www.google.com/*" ],
    "short_name": "YoutubeFilter",
-   "version": "1.0.1"
+   "version": "1.0.1.1"
 }
