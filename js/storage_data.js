@@ -35,7 +35,8 @@ class StorageData {
         this.json = {}
         this.json.active = true;            // フィルタ 有効/無効
         this.json.stop_autoplay = false;    // 自動再生停止 有効/無効
-        this.json.ng_channel = [];          // チャンネルフィルタ
+        this.json.ng_channel = [];          // チャンネルフィルタ(ワード)
+        this.json.ng_channel_id = [];       // チャンネルフィルタ(ID)
         this.json.ng_title = [];            // タイトルフィルタ
         this.json.ng_comment_by_user = [];  // コメントフィルタ(ユーザ)
         this.json.ng_comment_by_id = [];    // コメントフィルタ(ID)
@@ -46,6 +47,7 @@ class StorageData {
 
     clear_text_buffer() {
         this.ng_channel_text = "";
+        this.ng_channel_id_text = "";
         this.ng_title_text = "";
         this.ng_comment_by_user_text = "";
         this.ng_comment_by_id_text = "";
@@ -55,9 +57,14 @@ class StorageData {
     update_text() {
         this.clear_text_buffer();
         //  フィルタを改行コードで連結してバッファに格納
-        const NLC = text_utility.new_line_code();
+        const NLC = text_utility.new_line_code_lf();
         for (const ngc of this.json.ng_channel) {
             this.ng_channel_text += ngc.keyword + NLC;
+        }
+        if (this.json.ng_channel_id != null) {
+            for (const ngci of this.json.ng_channel_id) {
+                this.ng_channel_id_text += ngci.channel_id + NLC;
+            }
         }
         for (const ngt of this.json.ng_title) {
             this.ng_title_text += ngt+ NLC;
@@ -80,46 +87,89 @@ class StorageData {
     }
 
     /*!
+     *  @brief  チャンネルIDフィルタ設定を追加(重複チェックあり)
+     *  @param  channel_id  チャンネルID
+     *  @param  channel     チャンネル名(32文字上限)
+     *  @retval true        storage構成変更があった
+     */
+    add_channel_id_mute_with_check(channel_id, channel) {
+        if (this.json.ng_channel_id == null) {
+            this.json.ng_channel_id = [];
+        }
+        for (const ngci of this.json.ng_channel_id) {
+            if (ngci.channel_id == channel_id) {
+                return false;
+            }
+        }
+        var ng_channel = {};
+        ng_channel.channel_id = channel_id;
+        ng_channel.black_titles = [];
+        ng_channel.comment = channel;
+        this.json.ng_channel_id.push(ng_channel);
+        return true;
+    }
+
+    static word_filter(word, filtering_words) {
+        if (word != null) {
+            for (const w of filtering_words) {
+                if (text_utility.regexp_indexOf(w, word)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /*!
      *  @brief  チャンネルとタイトルでフィルタする
      *  @param  channel チャンネル名
      *  @param  title   タイトル
      *  @retval true    除外対象だ
      */
     channel_and_title_filter(channel, title) {
-        for (const ngc of this.json.ng_channel) {
-            if (this.conditional_filter_single(ngc, channel)) {
-                if (function(title, black_titles) {
-                    if (black_titles.length == 0) {
-                        return true;
-                    }
-                    for (const btitle of black_titles) {
-                        if (text_utility.regexp_indexOf(btitle, title)) {
-                            return true;
-                        }
-                    }
-                } (title, ngc.black_titles)) {
-                    return true;
-                }
-            }
-        }
-        return this.title_filter(title);
+        return this.channel_filter(channel, title) ||
+               this.title_filter(title);
     }
 
     /*!
      *  @brief  チャンネルフィルタ
-     *  @param  channel チャンネル名
-     *  @retval true    除外対象だ
+     *  @param  channel     チャンネル名
+     *  @param  title       タイトル
+     *  @retval true        除外対象だ
      */
-    channel_filter(channel) {
-        const channel_lw = channel.toLowerCase();
+    channel_filter(channel, title) {
         for (const ngc of this.json.ng_channel) {
             if (this.conditional_filter_single(ngc, channel)) {
-                return true;
+                if (ngc.black_titles.length == 0 ||
+                    StorageData.word_filter(title, ngc.black_titles)) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
+    /*!
+     *  @brief  チャンネルIDフィルタする
+     *  @param  channel_id  チャンネルID
+     *  @param  title       タイトル
+     *  @retval true        除外対象だ
+     */
+    channel_id_filter(channel_id, title) {
+        if (this.json.ng_channel_id == null) {
+            return false;
+        }
+        for (const ngci of this.json.ng_channel_id) {
+            if (ngci.channel_id == channel_id) {
+                if (ngci.black_titles.length == 0 ||
+                    StorageData.word_filter(title, ngci.black_titles)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
     /*!
      *  @brief  タイトルフィルタ
      *  @param  title   タイトル

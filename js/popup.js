@@ -17,8 +17,7 @@ class Badge  {
 
 /*!
  */
-class ChannelFilterParam
-{
+class ChannelFilterParam {
     constructor(regexp, perfect_match, normalize, text) {
         this.b_regexp = (regexp == null) ?false :regexp;
         this.b_perfect_match = (perfect_match == null) ?false :perfect_match;
@@ -26,8 +25,13 @@ class ChannelFilterParam
         this.black_titles = text;
     }
 };
-class CommentFilterByUserParam
-{
+class ChannelIDFilterParam {
+    constructor(comment, text) {
+        this.comment = comment;
+        this.black_titles = text;
+    }
+};
+class CommentFilterByUserParam {
     constructor(regexp, perfect_match, normalize, auto_ng_id) {
         this.b_regexp = (regexp == null) ?false :regexp;
         this.b_perfect_match = (perfect_match == null) ?false :perfect_match;
@@ -57,6 +61,8 @@ class Popup {
         });
         this.ex_channel_buffer = [];        // 非表示チャンネル詳細設定バッファ(各種フラグ/個別非表示タイトル)
         this.ex_channel_last = '';          // 最後に「非表示チャンネル詳細設定」画面を開いたチャンネル名
+        this.ex_channel_id_buffer = [];     // 非表示チャンネル詳細設定バッファ(各種フラグ/個別非表示タイトル)
+        this.ex_channel_id_last = '';       // 最後に「非表示チャンネル詳細設定」画面を開いたチャンネル名
         this.ex_comment_user_buffer = [];   // 非表示コメント(ユーザ)詳細設定バッファ(各種フラグ)
         this.ex_comment_user_last = '';     // 最後に「非表示コメント(ユーザ)詳細設定」画面を開いたユーザ名
         //
@@ -98,11 +104,23 @@ class Popup {
         this.textarea_filter_channel().dblclick(()=> {
             this.textarea_filter_channel_dblclick();
         });
+        this.textarea_filter_channel_id().keyup(()=> {
+            this.textarea_filter_channel_id_keyup();
+        });
+        this.textarea_filter_channel_id().dblclick(()=> {
+            this.textarea_filter_channel_id_dblclick();
+        });
         this.textarea_filter_title().keyup(()=> {
             this.textarea_filter_title_keyup();
         });
         this.textarea_filter_ex_channel().keyup(()=> {
             this.textarea_filter_ex_channel_keyup();
+        });
+        this.textarea_filter_ex_channel_id().keyup(()=> {
+            this.textarea_filter_ex_channel_id_keyup();
+        });
+        this.textbox_ch_username().keyup(()=> {
+            this.textbox_ch_username_keyup();
         });
         this.textarea_filter_comment_by_user().keyup(()=> {
             this.textarea_filter_comment_by_user_keyup();
@@ -123,62 +141,77 @@ class Popup {
     }
 
     checkbox_sw_filter() {
-        return  $("input[name=sw_filter]");
+        return $("input[name=sw_filter]");
     }
     checkbox_sw_stop_autoplay() {
-        return  $("input[name=sw_stop_autoplay]");
+        return $("input[name=sw_stop_autoplay]");
     }
     checkbox_regexp() {
-        return  $("input#regexp");
+        return $("input#regexp");
     }
     checkbox_perfect_match() {
-        return  $("input#perfectmatch");
+        return $("input#perfectmatch");
     }
     checkbox_normalize() {
-        return  $("input#normalize");
+        return $("input#normalize");
     }
     checkbox_com_regexp() {
-        return  $("input#com_regexp");
+        return $("input#com_regexp");
     }
     checkbox_com_perfect_match() {
-        return  $("input#com_perfectmatch");
+        return $("input#com_perfectmatch");
     }
     checkbox_com_normalize() {
-        return  $("input#com_normalize");
+        return $("input#com_normalize");
     }
     checkbox_com_auto_ng_id() {
-        return  $("input#com_autongid");
+        return $("input#com_autongid");
     }
     checkbox_label_regexp() {
-        return  $("label#regexp");
+        return $("label#regexp");
     }
     checkbox_label_perfect_match() {
-        return  $("label#perfectmatch");
+        return $("label#perfectmatch");
     }
     checkbox_label_normalize() {
-        return  $("label#normalize");
+        return $("label#normalize");
     }
     checkbox_label_com_regexp() {
-        return  $("label#com_regexp");
+        return $("label#com_regexp");
     }
     checkbox_label_com_perfect_match() {
-        return  $("label#com_perfectmatch");
+        return $("label#com_perfectmatch");
     }
     checkbox_label_com_normalize() {
-        return  $("label#com_normalize");
+        return $("label#com_normalize");
     }
     checkbox_label_com_auto_ng_id() {
-        return  $("label#com_autongid");
+        return $("label#com_autongid");
+    }
+    textbox_ch_username() {
+        return $("input#ch_username");
+    }
+    textbox_label_ch_username() {
+        return $("label#ch_username");
+    }
+    textbox_label_ch_username_br() {
+        return $("label#ch_username_br");
     }
 
     textarea_filter_channel() {
         return $("textarea[name=filter_channel]");
+    }
+    textarea_filter_channel_id() {
+        return $("textarea[name=filter_channel_id]");
     }
     textarea_filter_title() {
         return $("textarea[name=filter_title]");
     }
     textarea_filter_ex_channel() {
         return $("textarea[name=filter_ex_channel]");
+    }
+    textarea_filter_ex_channel_id() {
+        return $("textarea[name=filter_ex_channel_id]");
     }
     textarea_filter_comment_by_user() {
         return $("textarea[name=filter_comment_by_user]");
@@ -192,8 +225,10 @@ class Popup {
 
     hide_textarea_all() {
         this.textarea_filter_channel().hide();
+        this.textarea_filter_channel_id().hide();
         this.textarea_filter_title().hide();
         this.hide_ex_channel();
+        this.hide_ex_channel_id();
         this.textarea_filter_comment_by_user().hide();
         this.textarea_filter_comment_by_id().hide();
         this.textarea_filter_comment_by_word().hide();
@@ -207,6 +242,12 @@ class Popup {
         this.checkbox_label_regexp().hide();
         this.checkbox_label_perfect_match().hide();
         this.checkbox_label_normalize().hide();
+    }
+    hide_ex_channel_id() {
+        this.textarea_filter_ex_channel_id().hide();
+        this.textbox_ch_username().hide();
+        this.textbox_label_ch_username().hide();
+        this.textbox_label_ch_username_br().hide();
     }
     hide_ex_comment_by_user() {
         this.checkbox_com_regexp().hide();
@@ -227,6 +268,12 @@ class Popup {
         this.checkbox_label_perfect_match().show();
         this.checkbox_label_normalize().show();
     }
+    show_ex_channel_id() {
+        this.textarea_filter_ex_channel_id().show();
+        this.textbox_ch_username().show();
+        this.textbox_label_ch_username().show();
+        this.textbox_label_ch_username_br().show();
+    }
     show_ex_comment_by_user() {
         this.checkbox_com_regexp().show();
         this.checkbox_com_perfect_match().show();
@@ -240,33 +287,53 @@ class Popup {
 
     textarea_filter_channel_keyup() {
         if (this.textarea_filter_channel().val() != this.storage.ng_channel_text) {
-            this.button_save().prop("disabled", false);
+            this.button_save_enable();
+        }
+    }
+    textarea_filter_channel_id_keyup() {
+        if (this.textarea_filter_channel_id().val() != this.storage.ng_channel_id_text) {
+            this.button_save_enable();
         }
     }
     textarea_filter_title_keyup() {
         if (this.textarea_filter_title().val() != this.storage.ng_title_text) {
-            this.button_save().prop("disabled", false);
+            this.button_save_enable();
         }
     };
     textarea_filter_ex_channel_keyup() {
         if (this.textarea_filter_ex_channel().val()
             != this.ex_channel_buffer[this.ex_channel_last].black_titles) {
-            this.button_save().prop("disabled", false);
+            this.button_save_enable();
+        }
+    }
+    textarea_filter_ex_channel_id_keyup() {
+        if (this.textarea_filter_ex_channel_id().val()
+            != this.ex_channel_id_buffer[this.ex_channel_id_last].black_titles) {
+            this.button_save_enable();
+        }
+    }
+    textbox_ch_username_keyup() {
+        if (this.textbox_ch_username().val()
+            != this.ex_channel_id_buffer[this.ex_channel_id_last].commment) {
+            this.button_save_enable();
         }
     }
     textarea_filter_comment_by_user_keyup() {
-        if (this.textarea_filter_comment_by_user().val() != this.storage.ng_comment_by_user_text) {
-            this.button_save().prop("disabled", false);
+        if (this.textarea_filter_comment_by_user().val()
+            != this.storage.ng_comment_by_user_text) {
+            this.button_save_enable();
         }
     }
     textarea_filter_comment_by_id_keyup() {
-        if (this.textarea_filter_comment_by_id().val() != this.storage.ng_comment_by_id_text) {
-            this.button_save().prop("disabled", false);
+        if (this.textarea_filter_comment_by_id().val()
+            != this.storage.ng_comment_by_id_text) {
+            this.button_save_enable();
         }
     };
     textarea_filter_comment_by_word_keyup() {
-        if (this.textarea_filter_comment_by_word().val() != this.storage.ng_comment_by_word_text) {
-            this.button_save().prop("disabled", false);
+        if (this.textarea_filter_comment_by_word().val()
+            != this.storage.ng_comment_by_word_text) {
+            this.button_save_enable();
         }
     }
 
@@ -292,6 +359,7 @@ class Popup {
             return;
         }
         this.cleanup_ex_channel();
+        this.cleanup_ex_channel_id();
         this.cleanup_ex_comment_by_user();
         this.ex_channel_last = channel;
         // selectboxに「$(channel)の非表示タイトル」を追加
@@ -323,6 +391,55 @@ class Popup {
     }
 
     /*!
+     *  @brief  前回「非表示チャンネル(ID)詳細設定」の後始末
+     */
+    cleanup_ex_channel_id() {
+        if (this.ex_channel_id_last != '') {
+            this.ex_channel_id_buffer_to_reflect_current(this.ex_channel_id_last);
+            var key = this.selectbox_filter_key()
+                    + " option[value=" + this.selectbox_value_ex_channel_id() + "]";
+            $(key).remove();
+        }
+    }
+    //
+    textarea_filter_channel_id_dblclick() {
+        var t = this.textarea_filter_channel_id();
+        const channel_id
+            = text_utility.search_text_connected_by_new_line(
+                t[0].selectionStart,
+                t.val());
+        if (channel_id == null) {
+            return;
+        }
+        this.cleanup_ex_channel_id();
+        this.cleanup_ex_channel();
+        this.cleanup_ex_comment_by_user();
+        this.ex_channel_id_last = channel_id;
+        // selectboxに「$(channel)の非表示タイトル」を追加
+        {
+            const val = this.selectbox_value_ex_channel_id();
+            const max_disp_channel_id = 24;
+            const text = channel_id.slice(0, max_disp_channel_id) + 'の非表示タイトル';
+            this.selectbox_filter().append($("<option>").val(val).text(text));
+        }
+        // ex_channel用textareaの準備
+        {
+            if (channel_id in this.ex_channel_id_buffer) {
+                const obj = this.ex_channel_id_buffer[channel_id];
+                this.textarea_filter_ex_channel_id().val(obj.black_titles);
+                this.textbox_ch_username().val(obj.comment);
+            } else {
+                this.textarea_filter_ex_channel_id().val('');
+                this.textbox_ch_username().val('');
+                this.ex_channel_id_buffer[channel_id]
+                    = new ChannelIDFilterParam('', '');
+            }
+        }
+        this.selectbox_filter().val(this.selectbox_value_ex_channel_id());
+        this.selectbox_filter_change();
+    }
+
+    /*!
      *  @brief  前回「非表示コメント(ユーザ)詳細設定」の後始末
      */
     cleanup_ex_comment_by_user() {
@@ -345,6 +462,7 @@ class Popup {
         }
         this.cleanup_ex_comment_by_user();
         this.cleanup_ex_channel();
+        this.cleanup_ex_channel_id();
         this.ex_comment_user_last = user;
         // selectboxに「$(user)の詳細設定」を追加
         {
@@ -384,12 +502,18 @@ class Popup {
     selectbox_value_ex_channel() {
         return "ng_ex_channel";
     }
+    selectbox_value_ex_channel_id() {
+        return "ng_ex_channel_id";
+    }
     selectbox_value_ex_comment_user() {
         return "ng_ex_comment_user";
     }
 
     is_selected_ng_channel() {
-        return this.selectbox_filter().val() == "ng_channel";
+        return this.selectbox_filter().val() == "ng_channel_word";
+    }
+    is_selected_ng_channel_id() {
+        return this.selectbox_filter().val() == "ng_channel_id";
     }
     is_selected_ng_title() {
         return this.selectbox_filter().val() == "ng_title";
@@ -397,6 +521,10 @@ class Popup {
     is_selected_ng_ex_channel() {
         return this.selectbox_filter().val() == 
                 this.selectbox_value_ex_channel();
+    }
+    is_selected_ng_ex_channel_id() {
+        return this.selectbox_filter().val() == 
+                this.selectbox_value_ex_channel_id();
     }
     is_selected_ng_comment_by_user() {
         return this.selectbox_filter().val() == "ng_comment_user";
@@ -412,10 +540,14 @@ class Popup {
         this.hide_textarea_all();
         if (this.is_selected_ng_channel()) {
             this.textarea_filter_channel().show();
+        } else if (this.is_selected_ng_channel_id()) {
+            this.textarea_filter_channel_id().show();
         } else if (this.is_selected_ng_title()) {
             this.textarea_filter_title().show();
         } else if (this.is_selected_ng_ex_channel()) {
             this.show_ex_channel();
+        } else if (this.is_selected_ng_ex_channel_id()) {
+            this.show_ex_channel_id();
         } else if (this.is_selected_ng_comment_by_user()) {
             this.textarea_filter_comment_by_user().show();
         } else if (this.is_selected_ng_comment_by_id()) {
@@ -435,12 +567,16 @@ class Popup {
         if (this.ex_channel_last != '') {
             this.ex_channel_buffer_to_reflect_current(this.ex_channel_last);
         }
+        if (this.ex_channel_id_last != '') {
+            this.ex_channel_id_buffer_to_reflect_current(this.ex_channel_id_last);
+        }
         if (this.ex_comment_user_last != '') {
             this.ex_comment_user_buffer_to_reflect_current(this.ex_comment_user_last);
         }
         //
         {
-            var filter = text_utility.split_by_new_line(this.textarea_filter_channel().val());
+            var filter
+                = text_utility.split_by_new_line(this.textarea_filter_channel().val());
             for (const word of filter) {
                 if (word != "") {
                     var ng_channel = {};
@@ -465,7 +601,30 @@ class Popup {
             }
         }
         {
-            var filter = text_utility.split_by_new_line(this.textarea_filter_title().val());
+            var filter
+                = text_utility
+                  .split_by_new_line(this.textarea_filter_channel_id().val());
+            for (const channel_id of filter) {
+                if (channel_id != "") {
+                    var ng_channel = {};
+                    ng_channel.channel_id = channel_id;
+                    if (channel_id in this.ex_channel_id_buffer) {
+                        const obj = this.ex_channel_id_buffer[channel_id];
+                        ng_channel.black_titles =
+                            text_utility.split_by_new_line(obj.black_titles);
+                        ng_channel.comment = obj.comment;
+                    } else {
+                        ng_channel.black_titles = [];
+                        ng_channel.comment = '';
+                    }
+                    //
+                    this.storage.json.ng_channel_id.push(ng_channel);
+                }
+            }
+        }
+        {
+            var filter
+                = text_utility.split_by_new_line(this.textarea_filter_title().val());
             for (const word of filter) {
                 if (word != "") {
                     this.storage.json.ng_title.push(word);
@@ -474,7 +633,8 @@ class Popup {
         }
         {
             var filter
-                = text_utility.split_by_new_line(this.textarea_filter_comment_by_user().val());
+                = text_utility.split_by_new_line(
+                    this.textarea_filter_comment_by_user().val());
             for (const word of filter) {
                 if (word != "") {
                     var ng_comment_by_user = {};
@@ -498,7 +658,8 @@ class Popup {
         }
         {
             var filter
-                = text_utility.split_by_new_line(this.textarea_filter_comment_by_id().val());
+                = text_utility.split_by_new_line(
+                    this.textarea_filter_comment_by_id().val());
             for (const word of filter) {
                 if (word != "") {
                     this.storage.json.ng_comment_by_id.push(word);
@@ -507,7 +668,8 @@ class Popup {
         }
         {
             var filter
-                = text_utility.split_by_new_line(this.textarea_filter_comment_by_word().val());
+                = text_utility.split_by_new_line(
+                    this.textarea_filter_comment_by_word().val());
             for (const word of filter) {
                 if (word != "") {
                     this.storage.json.ng_comment_by_word.push(word);
@@ -516,9 +678,11 @@ class Popup {
         }
         //
         this.storage.json.active = this.checkbox_sw_filter().prop("checked");
-        this.storage.json.stop_autoplay = this.checkbox_sw_stop_autoplay().prop("checked");
+        this.storage.json.stop_autoplay
+            = this.checkbox_sw_stop_autoplay().prop("checked");
         this.storage.save();
-        this.send_message_to_relative_tab("update");
+        this.send_message_to_relative_tab(
+            {command:MessageUtil.command_update_storage()});
         //
         this.button_save_disable();
         this.badge.update(this.storage);
@@ -541,12 +705,13 @@ class Popup {
 
     updateTextarea() {
         this.textarea_filter_channel().val(this.storage.ng_channel_text);
+        this.textarea_filter_channel_id().val(this.storage.ng_channel_id_text);
         this.textarea_filter_title().val(this.storage.ng_title_text);
         this.textarea_filter_comment_by_user().val(this.storage.ng_comment_by_user_text);
         this.textarea_filter_comment_by_id().val(this.storage.ng_comment_by_id_text);
         this.textarea_filter_comment_by_word().val(this.storage.ng_comment_by_word_text);
         {
-            const nlc = text_utility.new_line_code();
+            const nlc = text_utility.new_line_code_lf();
             {
                 this.ex_channel_buffer = [];
                 for (const ngc of this.storage.json.ng_channel) {
@@ -559,6 +724,17 @@ class Popup {
                                                  ngc.b_perfect_match,
                                                  ngc.b_normalize,
                                                  bt_text);
+                }
+            }
+            if (this.storage.json.ng_channel_id != null) {
+                this.ex_channel_id_buffer = [];
+                for (const ngci of this.storage.json.ng_channel_id) {
+                    var bt_text = "";
+                    for (const bt of ngci.black_titles) {
+                        bt_text += bt + nlc;
+                    }
+                    this.ex_channel_id_buffer[ngci.channel_id]
+                        = new ChannelIDFilterParam(ngci.comment, bt_text);
                 }
             }
             if (this.storage.json.ng_comment_by_user != null) {
@@ -580,9 +756,17 @@ class Popup {
     ex_channel_buffer_to_reflect_current(channel) {
         this.ex_channel_buffer[channel]
             = new ChannelFilterParam(this.checkbox_regexp().prop("checked"),
-                                        this.checkbox_perfect_match().prop("checked"),
-                                        this.checkbox_normalize().prop("checked"),
-                                        this.textarea_filter_ex_channel().val());
+                                     this.checkbox_perfect_match().prop("checked"),
+                                     this.checkbox_normalize().prop("checked"),
+                                     this.textarea_filter_ex_channel().val());
+    }
+    /*!
+     *  @brief  現状を「非表示チャンネル(ID)詳細加設定」バッファへ反映する
+     */
+    ex_channel_id_buffer_to_reflect_current(channel) {
+        this.ex_channel_id_buffer[channel]
+            = new ChannelIDFilterParam(this.textbox_ch_username().val(),
+                                       this.textarea_filter_ex_channel_id().val());
     }
     /*!
      *  @brief  現状を「非表示コメント(ユーザ)詳細加設定」バッファへ反映する
@@ -596,13 +780,13 @@ class Popup {
                                     this.checkbox_com_auto_ng_id().prop("checked"));
     }
 
+
     send_message_to_relative_tab(message) {
         browser.tabs.query({}, (tabs)=> {
             for (const tab of tabs) {
                 const url = new urlWrapper(tab.url);
                 if (url.in_youtube() || url.in_google()) {
-                    browser.tabs.sendMessage(tab.id, message, (response)=> {
-                    });
+                    browser.tabs.sendMessage(tab.id, message);
                 }
             }
         });
