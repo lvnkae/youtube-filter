@@ -6,6 +6,9 @@ class TextUtil {
     new_line_code() {
         return "\r\n";
     }
+    new_line_code_lf() {
+        return "\n";
+    }
 
     split_by_new_line(string) {
         var result = string.split(/\r\n|\r|\n/);

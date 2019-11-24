@@ -19,15 +19,18 @@
             <input name="sw_stop_autoplay" type="checkbox">自動再生を無効にする</input><br>
 
             <select name="select_filter">
-                <option value="ng_channel">非表示チャンネル</option>
+                <option value="ng_channel_word">非表示チャンネル(ワード)</option>
+                <option value="ng_channel_id">非表示チャンネル(ID)</option>
                 <option value="ng_title">非表示タイトル</option>
                 <option value="ng_comment_user">非表示コメント(ユーザ)</option>
                 <option value="ng_comment_id">非表示コメント(ID)</option>
                 <option value="ng_comment_word">非表示コメント(ワード)</option>
             </select>
             <p><textarea name="filter_channel" class="form-control" rows="8" cols="48"></textarea></p>
+            <p><textarea name="filter_channel_id" class="form-control" rows="8" cols="48" style="display:none"></textarea></p>
             <p><textarea name="filter_title" class="form-control" rows="8" cols="48" style="display:none"></textarea></p>
             <p><textarea name="filter_ex_channel" class="form-control" rows="8" cols="48" style="display:none"></textarea></p>
+            <p><textarea name="filter_ex_channel_id" class="form-control" rows="8" cols="48" style="display:none"></textarea></p>
             <p><textarea name="filter_comment_by_user" class="form-control" rows="8" cols="48" style="display:none"></textarea></p>
             <p><textarea name="filter_comment_by_id" class="form-control" rows="8" cols="48" style="display:none"></textarea></p>
             <p><textarea name="filter_comment_by_word" class="form-control" rows="8" cols="48" style="display:none"></textarea></p>
@@ -45,11 +48,15 @@
             <label id="com_normalize" for="com_normalize" style="display:none">大/小文字区別なし<br></label>
             <input id="com_autongid" type="checkbox" style="display:none">
             <label id="com_autongid" for="com_autongid" style="display :none">非表示IDに自動で追加<br></label>
+            <label id="ch_username" for="ch_username" style="display :none">note</label>
+            <input id="ch_username" type"text" size="33" maxlength="32" style="display :none">
+            <label id="ch_username_br" for="ch_username" style="display :none"><br><br></label>
             <button name="req_save" align="center" disabled>変更を保存する</button>
 
           </div>
         </div>
         <script src="../js/jquery-3.3.1.min.js"></script>
+        <script src="../js/message_utility.js"></script>
         <script src="../js/text_utility.js"></script>
         <script src="../js/url_wrapper.js"></script>
         <script src="../js/storage_data.js"></script>
