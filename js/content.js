@@ -61,9 +61,10 @@ class Content {
     load() {
         this.storage = new StorageData();
         this.storage.load().then(() => {
-            document.addEventListener("DOMContentLoaded", ()=> {
+            this.storage_loaded = true;
+            if (this.dom_content_loaded) {
                 this.callback_domloaded();
-            });
+            }
         });
     }
 
@@ -74,8 +75,17 @@ class Content {
 
     constructor() {
         this.filter_instance = null;
+        this.storage_loaded = false;
+        this.dom_content_loaded = false;
+        //
         this.initialize();
         this.kick();
+        document.addEventListener("DOMContentLoaded", ()=> {
+            this.dom_content_loaded = true;
+            if (this.storage_loaded) {
+                this.callback_domloaded();
+            }
+        });
     }
 }
 
