@@ -4,6 +4,31 @@
 class ContextMenuController_Youtube extends ContextMenuController {
 
     /*!
+     *  @brief  Youtubeチャンネル名を得る
+     *  @param  element 起点ノード
+     */
+    get_channel(element) {
+        const tag = "yt-formatted-string#text.style-scope.ytd-channel-name";
+        var e = YoutubeUtil.find_first_appearing_element(element, tag);
+        if (e == null) {
+            // grid-channel(○水平リスト)例外
+            const chtag = "span#title.style-scope.ytd-grid-channel-renderer";
+            const ch = $(element).find(chtag);
+            if (ch.length != 0) {
+                e = ch;
+            }
+        }
+        if (e != null) {
+            const channel = $(e).text();
+            if (channel.length > 0) {
+                return channel;
+            }
+        }
+        // personal_channel_video
+        return YoutubeUtil.get_page_channel_name();
+    }
+    
+    /*!
      *  @brief  renderノードを得る
      *  @param  element 起点ノード
      */
@@ -28,14 +53,12 @@ class ContextMenuController_Youtube extends ContextMenuController {
         }
         if (this.filter_active) {
             const nd_renderer = this.get_renderer_node(element);
-            if (nd_renderer.length == 0) {
-                ContextMenuController.off_original_menu();
-            } else {
-                ContextMenuController.on_usermute(nd_renderer);
+            if (nd_renderer.length > 0 &&
+                super.on_usermute(nd_renderer)) {
+                return;
             }
-        } else {
-            ContextMenuController.off_original_menu();
         }
+        ContextMenuController.off_original_menu();
     }
 
     /*!
