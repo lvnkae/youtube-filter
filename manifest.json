@@ -23,6 +23,7 @@
               "js/text_utility.js",
               "js/url_wrapper.js",
               "js/storage_data.js",
+              "js/google_utility.js",
               "js/youtube_utility.js",
               "js/author_info_accessor.js",
               "js/video_info_accessor.js",
@@ -54,5 +55,5 @@
                   ],
    "short_name": "YoutubeFilter",
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "1.0.5.1"
+   "version": "1.0.5.2"
 }

@@ -351,6 +351,10 @@ class YoutubeFilter extends FilterBase {
             return;
         }
         this.filtering_channel_video_core((elem, tag_title, tag_channel)=> {
+            const elem_channel = YoutubeUtil.find_first_appearing_element(elem, tag_channel);
+            if (elem_channel != null) {
+                return;
+            }
             return this.filtering_personal_video(elem, tag_title, channel, channel_id);
         });
     }
@@ -373,6 +377,10 @@ class YoutubeFilter extends FilterBase {
             return;
         }
         this.filtering_channel_video_core((elem, tag_title, tag_channel)=> {
+            const elem_channel = YoutubeUtil.find_first_appearing_element(elem, tag_channel);
+            if (elem_channel != null) {
+                return;
+            }
             return this.filtering_personal_video(elem, tag_title, channel, channel_id);
         });
     }
@@ -383,11 +391,56 @@ class YoutubeFilter extends FilterBase {
      */
     filtering_channel_channel() {
         //  大区分(ゲーム、スポーツ等)ページ用 - ○水平リスト
-        $("span#title.style-scope.ytd-grid-channel-renderer").each((inx, elem)=> {
-            const channel = YoutubeUtil.get_channel_from_topic($(elem).text());
-            if (this.storage.channel_filter(channel)) {
-                YoutubeUtil.detach_upper_node($(elem), "ytd-grid-channel-renderer");
+        $("div#channel.style-scope.ytd-grid-channel-renderer").each((inx, elem)=> {
+            const renderer_root= YoutubeUtil.search_renderer_root($(elem));
+            if (renderer_root.length == 0) {
+                return;
             }
+            const elem_chname = $(elem).find("span#title");
+            const elem_chlink = $(elem).find("a#channel-info");
+            if (elem_chname.length == 0 || elem_chlink.length == 0) {
+                return;
+            }
+            const channel = YoutubeUtil.get_channel_from_topic($(elem_chname).text());
+            if (this.storage.channel_filter(channel)) {
+                $(renderer_root).detach();
+                return;
+            }
+            const author_url = $(elem_chlink).attr("href");
+            if (this.filtering_by_channel_id(renderer_root, author_url)) {
+                return;
+            }
+        });
+        this.author_info_accessor.kick();
+    }
+    /*!
+     *  @brief  チャンネル(チャンネルページ)にフィルタを掛ける
+     *  @param  username    ユーザ名
+     *  @param  channel_id  チャンネルID
+     *  @note   ユーザページのフィルタリング
+     *  @note   動画更新情報取得通知から呼ばれる
+     */
+    filtering_channel_channel_by_channel_id(username, channel_id) {
+        $("div#channel.style-scope.ytd-grid-channel-renderer").each((inx, elem)=> {
+            const renderer_root= YoutubeUtil.search_renderer_root($(elem));
+            if (renderer_root.length == 0) {
+                return;
+            }
+            const elem_chlink = $(elem).find("a#channel-info");
+            if (elem_chlink.length == 0) {
+                return;
+            }
+            const author_url = $(elem_chlink).attr("href");
+            if (!YoutubeUtil.is_userpage_url(author_url) ||
+                username != YoutubeUtil.cut_channel_id(author_url)) {
+                return;
+            }
+            if (this.storage.channel_id_filter(channel_id)) {
+                $(renderer_root).detach();
+                return;
+            }
+            // ContextMenu用に書き込んでおく
+            $(renderer_root).attr("channel_id", channel_id);
         });
     }
     
@@ -690,6 +743,7 @@ class YoutubeFilter extends FilterBase {
         this.filtering_channel_video_by_channel_id(obj.username, obj.channel_id);
         this.filtering_channel_personal_video_by_channel_id(obj.username,
                                                             obj.channel_id);
+        this.filtering_home_video_by_channel_id(obj.username, obj.channel_id);
     }
     /*!
      *  @brief  動画更新情報(feed)取得完了通知

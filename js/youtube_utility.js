@@ -116,18 +116,9 @@ class YoutubeUtil {
     }
 
 
-    static search_renderer_root(elem) {
-        const is_root = function(e) {
-            return e.localName == 'ytd-video-renderer' ||
-                   e.localName == 'ytd-channel-renderer' ||
-                   e.localName == 'ytd-playlist-renderer' ||
-                   e.localName == 'ytd-grid-video-renderer' ||
-                   e.localName == 'ytd-compact-video-renderer' ||
-                   e.localName == 'ytd-rich-grid-video-renderer' ||
-                   e.localName == 'ytd-compact-playlist-renderer';
-        }
+    static search_upper_node(elem, func) {
         while(elem.length > 0) {
-            if (is_root(elem[0])) {
+            if (func(elem[0])) {
                 return elem;
             }
             elem = elem.parent();
@@ -135,13 +126,28 @@ class YoutubeUtil {
         return {length:0};
     }
 
-    static detach_upper_node(elem, tag) {
-        while(elem.length > 0) {
-            if (elem[0].localName == tag) {
-                $(elem).detach();
-                return;
-            }
-            elem = elem.parent();
+    static search_renderer_root(elem) {
+        const is_root = function(e) {
+            return e.localName == 'ytd-video-renderer' ||
+                   e.localName == 'ytd-channel-renderer' ||
+                   e.localName == 'ytd-playlist-renderer' ||
+                   e.localName == 'ytd-grid-video-renderer' ||
+                   e.localName == 'ytd-grid-channel-renderer' ||
+                   e.localName == 'ytd-compact-video-renderer' ||
+                   e.localName == 'ytd-rich-grid-video-renderer' ||
+                   e.localName == 'ytd-compact-playlist-renderer';
         }
+        return YoutubeUtil.search_upper_node(elem, is_root);
+    }
+
+    static detach_upper_node(elem, tag) {
+        const check_tag = function(e) {
+            return e.localName == tag;
+        }
+        const nd = YoutubeUtil.search_upper_node(elem, check_tag);
+        if (nd.length == 0) {
+            return;
+        }
+        $(nd).detach();
     }
 }
