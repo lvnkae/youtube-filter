@@ -13,7 +13,7 @@ class ContextMenuController_Google extends ContextMenuController {
         if (href == null) {
             return null;
         }
-        const url = new urlWrapper(href);
+        const url = new urlWrapper(GoogleUtil.cut_searched_url(href));
         if (!url.in_google_searched_youtube()) {
             return null;
         }
@@ -30,11 +30,18 @@ class ContextMenuController_Google extends ContextMenuController {
     }
 
     static get_inner_card_node_channel(nd_ggl) {
-        const a_tag = $(nd_ggl).find("a");
-        if (a_tag.length != 1) {
+        if (nd_ggl[0].localName != 'g-inner-card') {
             return null;
         }
-        const url = new urlWrapper($(a_tag[0]).attr("href"));
+        const a_tag = $(nd_ggl).find("a");
+        if (a_tag.length ==0) {
+            return null;
+        }
+        const href = $(a_tag[0]).attr("href");
+        if (href == null) {
+            return null;
+        }
+        const url = new urlWrapper(GoogleUtil.cut_searched_url(href));
         if (!url.in_google_searched_youtube()) {
             return null;
         }
@@ -60,7 +67,8 @@ class ContextMenuController_Google extends ContextMenuController {
     get_google_node(element) {
         const nd_gs = YoutubeUtil.search_upper_node($(element), (e)=> {
             return e.localName == 'div' &&
-                   e.className == 'g';
+                   e.classList.length > 0 &&
+                   e.classList[0] == 'g';
         });
         if (nd_gs.length > 0) {
             return nd_gs;

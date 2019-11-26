@@ -43,4 +43,16 @@ class GoogleUtil {
     static get_channel_from_video_card_node(nd_a) {
         return $($($(nd_a[0]).nextAll()[1]).children()[0]).text();
     }
+
+    /*!
+     *  @brief  検索結果ノードからリンク先URLを切り出す
+     *  @note   "https://google.com/url?"という中継リンクをカットする
+     */
+    static cut_searched_url(href) {
+        if (!href.startsWith('/url?')) {
+            return href;
+        }
+        const url = href.split('&url=')[1].split('&usg=')[0]
+        return decodeURIComponent(url);
+    }
 }

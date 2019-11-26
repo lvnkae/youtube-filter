@@ -78,7 +78,7 @@ class GoogleFilter extends FilterBase {
      */
     filtering_google_movie() {
         $("div.g").each((inx, elem)=> {
-            if (elem.className != "g") {
+            if (elem.classList[0] != "g") {
                 return; // 検索要素じゃない
             }
             const elem_title = $(elem).find("h3");
@@ -90,7 +90,7 @@ class GoogleFilter extends FilterBase {
             if (href == null) {
                 return;
             }
-            const url = new urlWrapper(href);
+            const url = new urlWrapper(GoogleUtil.cut_searched_url(href));
             if (!url.in_google_searched_youtube()) {
                 return; // tubeじゃない
             }
@@ -113,7 +113,11 @@ class GoogleFilter extends FilterBase {
                 if (a_tag.length != 1) {
                     return;
                 }
-                const url = new urlWrapper($(a_tag[0]).attr("href"));
+                const href = $(a_tag[0]).attr("href");
+                if (href == null) {
+                    return null;
+                }
+                const url = new urlWrapper(GoogleUtil.cut_searched_url(href));
                 if (!url.in_google_searched_youtube()) {
                     return;
                 }
