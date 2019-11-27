@@ -17,7 +17,8 @@ class BGContextMenuController extends BGMessageSender {
             });
         } else {
             const click_command = request.click_command;
-            if (MessageUtil.command_mute_channel_id()) {
+            if (MessageUtil.command_mute_channel_id() ||
+                MessageUtil.command_mute_comment_id()) {
                 const param = {click_command: click_command,
                                channel_id: request.channel_id,
                                channel: request.channel};
@@ -49,7 +50,8 @@ class BGContextMenuController extends BGMessageSender {
             "visible" : true,
             "onclick" : (info)=> {
                 const click_command = this.menu_param.click_command;
-                if (click_command == MessageUtil.command_mute_channel_id()) {
+                if (click_command == MessageUtil.command_mute_channel_id() ||
+                    click_command == MessageUtil.command_mute_comment_id()) {
                     this.send_reply({command: click_command,
                                      channel_id: this.menu_param.channel_id,
                                      channel: this.menu_param.channel});

@@ -4,6 +4,10 @@
 class Badge  {
 
     constructor() {
+        // 右クリックメニューが残ってしまうので非表示指示を出しとく
+        MessageUtil.send_message({
+            command: MessageUtil.command_update_contextmenu(),
+        });
     }
     
     update(storage) {
