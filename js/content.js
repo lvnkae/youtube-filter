@@ -39,6 +39,16 @@ class Content {
                             this.filter_instance.filtering();
                         }
                     }
+                } else
+                if (request.command == MessageUtil.command_mute_comment_id()) {
+                    const update
+                        = this.storage.add_comment_id_mute_with_check(request.channel_id);
+                    if (update && request.tab_active) {
+                        this.storage.save();
+                        if (this.storage.json.active) {
+                            this.filter_instance.filtering();
+                        }
+                    }
                 }
                 return true;
             }

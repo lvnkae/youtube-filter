@@ -109,6 +109,24 @@ class StorageData {
         return true;
     }
 
+    /*!
+     *  @brief  コメントフィルタ(ID)設定を追加(重複チェックあり)
+     *  @param  channel_id  チャンネルID
+     *  @retval true        storage構成変更があった
+     */
+    add_comment_id_mute_with_check(channel_id) {
+        if (this.json.ng_comment_by_id == null) {
+            this.json.ng_comment_by_id = [];
+        }
+        for (const ngci of this.json.ng_comment_by_id) {
+            if (ngci == channel_id) {
+                return false;
+            }
+        }
+        this.json.ng_comment_by_id.push(channel_id);
+        return true;
+    }
+
     static word_filter(word, filtering_words) {
         if (word != null) {
             for (const w of filtering_words) {

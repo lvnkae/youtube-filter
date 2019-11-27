@@ -459,8 +459,7 @@ class YoutubeFilter extends FilterBase {
             const elem_title = $(elem).find(title_tag);
             const channnel_tag
                 = "yt-formatted-string#text.style-scope.ytd-channel-name";
-            const elem_channel
-                = $(elem).find(channnel_tag);
+            const elem_channel = $(elem).find(channnel_tag);
             if (elem_title.length != 1 || elem_channel.length != 1) {
                 return;
             }
@@ -534,10 +533,55 @@ class YoutubeFilter extends FilterBase {
     }
 
     /*!
+     *  @brief  おすすめ動画フィルタ(動画終了時のやつ)
+     */
+    filtering_endscreen_recommend_video(tag_link) {
+        $("div.ytp-endscreen-content").each((inx, scr)=> {
+            $(scr).find("a").each((inx, a_tag)=> {
+                const href = $(a_tag).attr("href");
+                if (href == null) {
+                    return;
+                }
+                const title_tag = "span.ytp-videowall-still-info-title";
+                const elem_title = $(a_tag).find(title_tag);
+                const channel_tag = "span.ytp-videowall-still-info-author";
+                const elem_channel = $(a_tag).find(channel_tag);
+                if (elem_title.length == 0 || elem_channel.length == 0) {
+                    return;
+                }
+                const title = $(elem_title).text();
+                const channel
+                    = YoutubeUtil.get_channel_from_autor_info($(elem_channel).text());
+                if (channel.length == 0) {
+                    return;
+                }
+                if (this.storage.channel_and_title_filter(channel, title)) {
+                    $(a_tag).detach();
+                    return;
+                }
+                const video_id = YoutubeUtil.cut_movie_hash(href);
+                const channel_id = this.video_info_accessor.get_channel_id(video_id);
+                if (channel_id != null) {
+                    if (this.storage.channel_id_filter(channel_id, title)) {
+                        $(a_tag).detach();
+                    } else {
+                        // ContextMenu用に書き込んでおく
+                        $(a_tag).attr("channel_id", channel_id);
+                    }
+                }
+                // note
+                // 動画終了時のおすすめ動画(a)は再生画面右に出るおすすめ動画(b)と
+                // 共通(a∋b)であるため、(a)フィルタ処理でchannel_id取得済み。
+                // (b)独自に取得要求を出す必要はない。
+            });
+        });
+    }
+    /*!
      *  @brief  動画(動画再生ページ)にフィルタを掛ける
      */
     filtering_watch_video() {
         this.filtering_recommend_video();
+        this.filtering_endscreen_recommend_video();
 
         // コメントフィルタ
         if (this.storage.have_ng_comment_data()) {
