@@ -34,16 +34,17 @@ class YoutubeUtil {
      *  @brief  動画主情報からチャンネル名を切り出す
      */
     static get_channel_from_autor_info(text) {
-         const au_div = text.split(" • ");
-         const au_len = au_div.length;
-         if (au_len > 1) {
+        const delimiter = ' \u2022 '; // bullet
+        const au_div = text.split(delimiter);
+        const au_len = au_div.length;
+        if (au_len > 1) {
             var channel = '';
             for (var inx = 0; inx < au_len-1; inx++) {
                 channel += au_div[inx];
             }
             return channel;
-         }
-         return '';
+        }
+        return '';
     }
 
     /*!
