@@ -648,11 +648,12 @@ class YoutubeFilter extends FilterBase {
         const dismissable_tag
             = "div#dismissable.style-scope.ytd-rich-grid-video-renderer"
         $(dismissable_tag).each((inx, elem)=> {
-            const tag_title = "a#video-title";
+            const tag_title = "#video-title";
+            const tag_thumbnail = "a#thumbnail";
             const tag_channel = ".yt-simple-endpoint.style-scope.yt-formatted-string";
             //
             const marker = this.get_filtered_marker(elem);
-            const hash = YoutubeUtil.get_video_hash(elem, tag_title);
+            const hash = YoutubeUtil.get_video_hash(elem, tag_thumbnail);
             if (marker != null && hash == marker) {
                 return;
             }
@@ -677,7 +678,7 @@ class YoutubeFilter extends FilterBase {
         const dismissable_tag
             = "div#dismissable.style-scope.ytd-rich-grid-video-renderer"
         $(dismissable_tag).each((inx, elem)=> {
-            const tag_title = "a#video-title";
+            const tag_title = "#video-title";
             const tag_channel = ".yt-simple-endpoint.style-scope.yt-formatted-string";
             if (this.filtering_video_by_channel_id(elem, tag_title, tag_channel,
                                                    username, channel_id)) {
