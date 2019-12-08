@@ -4,6 +4,19 @@
 class GoogleFilter extends FilterBase {
 
     /*!
+     *  @brief  動画URLから動画IDを得る
+     *  @param  url 動画URL
+     *  @note   Firefoxで検索結果に触るとURLが中間URLに書き換えられてしまう
+     */
+    static get_video_id(url) {
+        var url_t = url;
+        if (GoogleUtil.is_searched_url(url)) {
+            url_t = GoogleUtil.cut_searched_url(url);
+        }
+        return YoutubeUtil.cut_movie_hash(url_t);
+    }
+
+    /*!
      *  @brief  Youtube動画フィルタ
      *  @param  elem        検索結果ノード
      *  @param  elem_title  タイトルノード
@@ -20,7 +33,7 @@ class GoogleFilter extends FilterBase {
             $(elem).detach();
             return;
         }
-        const video_id = YoutubeUtil.cut_movie_hash(url);
+        const video_id = GoogleFilter.get_video_id(url);
         const channel_id = this.video_info_accessor.get_channel_id(video_id);
         if (channel_id != null) {
             if (this.storage.channel_id_filter(channel_id, title)) {

@@ -11,8 +11,10 @@ class GoogleUtil {
      *  @note   ※" - Youtube"を含めて表示文字列上限を超えない場合に限る
      */
     static cut_googled_youtube_title(src) {
-        if (src.search(RegExp(" \- YouTube$", ""))) {
+        if (src.search(RegExp(" \- YouTube$", "")) > 0) {
             return src.slice(0, src.length - " - Youtube".length);
+        } else {
+            return src;
         }
     }
 
@@ -45,14 +47,21 @@ class GoogleUtil {
     }
 
     /*!
-     *  @brief  検索結果ノードからリンク先URLを切り出す
+     *  @brief  検索結果URLからリンク先URLを切り出す
      *  @note   "https://google.com/url?"という中継リンクをカットする
      */
     static cut_searched_url(href) {
-        if (!href.startsWith('/url?')) {
+        if (!GoogleUtil.is_searched_url(href)) {
             return href;
         }
         const url = href.split('&url=')[1].split('&usg=')[0]
         return decodeURIComponent(url);
+    }
+
+    /*!
+     *  @brief  検索結果URLが中継リンクか
+     */
+    static is_searched_url(href) {
+        return href.startsWith('/url?');
     }
 }
