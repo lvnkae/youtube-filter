@@ -9,6 +9,9 @@ class YoutubeUtil {
     static is_userpage_url(author_url) {
         return author_url.indexOf("/user/") >= 0;
     }
+    static is_custom_channel_url(author_url) {
+        return author_url.indexOf("/c/") >= 0;
+    }
 
     /*!
      *  @brief  トピック表記を含む文字列からチャンネル名を切り出す
@@ -54,7 +57,8 @@ class YoutubeUtil {
         const sp_href = channel_href.split("/");
         for (var inx = 0; inx < sp_href.length-1; inx++) {
             if (sp_href[inx] == 'user' ||
-                sp_href[inx] == 'channel') {
+                sp_href[inx] == 'channel' ||
+                sp_href[inx] == 'c') {
                 return sp_href[inx+1];
             }
         }
@@ -145,15 +149,20 @@ class YoutubeUtil {
 
     static search_renderer_root(elem) {
         const is_root = function(e) {
-            return e.localName == 'ytd-video-renderer' ||
-                   e.localName == 'ytd-channel-renderer' ||
-                   e.localName == 'ytd-playlist-renderer' ||
-                   e.localName == 'ytd-grid-video-renderer' ||
-                   e.localName == 'ytd-grid-channel-renderer' ||
-                   e.localName == 'ytd-compact-video-renderer' ||
-                   e.localName == 'ytd-rich-grid-video-renderer' ||
-                   e.localName == 'ytd-compact-playlist-renderer';
-        }
+            if (e.localName == null ) {
+                return false;
+            }
+            const ln = e.localName.valueOf();
+            return ln == 'ytd-video-renderer' ||
+                   ln == 'ytd-channel-renderer' ||
+                   ln == 'ytd-playlist-renderer' ||
+                   ln == 'ytd-rich-grid-media' ||
+                   ln == 'ytd-grid-video-renderer' ||
+                   ln == 'ytd-grid-channel-renderer' ||
+                   ln == 'ytd-compact-video-renderer' ||
+                   ln == 'ytd-rich-grid-video-renderer' ||
+                   ln == 'ytd-compact-playlist-renderer';
+        };
         return YoutubeUtil.search_upper_node(elem, is_root);
     }
 

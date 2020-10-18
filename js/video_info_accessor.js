@@ -19,6 +19,36 @@ class VideoInfoAccessor {
     }
 
     /*!
+     *  @brief  カスタムチャンネル名からチャンネルIDを得る
+     *  @param  custom_name カスタムチャンネル名
+     */
+    get_channel_id_by_cunstom_channel(custom_name) {
+        for (const video_id in this.video_info_map) {
+            var obj = this.video_info_map[video_id];
+            if (obj.custom_name != null && obj.custom_name == custom_name) {
+                return obj.channel_id;
+            }
+        }
+        return null;
+    }
+
+    /*!
+     *  @brief  チャンネルユーザ名からカスタムチャンネル名を得る
+     *  @param  custom_name カスタムチャンネル名
+     */
+    get_custom_name_by_username(username) {
+        for (const video_id in this.video_info_map) {
+            var obj = this.video_info_map[video_id];
+            if (obj.username != null && obj.username == username) {
+                if (obj.custom_name != null) {
+                    return obj.custom_name;
+                }
+            }
+        }
+        return null;
+    }
+
+    /*!
      *  @brief  動画IDにチャンネルIDを紐付ける
      *  @param  video_id    動画ID
      *  @param  channel_id  チャンネルID
@@ -33,17 +63,29 @@ class VideoInfoAccessor {
 
     /*!
      *  @brief  動画ID登録
-     *  @param  video_id    動画ID(識別にも使用)    
+     *  @param  video_id    動画ID(識別にも使用)
+     *  @param  custom_name カスタムチャンネル名
      */
-    entry(video_id) {
+    entry(video_id, custom_name) {
+        if (custom_name != null) {
+            // custom_nameに紐付いたjson取得要求は一度だけで良い
+            for (const video_id in this.video_info_map) {
+                const obj = this.video_info_map[video_id];
+                if (obj.custom_name != null && obj.custom_name == custom_name) {
+                    return;
+                }
+            }
+        }
         if (video_id in this.video_info_map) {
-            return;
         } else {
             // 新規登録
             var obj = {};
             obj.video_id = video_id;
             obj.busy = false;
             this.video_info_map[video_id] = obj;
+        }
+        if (custom_name != null) {
+            this.video_info_map[video_id].custom_name = custom_name;
         }
     }
 

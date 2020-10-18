@@ -69,6 +69,10 @@ class urlWrapper {
     {
         return (this.subdir.length >=1 && this.subdir[0] == 'user');
     }
+    in_youtube_custom_channel_page()
+    {
+        return (this.subdir.length >=1 && this.subdir[0] == 'c');
+    }
     in_youtube_search_page()
     {
         return this.subdir.length >= 1 &&
