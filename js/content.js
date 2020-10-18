@@ -45,6 +45,7 @@ class Content {
                         = this.storage.add_comment_id_mute_with_check(request.channel_id);
                     if (update && request.tab_active) {
                         this.storage.save();
+                        this.storage.update_text();
                         if (this.storage.json.active) {
                             this.filter_instance.filtering();
                         }
