@@ -20,7 +20,9 @@ class ContextMenuController_Google extends ContextMenuController {
         if (url.in_youtube_movie_page()) {
             return GoogleUtil.get_channel_from_video_node(nd_ggl);
         } else
-        if (url.in_youtube_channel_page() || url.in_youtube_user_page()) {
+        if (url.in_youtube_custom_channel_page() ||
+            url.in_youtube_channel_page() ||
+            url.in_youtube_user_page()) {
             return null; // 右クリミュート不要
         } else
         if (url.in_youtube_playlist_page()) {

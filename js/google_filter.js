@@ -109,7 +109,8 @@ class GoogleFilter extends FilterBase {
             }
             if (url.in_youtube_movie_page()) {
                 this.youtube_video_filter(elem, elem_title, href);
-            } else if (url.in_youtube_channel_page() ||
+            } else if (url.in_youtube_custom_channel_page() ||
+                       url.in_youtube_channel_page() ||
                        url.in_youtube_user_page()) {
                 this.youtube_channel_filter(elem, elem_title, href);
             } else if (url.in_youtube_playlist_page()) {
