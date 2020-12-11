@@ -176,4 +176,12 @@ class YoutubeUtil {
         }
         $(nd).detach();
     }
+
+    static detach_lower_node(elem, tag) {
+        const dt_node = $(elem).find(tag);
+        if (dt_node.length == 0) {
+            return;
+        }
+        $(dt_node).detach();
+    }
 }
