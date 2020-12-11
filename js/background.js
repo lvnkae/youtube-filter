@@ -7,6 +7,7 @@ class Background {
         this.extention_id = '';
         this.video_json_accessor = new BGVideoJsonAccessor();
         this.videos_xml_accessor = new BGVideosXmlAccessor();
+        this.channel_html_accessor = new BGChannelHTMLAccessor();
         this.contextmenu_controller = new BGContextMenuController();
         //
         this.initialize();
@@ -21,6 +22,7 @@ class Background {
         this.extention_id = extention_id;
         this.video_json_accessor.entry(tab_id);
         this.videos_xml_accessor.entry(tab_id);
+        this.channel_html_accessor.entry(tab_id);
         this.contextmenu_controller.entry(tab_id);
         this.contextmenu_controller.create_menu(extention_id);
     }
@@ -37,6 +39,9 @@ class Background {
                 if (request.command == MessageUtil.command_get_videos_xml()) {
                     this.videos_xml_accessor.on_message(request, sender);
                 } else
+                if (request.command == MessageUtil.command_get_channel_html()) {
+                    this.channel_html_accessor.on_message(request, sender);
+                }
                 if (request.command == MessageUtil.command_update_contextmenu()) {
                     this.contextmenu_controller.on_message(request);
                 } else
