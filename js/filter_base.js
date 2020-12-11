@@ -21,6 +21,7 @@ class FilterBase {
         this.storage = storage;
         this.author_info_accessor = new AuthorInfoAccessor();
         this.video_info_accessor = new VideoInfoAccessor();
+        this.channel_info_accessor = new ChannelInfoAccessor();
         //
         this.current_location = new urlWrapper(location.href);
         this.after_domloaded_observer = null;

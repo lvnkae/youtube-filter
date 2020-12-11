@@ -902,6 +902,11 @@ class YoutubeFilter extends FilterBase {
                 this.author_info_accessor.entry(obj.username);
                 this.author_info_accessor.kick();
             }
+        } else {
+            // jsonからチャンネルIDもuserも得られなかった場合の最終手段
+            const custom_name = obj.custom_name;
+            this.channel_info_accessor.entry(obj.custom_name);
+            this.channel_info_accessor.kick();
         }
     }
     /*!
@@ -951,6 +956,35 @@ class YoutubeFilter extends FilterBase {
             .tell_get_xml(username,
                           xml,
                           this.post_proc_tell_get_videos_xml.bind(this));
+        }
+    }
+
+    /*!
+     *  @brief  カスタムチャンネル情報(html)取得完了通知後処理
+     *  @param  obj 動画オブジェクト
+     */
+    post_proc_tell_get_channel_html(obj) {
+        const video_ids
+            = this.video_info_accessor
+                .tell_get_channel_id_by_custom_channel(obj.custom_name, obj.channel_id);
+        for (const video_id of video_ids) {
+            this.filtering_recommend_video_by_channel_id(video_id, obj.channel_id);
+        }
+        this.post_filtering_by_custom_name(obj.custom_name, obj.channel_id);
+    }
+    /*!
+     *  @brief  カスタムチャンネル情報(html)取得完了通知
+     *  @param  result      結果
+     *  @param  custom_name カスタムチャンネル名
+     *  @param  html        チャンネル情報(html)
+     */
+    tell_get_channel_html(result, custom_name, html) {
+        if (result == "success") {
+            this
+            .channel_info_accessor
+            .tell_get_html(custom_name,
+                           html,
+                           this.post_proc_tell_get_channel_html.bind(this));
         }
     }
 

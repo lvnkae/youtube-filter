@@ -28,6 +28,15 @@ class Content {
                                              request.xml);
                     }
                 } else
+                if (request.command == MessageUtil.command_get_channel_html()) {
+                    if (this.filter_instance) {
+                        this
+                        .filter_instance
+                        .tell_get_channel_html(request.result,
+                                               request.custom_name,
+                                               request.html);
+                    }
+                } else
                 if (request.command == MessageUtil.command_mute_channel_id()) {
                     const update
                         = this.storage.add_channel_id_mute_with_check(request.channel_id,

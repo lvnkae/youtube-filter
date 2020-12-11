@@ -127,6 +127,10 @@ class VideoInfoAccessor {
                 const username = YoutubeUtil.cut_channel_id(author_url);
                 obj.username = username;
                 post_func(obj);
+            } else
+            if (YoutubeUtil.is_custom_channel_url(author_url)) {
+                // jsonのauthor_urlまでカスタムチャンネルURLに侵食されている
+                post_func(obj);
             }
         }
     }
@@ -143,6 +147,27 @@ class VideoInfoAccessor {
         for (const video_id in this.video_info_map) {
             var obj = this.video_info_map[video_id];
             if (obj.username != null && obj.username == username) {
+                obj.channel_id = channel_id;
+                obj.busy = false;
+                ret_v.push(obj.video_id);
+            }
+        }
+        return ret_v;
+    }
+
+    /*!
+     *  @brief  チャンネルID取得完了通知
+     *  @param  custom_name カスタムチャンネル名
+     *  @param  channel_id  チャンネルID
+     *  @return ret_v       受け取った動画ID群
+     *  @note   カスタムチャンネル名をキーに取得された
+     *  @note   チャンネルIDを受け取る
+     */
+    tell_get_channel_id_by_custom_channel(custom_name, channel_id) {
+        var ret_v = [];
+        for (const video_id in this.video_info_map) {
+            var obj = this.video_info_map[video_id];
+            if (obj.custom_name != null && obj.custom_name == custom_name) {
                 obj.channel_id = channel_id;
                 obj.busy = false;
                 ret_v.push(obj.video_id);
