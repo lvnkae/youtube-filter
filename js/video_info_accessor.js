@@ -130,6 +130,8 @@ class VideoInfoAccessor {
             } else
             if (YoutubeUtil.is_custom_channel_url(author_url)) {
                 // jsonのauthor_urlまでカスタムチャンネルURLに侵食されている
+                const custom_name = YoutubeUtil.cut_channel_id(author_url);
+                obj.custom_name = custom_name;
                 post_func(obj);
             }
         }
