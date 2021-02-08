@@ -33,6 +33,17 @@ class VideoInfoAccessor {
     }
 
     /*!
+     *  @brief  動画IDからチャンネル名を得る
+     *  @param  カスタムチャンネル名
+     */
+    get_channel_name(video_id) {
+        if (video_id in this.video_info_map) {
+            return this.video_info_map[video_id].channel_name;
+        }
+        return null;
+    }
+    
+    /*!
      *  @brief  チャンネルユーザ名からカスタムチャンネル名を得る
      *  @param  custom_name カスタムチャンネル名
      */

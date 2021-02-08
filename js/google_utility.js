@@ -21,19 +21,7 @@ class GoogleUtil {
      *  @param  nd_ggl  検索結果ノード
      */
     static get_channel_from_video_node(nd_ggl) {
-        const elem_channel = $(nd_ggl).find("div.slp.f");
-        if (elem_channel.length == 0) {
-            return null;
-        }
-        const channel_div = $(elem_channel[0]).text().split(': ');
-        if (channel_div.length == 0) {
-            return null;
-        }
-        var channel = '';
-        for (var inx = 1; inx < channel_div.length; inx++) {
-            channel += channel_div[inx];
-        }
-        return channel;
+        return $(nd_ggl).attr("channel_name")
     }
 
     /*!
@@ -54,5 +42,9 @@ class GoogleUtil {
         }
         const url = href.split('&url=')[1].split('&usg=')[0]
         return decodeURIComponent(url);
+    }
+
+    static get_movie_search_tag() {
+        return 'VibNM';
     }
 }
