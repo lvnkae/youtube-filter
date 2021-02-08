@@ -14,6 +14,18 @@ class YoutubeFilter extends FilterBase {
     }
 
     /*!
+     *  @brief  カスタムチャンネル名からチャンネルIDを得る
+     *  @param  custom_name カスタムチャンネル名
+     */
+    get_custom_channel_channel_id(custom_name) {
+        const channel_id = this.channel_info_accessor.get_channel_id(custom_name);
+        if (channel_id != null) {
+            return channel_id;
+        }
+        return this.video_info_accessor.get_channel_id_by_cunstom_channel(custom_name);
+    }
+
+    /*!
      *  @brief  動画フィルタ(チャンネルページURL)
      *  @param  renderer_root   renderオブジェクト
      *  @param  author_url      チャンネルページURL
@@ -64,8 +76,7 @@ class YoutubeFilter extends FilterBase {
             return false; // ロジックエラー
         }
         const custom_name = YoutubeUtil.cut_channel_id(custom_url);
-        const channel_id
-            = this.video_info_accessor.get_channel_id_by_cunstom_channel(custom_name);
+        const channel_id = this.get_custom_channel_channel_id(custom_name);
         if (channel_id == null) {
             this.video_info_accessor.entry(video_id, custom_name);
             return false;
@@ -143,9 +154,7 @@ class YoutubeFilter extends FilterBase {
             }
             // カスタムチャンネル例外
             const custom_name = YoutubeUtil.cut_channel_id(author_url);
-            channel_id
-                = this.video_info_accessor
-                    .get_channel_id_by_cunstom_channel(custom_name);
+            channel_id = this.get_custom_channel_channel_id(custom_name);
             if (channel_id == null) {
                 const video_id
                     = YoutubeUtil.get_video_hash(renderer_root, "a#thumbnail");
