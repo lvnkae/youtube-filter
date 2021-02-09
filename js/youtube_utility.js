@@ -116,7 +116,10 @@ class YoutubeUtil {
     static is_annotation(label) {
         const txt = text_utility.remove_new_line_and_space(label);
         return txt == "アノテーション" ||
-               txt == "Annotations";
+               txt == "Anmerkungen" ||
+               txt == "Annotations" ||
+               txt == "Anotações" ||
+               txt == "註解";
     }
     /*!
      *  @brief  'アノテーション'を無効化する

@@ -604,6 +604,12 @@ class YoutubeFilter extends FilterBase {
             = "a.yt-simple-endpoint.style-scope.ytd-compact-playlist-renderer";
         this.filtering_recommend_video_core(tag_playlist_link);
         this.video_info_accessor.kick();
+        // ぐるぐる対策
+        $("ytd-continuation-item-renderer").each((inx, spin)=> {
+            if ($(spin).next().length > 0) {
+                $(spin).detach();
+            }
+        });
     }
     /*!
      *  @brief  おすすめ動画フィルタ
@@ -847,7 +853,7 @@ class YoutubeFilter extends FilterBase {
             this.filtering_channel_channel();
         } else if (loc.in_youtube_movie_page()) {
             this.filtering_watch_video();
-        } else if (loc.in_top_page()) {
+        } else if (loc.in_top_page() || loc.in_youtube_hashtag()) {
             this.filtering_home_video();
         }
     }
@@ -1008,7 +1014,7 @@ class YoutubeFilter extends FilterBase {
         const loc = this.current_location;
         if (loc.in_youtube_search_page() || loc.in_youtube_trending()) {
             this.clear_searched_video_marker();
-        } else if (loc.in_top_page()) {
+        } else if (loc.in_top_page() || loc.in_youtube_hashtag()) {
             this.clear_home_video_marker();
         }
     }

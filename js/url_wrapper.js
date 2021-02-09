@@ -89,4 +89,8 @@ class urlWrapper {
     {
         return (this.subdir.length >=1 && this.subdir[0] == 'gaming');
     }
+    in_youtube_hashtag()
+    {
+        return (this.subdir.length >=1 && this.subdir[0] == 'hashtag');
+    }
 }
