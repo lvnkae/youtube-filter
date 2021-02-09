@@ -76,6 +76,9 @@ class Popup {
         this.checkbox_sw_stop_autoplay().change(()=> {
             this.button_save_enable();
         });
+        this.checkbox_sw_disable_annotation().change(()=> {
+            this.button_save_enable();
+        });
         this.checkbox_regexp().change(()=> {
             this.button_save_enable();
         });
@@ -149,6 +152,9 @@ class Popup {
     }
     checkbox_sw_stop_autoplay() {
         return $("input[name=sw_stop_autoplay]");
+    }
+    checkbox_sw_disable_annotation() {
+        return $("input[name=sw_disable_annotation]");
     }
     checkbox_regexp() {
         return $("input#regexp");
@@ -684,6 +690,8 @@ class Popup {
         this.storage.json.active = this.checkbox_sw_filter().prop("checked");
         this.storage.json.stop_autoplay
             = this.checkbox_sw_stop_autoplay().prop("checked");
+        this.storage.json.disable_annotation
+            = this.checkbox_sw_disable_annotation().prop("checked");
         this.storage.save();
         this.send_message_to_relative_tab(
             {command:MessageUtil.command_update_storage()});
@@ -705,6 +713,9 @@ class Popup {
         this.checkbox_sw_stop_autoplay().prop("checked",
             json.stop_autoplay == null ?false
                                        :json.stop_autoplay);
+        this.checkbox_sw_disable_annotation().prop("checked",
+            json.disable_annotation == null ?false
+                                            :json.disable_annotation);
     }
 
     updateTextarea() {
