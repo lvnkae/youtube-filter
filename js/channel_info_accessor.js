@@ -5,7 +5,18 @@
 class ChannelInfoAccessor {
 
     constructor() {
-        this.channel_info_map = [];     
+        this.channel_info_map = [];
+    }
+
+    /*!
+     *  @brief  カスタムチャンネル名からチャンネルIDを得る
+     *  @param  custom_name カスタムチャンネル名
+     */
+    get_channel_id(custom_name) {
+        if (custom_name in this.channel_info_map) {
+            return this.channel_info_map[custom_name].channel_id;
+        }
+        return null;
     }
 
     /*!
