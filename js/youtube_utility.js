@@ -57,9 +57,11 @@ class YoutubeUtil {
         const sp_href = channel_href.split("/");
         for (var inx = 0; inx < sp_href.length-1; inx++) {
             if (sp_href[inx] == 'user' ||
-                sp_href[inx] == 'channel' ||
-                sp_href[inx] == 'c') {
+                sp_href[inx] == 'channel') {
                 return sp_href[inx+1];
+            } else
+            if (sp_href[inx] == 'c') {
+                return decodeURI(sp_href[inx+1]);
             }
         }
         return null;
@@ -102,6 +104,16 @@ class YoutubeUtil {
         } else {
             return null;
         }
+    }
+
+    /*!
+     *  @brief  'アノテーション'か？
+     *  @param  label   ラベル文字列
+     */
+    static is_annotation(label) {
+        const txt = text_utility.remove_new_line_and_space(label);
+        return txt == "アノテーション" ||
+               txt == "Annotations";
     }
 
 
