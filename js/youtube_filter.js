@@ -905,8 +905,14 @@ class YoutubeFilter extends FilterBase {
         } else {
             // jsonからチャンネルIDもuserも得られなかった場合の最終手段
             const custom_name = obj.custom_name;
-            this.channel_info_accessor.entry(obj.custom_name);
-            this.channel_info_accessor.kick();
+            const channel_id = this.channel_info_accessor.get_channel_id(custom_name);
+            if (channel_id != null) {
+                this.video_info_accessor.set_channel_id(obj.video_id, channel_id);
+                this.filtering_recommend_video_by_channel_id(obj.video_id, channel_id);
+            } else {
+                this.channel_info_accessor.entry(obj.custom_name);
+                this.channel_info_accessor.kick();
+            }
         }
     }
     /*!
@@ -917,11 +923,10 @@ class YoutubeFilter extends FilterBase {
      */
     tell_get_video_json(result, video_id, json) {
         if (result == "success") {
-            this
-                .video_info_accessor
+            this.video_info_accessor
                 .tell_get_json(video_id,
-                    json,
-                    this.post_proc_tell_get_video_json.bind(this));
+                               json,
+                               this.post_proc_tell_get_video_json.bind(this));
         }
     }
 
@@ -951,11 +956,10 @@ class YoutubeFilter extends FilterBase {
      */
     tell_get_videos_xml(result, username, xml) {
         if (result == "success") {
-            this
-                .author_info_accessor
+            this.author_info_accessor
                 .tell_get_xml(username,
-                    xml,
-                    this.post_proc_tell_get_videos_xml.bind(this));
+                              xml,
+                              this.post_proc_tell_get_videos_xml.bind(this));
         }
     }
 
@@ -966,7 +970,8 @@ class YoutubeFilter extends FilterBase {
     post_proc_tell_get_channel_html(obj) {
         const video_ids
             = this.video_info_accessor
-                .tell_get_channel_id_by_custom_channel(obj.custom_name, obj.channel_id);
+                  .tell_get_channel_id_by_custom_channel(obj.custom_name,
+                                                         obj.channel_id);
         for (const video_id of video_ids) {
             this.filtering_recommend_video_by_channel_id(video_id, obj.channel_id);
         }
@@ -980,11 +985,10 @@ class YoutubeFilter extends FilterBase {
      */
     tell_get_channel_html(result, custom_name, html) {
         if (result == "success") {
-            this
-                .channel_info_accessor
+            this.channel_info_accessor
                 .tell_get_html(custom_name,
-                    html,
-                    this.post_proc_tell_get_channel_html.bind(this));
+                               html,
+                               this.post_proc_tell_get_channel_html.bind(this));
         }
     }
 
