@@ -111,6 +111,7 @@ class ContextMenuController_Youtube extends ContextMenuController {
             !loc.in_youtube_movie_page() &&
             !loc.in_youtube_user_page() &&
             !loc.in_youtube_trending() &&
+            !loc.in_youtube_hashtag() &&
             !loc.in_youtube_gaming() &&
             !loc.in_top_page()) {
             return;
