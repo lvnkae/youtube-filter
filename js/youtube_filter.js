@@ -1037,6 +1037,10 @@ class YoutubeFilter extends FilterBase {
                 }
             });
         }
+        // アノテーションをオフにする
+        if (this.storage.json.disable_annotation) {
+            YoutubeUtil.disable_annotation();
+        }
     }
 
     get_observing_node(elem) {

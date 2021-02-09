@@ -109,13 +109,47 @@ class YoutubeUtil {
     /*!
      *  @brief  'アノテーション'か？
      *  @param  label   ラベル文字列
+     *  @note   同じ構造のトグルスイッチが複数あり"アノテーション"用を
+     *  @note   特定するためには文字列判定するしかなさそう
+     *  @note   言語依存するのであんまりやりたくないが…
      */
     static is_annotation(label) {
         const txt = text_utility.remove_new_line_and_space(label);
         return txt == "アノテーション" ||
                txt == "Annotations";
     }
-
+    /*!
+     *  @brief  'アノテーション'を無効化する
+     */
+    static disable_annotation() {
+        // ポップアップメニューの'アノテーション'オフ
+        const menu = $("div.ytp-popup.ytp-settings-menu");
+        if (menu.length > 0) {
+            $(menu[0]).find("div.ytp-menuitem").each((inx, mitm)=> {
+                const label = $(mitm).find("div.ytp-menuitem-label");
+                if (label.length == 0 ||
+                    !YoutubeUtil.is_annotation($(label[0]).text())) {
+                    return true;
+                }
+                const press = $(mitm).attr("aria-checked");
+                if (press != null && press == "true") {
+                    mitm.click();
+                }
+                return false;
+            });
+        }
+        // 'アノテーション'オフにした時の処理を擬似的に行う
+        const disp_off_node_name = [
+            "button.ytp-button.ytp-cards-button", // お知らせマーク
+            "div.ytp-cards-teaser", // おすすめ動画表示
+            "div.ytp-player-content.ytp-iv-player-content" // チャンネル登録ボタン等
+        ];
+        for (const tag of disp_off_node_name) {
+            $(tag).each((inx, an_node)=> {
+                $(an_node).attr("style", "display: none;");
+            });
+        }
+    }
 
     /*!
      *  @brief  要素が非表示であるか

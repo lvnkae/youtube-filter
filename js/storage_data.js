@@ -33,14 +33,15 @@ class StorageData {
     
     clear() {
         this.json = {}
-        this.json.active = true;            // フィルタ 有効/無効
-        this.json.stop_autoplay = false;    // 自動再生停止 有効/無効
-        this.json.ng_channel = [];          // チャンネルフィルタ(ワード)
-        this.json.ng_channel_id = [];       // チャンネルフィルタ(ID)
-        this.json.ng_title = [];            // タイトルフィルタ
-        this.json.ng_comment_by_user = [];  // コメントフィルタ(ユーザ)
-        this.json.ng_comment_by_id = [];    // コメントフィルタ(ID)
-        this.json.ng_comment_by_word = [];  // コメントフィルタ(ワード)
+        this.json.active = true;                // フィルタ 有効/無効
+        this.json.stop_autoplay = false;        // 自動再生停止 有効/無効
+        this.json.disable_annotation = false;   // 自動再生停止 有効/無効
+        this.json.ng_channel = [];              // チャンネルフィルタ(ワード)
+        this.json.ng_channel_id = [];           // チャンネルフィルタ(ID)
+        this.json.ng_title = [];                // タイトルフィルタ
+        this.json.ng_comment_by_user = [];      // コメントフィルタ(ユーザ)
+        this.json.ng_comment_by_id = [];        // コメントフィルタ(ID)
+        this.json.ng_comment_by_word = [];      // コメントフィルタ(ワード)
 
         this.clear_text_buffer();
     }
