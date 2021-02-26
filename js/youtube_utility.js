@@ -107,6 +107,23 @@ class YoutubeUtil {
     }
 
     /*!
+     *  @brief  div#dismiss(a|i)bleを得る
+     *  @note   youtubeはdismissibleをdismissableとtypoしていた
+     *  @note   21年2月下旬頃修正されたが、youtubeは鍼灸混在がよくあるので
+     *  @note   どちらでも対応できるよう細工しておく…いずれ外す
+     */
+    static get_div_dismissble() {
+        if ($("div#dismissable").length > 0) {
+            return "div#dismissable"
+        } else 
+        if ($("div#dismissible").length > 0) {
+            return "div#dismissible"
+        } else {
+            return "";
+        }
+    }
+
+    /*!
      *  @brief  'アノテーション'か？
      *  @param  label   ラベル文字列
      *  @note   同じ構造のトグルスイッチが複数あり"アノテーション"用を
