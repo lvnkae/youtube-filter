@@ -586,7 +586,7 @@ class YoutubeFilter extends FilterBase {
             const channel_id = this.video_info_accessor.get_channel_id(video_id);
             if (channel_id != null) {
                 if (this.storage.channel_id_filter(channel_id, title)) {
-                    YoutubeUtil.detach_lower_node(renderer_root, "div#dismissable")
+                    YoutubeUtil.detach_lower_node(renderer_root, this.dismissible_tag)
                 } else {
                     // ContextMenu用に書き込んでおく
                     $(renderer_root).attr("channel_id", channel_id);
@@ -632,7 +632,7 @@ class YoutubeFilter extends FilterBase {
                 return true;
             }
             if (this.storage.channel_id_filter(channel_id, $(elem_title).text())) {
-                YoutubeUtil.detach_lower_node(renderer_root, "div#dismissable")
+                YoutubeUtil.detach_lower_node(renderer_root, this.dismissible_tag)
             } else {
                 // ContextMenu用に書き込んでおく
                 $(renderer_root).attr("channel_id", channel_id);
@@ -765,7 +765,7 @@ class YoutubeFilter extends FilterBase {
      */
     filtering_home_video() {
         const dismissable_tag
-            = "div#dismissable.style-scope.ytd-rich-grid-media"
+            = this.dismissible_tag + ".style-scope.ytd-rich-grid-media";
         $(dismissable_tag).each((inx, elem)=> {
             const tag_title = "#video-title";
             const tag_thumbnail = "a#thumbnail";
@@ -797,7 +797,7 @@ class YoutubeFilter extends FilterBase {
      */
     filtering_home_video_by_channel_id(channel_code, channel_id, fl_func) {
         const dismissable_tag
-            = "div#dismissable.style-scope.ytd-rich-grid-media"
+            = this.dismissible_tag + ".style-scope.ytd-rich-grid-media";
         $(dismissable_tag).each((inx, elem)=> {
             const tag_title = "#video-title";
             const tag_channel = ".yt-simple-endpoint.style-scope.yt-formatted-string";
@@ -836,6 +836,7 @@ class YoutubeFilter extends FilterBase {
      *  @brief  フィルタリング
      */
     filtering() {
+        this.dismissible_tag = YoutubeUtil.get_div_dismissble();
         const loc = this.current_location;
         if (loc.in_youtube_search_page() || loc.in_youtube_trending()) {
             this.filtering_searched_video();
@@ -1077,5 +1078,6 @@ class YoutubeFilter extends FilterBase {
     constructor(storage) {
         super(storage);
         super.create_after_domloaded_observer(this.is_valid_records.bind(this));
+        this.dismissible_tag = null;
     }
 }
