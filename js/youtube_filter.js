@@ -812,7 +812,7 @@ class YoutubeFilter extends FilterBase {
      */
     clear_home_video_marker() {
         const dismissable_tag
-            = "div#dismissable.style-scope.ytd-rich-grid-media"
+            = this.dismissible_tag + ".style-scope.ytd-rich-grid-media";
         $(dismissable_tag).each((inx, elem)=> {
             this.remove_filtered_marker(elem);
         });
