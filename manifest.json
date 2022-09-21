@@ -23,6 +23,7 @@
               "js/message_utility.js",
               "js/text_utility.js",
               "js/url_wrapper.js",
+              "js/html_utility.js",
               "js/storage_data.js",
               "js/google_utility.js",
               "js/youtube_utility.js",
@@ -60,5 +61,5 @@
                     "https://www.youtube.com/*"
                   ],
    "short_name": "YoutubeFilter",
-   "version": "1.0.2.9"
+   "version": "1.0.3.0"
 }

@@ -44,7 +44,7 @@ class BGChannelHTMLAccessor extends BGMessageSender {
                                      this.request_channel_html.bind(this));
         })
         .catch(err => {
-            const q = this.get_reply_queue(video_id);
+            const q = this.get_reply_queue(custom_name);
             // [error]fetchエラー
             this.send_reply({command: MessageUtil.command_get_channel_html(),
                              result: "fail",
