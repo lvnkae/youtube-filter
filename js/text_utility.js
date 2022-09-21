@@ -91,7 +91,10 @@ class TextUtil {
      *  @param  normalize   正規化(大/小文字区別なし)の有無
      */
     regexp(src, dst, normalize) {
-        const flag = (normalize) ?"i" :"";
+        // 絵文字対応のため
+        // uオプション(サロゲートペアを1文字として扱う)
+        // を有効にしておく
+        var flag = (normalize) ?"iu" :"u";
         var ret = dst.search(RegExp(src, flag));
         return ret >= 0;
     }

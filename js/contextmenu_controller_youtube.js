@@ -6,7 +6,7 @@ class ContextMenuController_Youtube extends ContextMenuController {
     static get_channel_text(element) {
         // 動画/チャンネル/プレイリスト
         const ch_tag = "yt-formatted-string#text.style-scope.ytd-channel-name";
-        const ch_node = YoutubeUtil.find_first_appearing_element(element, ch_tag);
+        const ch_node = HTMLUtil.find_first_appearing_element(element, ch_tag);
         if (ch_node != null) {
             return $(ch_node).text();
         }
@@ -48,7 +48,7 @@ class ContextMenuController_Youtube extends ContextMenuController {
             return chid_node;
         }
         // endscreen-content(動画終了画面おすすめ動画)例外
-        return YoutubeUtil.search_upper_node($(element), (e)=> {
+        return HTMLUtil.search_upper_node($(element), (e)=> {
             return e.localName == 'a' &&
                    e.className == 'ytp-videowall-still ytp-suggestion-set';
         });
@@ -58,7 +58,7 @@ class ContextMenuController_Youtube extends ContextMenuController {
      *  @param  element 起点ノード
      */
     get_comment_node(element) {
-        return YoutubeUtil.search_upper_node($(element), (e)=> {
+        return HTMLUtil.search_upper_node($(element), (e)=> {
             return e.localName == 'ytd-comment-renderer';
         });
     }

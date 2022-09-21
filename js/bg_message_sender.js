@@ -4,7 +4,7 @@
  */
 class BGMessageSender {
     //
-    constructor() {
+    constructor(httpreq_pallarel = 8) {
         this.connected_tab = [];
         //
         this.delay_send_timer = null;
@@ -14,6 +14,8 @@ class BGMessageSender {
         this.reply_queue = {full: false, queue: []};
         this.wait_queue = [];
         this.http_request_timer = null;
+        //
+        this.MAX_HTTPREQUEST_PALLAREL = httpreq_pallarel;
     }
 
     /*!
@@ -144,13 +146,13 @@ class BGMessageSender {
      *  @param[in]  q       queue登録用obj
      *  @retval 登録成功
      */
-    static entry_queue(queue, key, q) {
+    static entry_queue(queue, key, q, max_queue) {
         if (queue.full) {
             return false;
         }
-        const MAX_HTTPREQUEST_PALLAREL = 8;
+        //const MAX_HTTPREQUEST_PALLAREL = 8;
         queue.queue[key] = q;
-        if (Object.keys(queue.queue).length == MAX_HTTPREQUEST_PALLAREL) {
+        if (Object.keys(queue.queue).length == max_queue) {
             queue.full = true;
         }
         return true;
@@ -163,12 +165,15 @@ class BGMessageSender {
      */
     entry_wait_queue(key, q) {
         for (var inx = 0; inx < this.wait_queue.length; inx++) {
-            if (BGMessageSender.entry_queue(this.wait_queue[inx], key, q)) {
+            if (BGMessageSender.entry_queue(this.wait_queue[inx], key, q, this.MAX_HTTPREQUEST_PALLAREL)) {
                 return;
             }
         }
         var obj = {full: false, queue: []};
         obj.queue[key] = q;
+        if (this.MAX_HTTPREQUEST_PALLAREL == 1) {
+            obj.full = true;
+        }
         this.wait_queue.push(obj);
     }
 
@@ -207,7 +212,7 @@ class BGMessageSender {
         }
         const q = BGMessageSender.create_queue_obj(fparam, tab_id);
         // 即時request可？
-        if (BGMessageSender.entry_queue(this.reply_queue, key, q)) {
+        if (BGMessageSender.entry_queue(this.reply_queue, key, q, this.MAX_HTTPREQUEST_PALLAREL)) {
             return true;
         }
         //

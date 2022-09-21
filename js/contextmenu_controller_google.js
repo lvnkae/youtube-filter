@@ -65,7 +65,7 @@ class ContextMenuController_Google extends ContextMenuController {
      *  @param  element 右クリックされたelement
      */
     get_google_node(element) {
-        const nd_gs = YoutubeUtil.search_upper_node($(element), (e)=> {
+        const nd_gs = HTMLUtil.search_upper_node($(element), (e)=> {
             return e.localName == 'div' &&
                    e.classList.length > 0 &&
                    e.classList[0] == 'g';
@@ -73,7 +73,7 @@ class ContextMenuController_Google extends ContextMenuController {
         if (nd_gs.length > 0) {
             return nd_gs;
         }
-        const nd_mv = YoutubeUtil.search_upper_node($(element), (e)=> {
+        const nd_mv = HTMLUtil.search_upper_node($(element), (e)=> {
             return e.localName == 'div' &&
                    e.classList.length > 0 &&
                    e.classList[0] == GoogleUtil.get_movie_search_tag();
