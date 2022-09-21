@@ -144,6 +144,40 @@ class YoutubeUtil {
     }
 
     /*!
+     *  @brief  自動再生を無効化する
+     */
+    static disable_autoplay() {
+        const button = "button.ytp-button";
+        $(button).each((inx, btn)=> {
+            var tgt_id =  $(btn).attr("data-tooltip-target-id");
+            if (tgt_id != "ytp-autonav-toggle-button") {
+                return;
+            }
+            var btn_core  = $(btn).find("div.ytp-autonav-toggle-button");
+            if (btn_core.length <= 0) {
+                return;
+            } 
+            if (HTMLUtil.in_disappearing(btn)) {
+                return; // 非表示中は操作できない
+            }
+            const press = $(btn_core).attr("aria-checked");
+            if (press == null) {
+                return;
+            }
+            const clicked = $(btn).attr("clicked");
+            if (press == "true") {
+                // 連打禁止
+                if (clicked == null) {
+                    $(btn).attr("clicked", "true");
+                    btn.click();
+                }
+            } else {
+                $(btn).removeAttr("clicked");
+            }
+        });
+    }
+
+    /*!
      *  @brief  'アノテーション'か？
      *  @param  label   ラベル文字列
      *  @note   同じ構造のトグルスイッチが複数あり"アノテーション"用を

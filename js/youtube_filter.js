@@ -1027,22 +1027,7 @@ class YoutubeFilter extends FilterBase {
     callback_domelement_adition() {
         // 自動再生をオフにする
         if (this.storage.json.stop_autoplay) {
-            const button0
-                = "paper-toggle-button#toggle.style-scope.ytd-compact-autoplay-renderer";
-            $(button0).each((inx, btn)=> {
-                const press = $(btn).attr("aria-pressed");
-                if (press != null && press == "true") {
-                    btn.click();
-                }
-            });
-            const button1
-                = "paper-toggle-button#improved-toggle.style-scope.ytd-compact-autoplay-renderer";
-            $(button1).each((inx, btn)=> {
-                const press = $(btn).attr("aria-pressed");
-                if (press != null && press == "true") {
-                    btn.click();
-                }
-            });
+            YoutubeUtil.disable_autoplay();
         }
         // アノテーションをオフにする
         if (this.storage.json.disable_annotation) {
