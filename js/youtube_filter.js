@@ -39,18 +39,16 @@ class YoutubeFilter extends FilterBase {
         var channel_id = null;
         if (YoutubeUtil.is_channel_url(author_url)) {
             channel_id = YoutubeUtil.cut_channel_id(author_url);
-        } else
-            if (YoutubeUtil.is_userpage_url(author_url)) {
-                const username = YoutubeUtil.cut_channel_id(author_url);
-                channel_id = this.author_info_accessor.get_channel_id(username);
-                if (channel_id == null) {
-                    this.author_info_accessor.entry(username);
-                    return false;
-                }
-            } else
-                if (YoutubeUtil.is_custom_channel_url(author_url)) {
-                    return false; // ロジックエラー
-                }
+        } else if (YoutubeUtil.is_userpage_url(author_url)) {
+            const username = YoutubeUtil.cut_channel_id(author_url);
+            channel_id = this.author_info_accessor.get_channel_id(username);
+            if (channel_id == null) {
+                this.author_info_accessor.entry(username);
+                return false;
+            }
+        } else if (YoutubeUtil.is_custom_channel_url(author_url)) {
+                return false; // ロジックエラー
+        }
         if (this.storage.channel_id_filter(channel_id, title)) {
             $(renderer_root).detach();
             return true;
@@ -182,7 +180,7 @@ class YoutubeFilter extends FilterBase {
      *  @note   チャンネルコードを基点とした動画フィルタ
      */
     filtering_video_by_channel_code(elem, tag_title, tag_channel,
-        channel_code, channel_id, chk_func) {
+                                    channel_code, channel_id, chk_func) {
         const renderer_root = YoutubeUtil.search_renderer_root($(elem));
         if (renderer_root.length == 0) {
             return true;
@@ -237,7 +235,7 @@ class YoutubeFilter extends FilterBase {
      *  @retval true        処理打ち切りまたは要素削除
      */
     filtering_video_by_custom_name(elem, tag_title, tag_channel,
-        custom_name, channel_id) {
+                                   custom_name, channel_id) {
         return this.filtering_video_by_channel_code(elem,
             tag_title,
             tag_channel,
@@ -245,6 +243,93 @@ class YoutubeFilter extends FilterBase {
             channel_id,
             YoutubeUtil.is_custom_channel_url);
     }
+
+    /*!
+     *  @brief  動画フィルタ(動画ID)
+     *  @param  renderer_root   renderオブジェクト
+     *  @param  video_id        動画ID
+     *  @param  title           動画タイトル
+     *  @retval true            指定動画(renderオブジェクト)がdetachされた
+     *  @note   動画ハッシュ(URL)を基点とした動画フィルタ
+     *  @note   Youtubeからjsonを得て詳細フィルタをかける(非同期処理)
+     */
+    filtering_video_by_id(renderer_root, video_id, title) {
+        const channel_info = this.video_info_accessor.get_channel_info(video_id);
+        if (channel_info == null) {
+            this.video_info_accessor.entry(video_id);
+            return false;
+        }
+        if (this.storage.channel_id_filter(channel_info.id, title) ||
+            this.storage.channel_filter(channel_info.name, title)) {
+            $(renderer_root).detach();
+            return true;
+        } else {
+            // ContextMenu用に書き込んでおく
+            $(renderer_root).attr("channel_id", channel_info.id);
+            YoutubeUtil.set_channel_name(renderer_root, channel_info.name);
+            return false;
+        }
+    }
+    /*!
+     *  @brief  short動画フィルタ(Youtubeホーム)
+     *  @param  elem        親ノード
+     *  @param  tag_title   動画タイトルタグ
+     *  @param  video_id    動画ID
+     *  @retval true        処理打ち切りまたは要素削除
+     *  @note   チャンネル名表記がない
+     */
+    filtering_short_video(elem, tag_title, video_id) {
+        const renderer_root = YoutubeUtil.search_renderer_root($(elem));
+        if (renderer_root.length == 0) {
+            return true;
+        }
+        const elem_title = $(elem).find(tag_title);
+        if (elem_title.length != 1) {
+            return true;
+        }
+        const title = $(elem_title).text();
+        if (this.storage.title_filter(title)) {
+            $(renderer_root).detach();
+            return true;
+        }
+        return this.filtering_video_by_id(renderer_root, video_id, title);
+    }
+    /*!
+     *  @brief  short動画フィルタ(Youtubeホーム)
+     *  @param  video_id        動画ID
+     *  @note   動画情報(json)取得完了通知後処理から呼ばれる
+     */
+    filtering_short_video_by_channel_id(video_id) {
+        const dismissable_tag_short
+            = this.dismissible_tag + ".style-scope.ytd-rich-grid-slim-media";
+        $(dismissable_tag_short).each((inx, elem)=> {
+            const tag_title = "#video-title";
+            const tag_thumbnail = "a#thumbnail";
+            //
+            const hash = YoutubeUtil.get_short_hash(elem, tag_thumbnail);
+            if (hash != video_id) {
+                return true;
+            }
+            const renderer_root = YoutubeUtil.search_renderer_root($(elem));
+            const elem_title = $(elem).find(tag_title);
+            const channel_info = this.video_info_accessor.get_channel_info(video_id);
+            if (renderer_root.length == 0 ||
+                elem_title.length == 0 ||
+                channel_info == null) {
+                return false;
+            }
+            const title = $(elem_title).text();
+            if (this.storage.channel_id_filter(channel_info.id, title) ||
+                this.storage.channel_filter(channel_info.name, title)) {
+                $(renderer_root).detach();
+            } else {
+                // ContextMenu用に書き込んでおく
+                $(renderer_root).attr("channel_id", channel_info.id);
+                YoutubeUtil.set_channel_name(renderer_root, channel_info.name);
+            }
+            return false;
+        });
+    }        
 
     /*!
      *  @brief  動画(Youtube検索)にフィルタを掛ける
@@ -305,18 +390,13 @@ class YoutubeFilter extends FilterBase {
      *  @note   動画検索(フィルタなし)時に差し込まれるチャンネルタイルの除去
      */
     filtering_searched_channel() {
+        // >ToDo< ループ指定tagを精査する(無駄がある)
         $(".yt-simple-endpoint.style-scope.ytd-channel-renderer").each((inx, elem)=> {
             const renderer_root = YoutubeUtil.search_renderer_root($(elem));
             if (renderer_root.length == 0) {
                 return;
             }
-            const tag_channel =
-                "yt-formatted-string#text.style-scope.ytd-channel-name";
-            const elem_channel = $(elem).find(tag_channel);
-            if (elem_channel.length != 1) {
-                return;
-            }
-            const channel = $(elem_channel[0]).text();
+            const channel = YoutubeUtil.get_channel_name(elem);
             if (this.storage.channel_filter(channel)) {
                 $(renderer_root).detach();
                 return;
@@ -570,14 +650,11 @@ class YoutubeFilter extends FilterBase {
             //
             const title_tag = "span#video-title";
             const elem_title = $(elem).find(title_tag);
-            const channnel_tag
-                = "yt-formatted-string#text.style-scope.ytd-channel-name";
-            const elem_channel = $(elem).find(channnel_tag);
-            if (elem_title.length != 1 || elem_channel.length != 1) {
+            if (elem_title.length != 1) {
                 return;
             }
             const title = $(elem_title[0]).text();
-            const channel = $(elem_channel[0]).text();
+            const channel = YoutubeUtil.get_channel_name(elem);
             if (this.storage.channel_and_title_filter(channel, title)) {
                 $(renderer_root).detach();
                 return;
@@ -784,6 +861,26 @@ class YoutubeFilter extends FilterBase {
             //
             this.set_filtered_marker(elem, hash);
         });
+        // short動画
+        const dismissable_tag_short
+            = this.dismissible_tag + ".style-scope.ytd-rich-grid-slim-media";
+        $(dismissable_tag_short).each((inx, elem)=> {
+            const tag_title = "#video-title";
+            const tag_thumbnail = "a#thumbnail";
+            //
+            const marker = this.get_filtered_marker(elem);
+            const hash = YoutubeUtil.get_short_hash(elem, tag_thumbnail);
+            if (marker != null && hash == marker) {
+                return;
+            }
+            this.remove_filtered_marker(elem);
+            //
+            if (this.filtering_short_video(elem, tag_title, hash)) {
+                return;
+            }
+            //
+            this.set_filtered_marker(elem, hash);
+        });
         this.author_info_accessor.kick();
         this.video_info_accessor.kick();
     }
@@ -814,6 +911,11 @@ class YoutubeFilter extends FilterBase {
         const dismissable_tag
             = this.dismissible_tag + ".style-scope.ytd-rich-grid-media";
         $(dismissable_tag).each((inx, elem)=> {
+            this.remove_filtered_marker(elem);
+        });
+        const dismissable_tag_short
+        = this.dismissible_tag + ".style-scope.ytd-rich-grid-slim-media";
+        $(dismissable_tag_short).each((inx, elem)=> {        
             this.remove_filtered_marker(elem);
         });
     }
@@ -905,7 +1007,9 @@ class YoutubeFilter extends FilterBase {
             if (obj.custom_name != null) {
                 this.post_filtering_by_custom_name(obj.custom_name, obj.channel_id);
             } else {
-                this.filtering_recommend_video_by_channel_id(obj.video_id, obj.channel_id);
+                this.filtering_recommend_video_by_channel_id(obj.video_id,
+                                                             obj.channel_id);
+                this.filtering_short_video_by_channel_id(obj.video_id);
             }
         } else if (obj.username) {
             // jsonからチャンネルIDを得られなかった場合はこっち
@@ -913,6 +1017,7 @@ class YoutubeFilter extends FilterBase {
             if (channel_id != null) {
                 this.video_info_accessor.set_channel_id(obj.video_id, channel_id);
                 this.filtering_recommend_video_by_channel_id(obj.video_id, channel_id);
+                this.filtering_short_video_by_channel_id(obj.video_id);
             } else {
                 // usernameをキーにfeedを得る
                 this.author_info_accessor.entry(obj.username);
@@ -925,6 +1030,7 @@ class YoutubeFilter extends FilterBase {
             if (channel_id != null) {
                 this.video_info_accessor.set_channel_id(obj.video_id, channel_id);
                 this.filtering_recommend_video_by_channel_id(obj.video_id, channel_id);
+                this.filtering_short_video_by_channel_id(obj.video_id);
             } else {
                 this.channel_info_accessor.entry(obj.custom_name);
                 this.channel_info_accessor.kick();
@@ -955,6 +1061,7 @@ class YoutubeFilter extends FilterBase {
             = this.video_info_accessor.tell_get_channel_id(obj.username, obj.channel_id);
         for (const video_id of video_ids) {
             this.filtering_recommend_video_by_channel_id(video_id, obj.channel_id);
+            this.filtering_short_video_by_channel_id(video_id);
         }
         this.post_filtering_by_username(obj.username, obj.channel_id);
         //
@@ -990,6 +1097,7 @@ class YoutubeFilter extends FilterBase {
                                                          obj.channel_id);
         for (const video_id of video_ids) {
             this.filtering_recommend_video_by_channel_id(video_id, obj.channel_id);
+            this.filtering_short_video_by_channel_id(video_id);
         }
         this.post_filtering_by_custom_name(obj.custom_name, obj.channel_id);
     }

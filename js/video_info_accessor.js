@@ -8,6 +8,21 @@ class VideoInfoAccessor {
     }
 
     /*!
+     *  @brief  動画IDからチャンネル情報を得る
+     *  @param  video_id    動画ID
+     */
+    get_channel_info(video_id) {
+        if (video_id in this.video_info_map) {
+            const video_info = this.video_info_map[video_id];
+            var obj = {};
+            obj.id = video_info.channel_id;
+            obj.name = video_info.channel_name;
+            return obj;
+        }
+        return null;
+    }
+
+    /*!
      *  @brief  動画IDからチャンネルIDを得る
      *  @param  video_id    動画ID
      */

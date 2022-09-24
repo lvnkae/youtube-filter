@@ -5,10 +5,9 @@ class ContextMenuController_Youtube extends ContextMenuController {
 
     static get_channel_text(element) {
         // 動画/チャンネル/プレイリスト
-        const ch_tag = "yt-formatted-string#text.style-scope.ytd-channel-name";
-        const ch_node = HTMLUtil.find_first_appearing_element(element, ch_tag);
-        if (ch_node != null) {
-            return $(ch_node).text();
+        const ch_name = YoutubeUtil.get_channel_name(element);
+        if (ch_name != "") {
+            return ch_name;
         }
         // grid-channel(○水平リスト)例外
         const gr_ch_tag = "span#title.style-scope.ytd-grid-channel-renderer";
