@@ -46,10 +46,21 @@ class urlWrapper {
                     this.domain.indexOf("m.youtube.com") >= 0 ||
                     this.domain.indexOf("gaming.youtube.com") >= 0;
     }
+    /*!
+     *  @brief  Home亜種
+     *  @note   普段は空の"blg-yoodle"に「Youtube 注目」バナーが表示されるタイプ
+     *  @note   サイト左上のYoutubeアイコンからのリンク先が書き換えられてしまう
+     */
+    in_youtube_top_yoodle()
+    {
+        return this.subdir.length >= 1 &&
+               this.subdir[0].slice(0,4) == '?bp=';
+    }
     in_top_page()
     {
         return this.subdir.length == 0 ||
-               this.subdir[0].length == 0;
+               this.subdir[0].length == 0 ||
+               this.in_youtube_top_yoodle();
     }
     in_youtube_movie_page()
     {

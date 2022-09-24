@@ -88,24 +88,67 @@ class YoutubeUtil {
     }
 
     /*!
+     *  @brief  short動画ノードからハッシュを得る
+     *  @param  elem    動画ベースノード
+     *  @param  tag     ハッシュ取得タグ
+     */
+    static get_short_hash(elem, tag) {
+        const nd_hash = $(elem).find(tag);
+        if (nd_hash.length > 0) {
+            const movie_href = $(nd_hash).attr("href");
+            const sp_href = movie_href.split("/");
+            return sp_href[sp_href.length-1];
+        } else {
+            return "";
+        }
+    }
+
+    /*!
      *  @brief  ページチャンネルURLを得る
      */
     static get_page_author_url() {
         return location.href;
     }
+
+    static get_channel_name_tag() {
+        return "yt-formatted-string#text.style-scope.ytd-channel-name";
+    }
     /*!
      *  @brief  ページチャンネル名を得る
      */
     static get_page_channel_name() {
-        const tag = "yt-formatted-string#text.style-scope.ytd-channel-name";
-        const text_tag = $(tag);
+        const text_tag = $(YoutubeUtil.get_channel_name_tag());
         if (text_tag.length > 0) {
             return $(text_tag[0]).text();
         } else {
             return null;
         }
     }
-
+    /*!
+     *  @brief  チャンネル名を得る
+     *  @note   elem    基準ノード
+     */
+    static get_channel_name(elem) {
+        const ch_tag = YoutubeUtil.get_channel_name_tag();
+        const ch_node = HTMLUtil.find_first_appearing_element(elem, ch_tag);
+        if (ch_node != null) {
+            return $(ch_node).text();
+        } else {
+            return "";
+        }
+    }    
+    /*!
+     *  @brief  チャンネル名をセットする
+     *  @note   elem    基準ノード
+     */
+    static set_channel_name(elem, channel_name) {
+        const ch_tag = YoutubeUtil.get_channel_name_tag();
+        const ch_node = HTMLUtil.find_first_appearing_element(elem, ch_tag);
+        if (ch_node != null) {
+            return $(ch_node).text(channel_name);
+        }
+    }
+    
     /*!
      *  @brief  コメントを得る
      *  @note   textだけでなく絵文字も切り出す
@@ -235,6 +278,7 @@ class YoutubeUtil {
                    ln == 'ytd-channel-renderer' ||
                    ln == 'ytd-playlist-renderer' ||
                    ln == 'ytd-rich-grid-media' ||
+                   ln == 'ytd-rich-grid-slim-media' ||
                    ln == 'ytd-grid-video-renderer' ||
                    ln == 'ytd-grid-channel-renderer' ||
                    ln == 'ytd-compact-video-renderer' ||
