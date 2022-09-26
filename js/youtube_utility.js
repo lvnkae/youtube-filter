@@ -277,6 +277,7 @@ class YoutubeUtil {
             return ln == 'ytd-video-renderer' ||
                    ln == 'ytd-channel-renderer' ||
                    ln == 'ytd-playlist-renderer' ||
+                   ln == 'ytd-reel-item-renderer' ||
                    ln == 'ytd-rich-grid-media' ||
                    ln == 'ytd-rich-grid-slim-media' ||
                    ln == 'ytd-grid-video-renderer' ||
