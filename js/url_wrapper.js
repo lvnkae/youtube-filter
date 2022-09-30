@@ -105,4 +105,8 @@ class urlWrapper {
     {
         return (this.subdir.length >=1 && this.subdir[0] == 'hashtag');
     }
+    in_youtube_short_page()
+    {
+        return (this.subdir.length >=1 && this.subdir[0] == 'shorts');
+    }
 }
