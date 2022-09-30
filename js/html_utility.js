@@ -64,4 +64,12 @@ class HTMLUtil {
         }
         $(dt_node).detach();
     }
+
+    static detach_children_all(elem) {
+        const len = elem.children.length;
+        for (let inx = 0; inx < len; inx++) {
+            // childrenは減っていく
+            $(elem.children[0]).detach();
+        }
+    }
 }

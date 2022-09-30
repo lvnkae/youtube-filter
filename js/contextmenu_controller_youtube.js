@@ -106,6 +106,7 @@ class ContextMenuController_Youtube extends ContextMenuController {
     event_mouse_right_click(loc, element) {
         if (!loc.in_youtube_channel_page() &&
             !loc.in_youtube_search_page() &&
+            !loc.in_youtube_short_page() &&
             !loc.in_youtube_movie_page() &&
             !loc.in_youtube_user_page() &&
             !loc.in_youtube_trending() &&
