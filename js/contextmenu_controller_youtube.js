@@ -19,7 +19,7 @@ class ContextMenuController_Youtube extends ContextMenuController {
         const edscr_ch_tag = "span.ytp-videowall-still-info-author";
         const edscr_ch_node = $(element).find(edscr_ch_tag);
         if (edscr_ch_node.length != 0) {
-            return YoutubeUtil.get_channel_from_autor_info($(edscr_ch_node).text());
+            return YoutubeUtil.get_channel_from_author_info($(edscr_ch_node).text());
         }
         return '';
     }
