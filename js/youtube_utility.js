@@ -36,7 +36,7 @@ class YoutubeUtil {
     /*!
      *  @brief  動画主情報からチャンネル名を切り出す
      */
-    static get_channel_from_autor_info(text) {
+    static get_channel_from_author_info(text) {
         const delimiter = ' \u2022 '; // bullet
         const au_div = text.split(delimiter);
         const au_len = au_div.length;
@@ -68,10 +68,33 @@ class YoutubeUtil {
     }
     /*!
      *  @brief  Youtube動画リンクからハッシュを切り出す
+     *  @param  link    動画リンク
      */
-    static cut_movie_hash(movie_href) {
-        const sp_href = movie_href.split("?v=");
+    static cut_movie_hash(link) {
+        const sp_href = link.split("?v=");
+        const sp_href_no_opt = sp_href[sp_href.length-1].split("&");
+        return sp_href_no_opt[0];
+    }
+    static cut_short_movie_hash(link) {
+        const sp_href = link.split("/");
         return sp_href[sp_href.length-1];
+    }
+
+    /*!
+     *  @brief  Youtube動画ノードからハッシュを得る
+     *  @param  nd_hash ハッシュ取得ノード
+     */
+    static get_video_hash_by_node(nd_hash) {
+        if (nd_hash.length > 0) {
+            const link = $(nd_hash).attr("href");
+            if (link.indexOf("watch?v=") >= 0) {
+                return YoutubeUtil.cut_movie_hash(link);
+            } else
+            if (link.indexOf("/shorts/") >= 0) {
+                return YoutubeUtil.cut_short_movie_hash(link);
+            }
+        }
+        return "";
     }
     /*!
      *  @brief  Youtube動画ノードからハッシュを得る
@@ -79,28 +102,7 @@ class YoutubeUtil {
      *  @param  tag     ハッシュ取得タグ
      */
     static get_video_hash(elem, tag) {
-        const nd_hash = $(elem).find(tag);
-        if (nd_hash.length > 0) {
-            return YoutubeUtil.cut_movie_hash($(nd_hash).attr("href"));
-        } else {
-            return "";
-        }
-    }
-
-    /*!
-     *  @brief  short動画ノードからハッシュを得る
-     *  @param  elem    動画ベースノード
-     *  @param  tag     ハッシュ取得タグ
-     */
-    static get_short_hash(elem, tag) {
-        const nd_hash = $(elem).find(tag);
-        if (nd_hash.length > 0) {
-            const movie_href = $(nd_hash).attr("href");
-            const sp_href = movie_href.split("/");
-            return sp_href[sp_href.length-1];
-        } else {
-            return "";
-        }
+        return YoutubeUtil.get_video_hash_by_node($(elem).find(tag));
     }
 
     /*!
@@ -113,6 +115,14 @@ class YoutubeUtil {
     static get_channel_name_tag() {
         return "yt-formatted-string#text.style-scope.ytd-channel-name";
     }
+    /*!
+     *  @brief  チャンネル名ノードを得る
+     *  @note   elem    基準ノード
+     */
+    static get_channel_name_element(elem) {
+        const ch_tag = YoutubeUtil.get_channel_name_tag();
+        return HTMLUtil.find_first_appearing_element(elem, ch_tag);
+    } 
     /*!
      *  @brief  ページチャンネル名を得る
      */
@@ -129,8 +139,7 @@ class YoutubeUtil {
      *  @note   elem    基準ノード
      */
     static get_channel_name(elem) {
-        const ch_tag = YoutubeUtil.get_channel_name_tag();
-        const ch_node = HTMLUtil.find_first_appearing_element(elem, ch_tag);
+        const ch_node = YoutubeUtil.get_channel_name_element(elem);
         if (ch_node != null) {
             return $(ch_node).text();
         } else {
@@ -142,8 +151,7 @@ class YoutubeUtil {
      *  @note   elem    基準ノード
      */
     static set_channel_name(elem, channel_name) {
-        const ch_tag = YoutubeUtil.get_channel_name_tag();
-        const ch_node = HTMLUtil.find_first_appearing_element(elem, ch_tag);
+        let ch_node = YoutubeUtil.get_channel_name_element(elem);
         if (ch_node != null) {
             return $(ch_node).text(channel_name);
         }

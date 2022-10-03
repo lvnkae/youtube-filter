@@ -178,11 +178,19 @@ class StorageData {
         if (this.json.ng_channel_id == null) {
             return false;
         }
-        for (const ngci of this.json.ng_channel_id) {
-            if (ngci.channel_id == channel_id) {
-                if (ngci.black_titles.length == 0 ||
-                    StorageData.word_filter(title, ngci.black_titles)) {
+        if (title == null) {
+            for (const ngci of this.json.ng_channel_id) {
+                if (ngci.channel_id == channel_id) {
                     return true;
+                }
+            }
+        } else {
+            for (const ngci of this.json.ng_channel_id) {
+                if (ngci.channel_id == channel_id) {
+                    if (ngci.black_titles.length == 0 ||
+                        StorageData.word_filter(title, ngci.black_titles)) {
+                        return true;
+                    }
                 }
             }
         }
