@@ -54,28 +54,30 @@ class VideoSearcher {
             return;
         }
         let author_url = null;
-        const search_word = 'webCommandMetadata":{"url":"/';
-        const sw_len = search_word.length;
+        const key_script_top = 'var ytInit';
+        const key_url = 'webCommandMetadata":{"url":"/';
+        const len_key_url = key_url.length;
+        const key_video_id = 'videoRenderer":{"videoId":"'
         $(elem_script).each((inx, elem)=>{
-            if (elem.innerText.indexOf("var ytInit") != 0) {
+            if (elem.innerText.indexOf(key_script_top) != 0) {
                 return true;
             }
-            const search_top = elem.innerText.indexOf('watch?v=' + video_id);
+            const search_top = elem.innerText.indexOf(key_video_id + video_id);
             if (search_top < 0) {
                 return false; // 想定外のhtmlが来た
             }
-            let cut_top = elem.innerText.indexOf(search_word + 'channel/', search_top);
+            let cut_top = elem.innerText.indexOf(key_url + 'channel/', search_top);
             if (cut_top < 0) {
-                cut_top = elem.innerText.indexOf(search_word + 'user/', search_top);
+                cut_top = elem.innerText.indexOf(key_url + 'user/', search_top);
                 if (cut_top < 0) {
-                    cut_top = elem.innerText.indexOf(search_word + 'c/', search_top);
+                    cut_top = elem.innerText.indexOf(key_url + 'c/', search_top);
                 }
             }
             if (cut_top < 0) {
                 return false; // 想定外のhtmlが来た
             }
-            const cut_end = elem.innerText.indexOf('"', cut_top + sw_len);
-            author_url = elem.innerText.substring(cut_top + sw_len -1, cut_end);
+            const cut_end = elem.innerText.indexOf('"', cut_top + len_key_url);
+            author_url = elem.innerText.substring(cut_top + len_key_url -1, cut_end);
             return false;
         });
         post_func(video_id, author_url);

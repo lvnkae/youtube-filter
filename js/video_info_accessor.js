@@ -86,6 +86,17 @@ class VideoInfoAccessor {
             obj.busy = false;
         }
     }
+    /*!
+     *  @brief  動画IDにカスタムチャンネル名を紐付ける
+     *  @param  video_id    動画ID
+     *  @param  custom_name カスタムチャンネル名
+     */
+    set_custom_name(video_id, custom_name) {
+        if (video_id in this.video_info_map) {
+            var obj = this.video_info_map[video_id];
+            obj.custom_name = custom_name;
+        }
+    }
 
     /*!
      *  @brief  動画ID登録
