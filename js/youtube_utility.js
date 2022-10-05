@@ -135,6 +135,20 @@ class YoutubeUtil {
         }
     }
     /*!
+     *  @brief  Mixリストタイトルからチャンネル名を得る
+     *  @note   "Mix - チャンネル名"という形式
+     *  @note   "Mix"の部分は言語で変わり得る
+     */
+    static get_channel_name_from_radio(str) {
+        const key = ' - ';
+        const inx = str.indexOf(key);
+        if (inx < 0) {
+            return str;
+        } else {
+            return str.substring(inx + key.length);
+        }
+    }
+    /*!
      *  @brief  チャンネル名を得る
      *  @note   elem    基準ノード
      */
@@ -284,6 +298,7 @@ class YoutubeUtil {
             const ln = e.localName.valueOf();
             return ln == 'ytd-video-renderer' ||
                    ln == 'ytd-channel-renderer' ||
+                   ln == 'ytd-radio-renderer' ||
                    ln == 'ytd-playlist-renderer' ||
                    ln == 'ytd-reel-item-renderer' ||
                    ln == 'ytd-reel-video-renderer' ||

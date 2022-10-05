@@ -77,7 +77,7 @@ class TextUtil {
      */
     regexp_indexOf(src, dst) {
         if (src.length > 2) {
-            if (src.substr(0, 2) == "<>") {            
+            if (src.substring(0, 2) == "<>") {            
                 return this.regexp(src.slice(2), dst, false);
             }
         }

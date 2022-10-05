@@ -11,8 +11,8 @@ class urlWrapper {
                 'https://'
             ];
             for (const headar of href_header) {
-                if (url.substr(0, headar.length) == headar) {
-                    return url.substr(headar.length).split('/');
+                if (url.substring(0, headar.length) == headar) {
+                    return url.substring(headar.length).split('/');
                 }
             }
             return [];

@@ -159,7 +159,8 @@ class StorageData {
     channel_filter(channel, title) {
         for (const ngc of this.json.ng_channel) {
             if (this.conditional_filter_single(ngc, channel)) {
-                if (ngc.black_titles.length == 0 ||
+                if (title == null ||
+                    ngc.black_titles.length == 0 ||
                     StorageData.word_filter(title, ngc.black_titles)) {
                     return true;
                 }

@@ -37,6 +37,15 @@ class Content {
                                                request.html);
                     }
                 } else
+                if (request.command == MessageUtil.command_search_video()) {
+                    if (this.filter_instance) {
+                        this
+                        .filter_instance
+                        .tell_search_video_html(request.result,
+                                                request.video_id,
+                                                request.html);
+                    }
+                } else
                 if (request.command == MessageUtil.command_mute_channel_id()) {
                     const update
                         = this.storage.add_channel_id_mute_with_check(request.channel_id,
