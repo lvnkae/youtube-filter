@@ -7,6 +7,7 @@
                    "js/bg_video_json_accessor.js",
                    "js/bg_videos_xml_accessor.js",
                    "js/bg_channel_html_accessor.js",
+                   "js/bg_video_searcher.js",
                    "js/bg_contextmenu_controller.js",
                    "js/background.js" ]
    },
@@ -30,6 +31,7 @@
               "js/author_info_accessor.js",
               "js/video_info_accessor.js",
               "js/channel_info_accessor.js",
+              "js/video_searcher.js",
               "js/filter_base.js",
               "js/contextmenu_controller.js",
               "js/contextmenu_controller_google.js",

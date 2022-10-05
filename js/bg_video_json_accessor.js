@@ -23,8 +23,15 @@ class BGVideoJsonAccessor extends BGMessageSender {
         })
         .then(response => {
             const STS_OK = 200;
+            const STS_UNAUTHORIZED = 401;
             if (response.status == STS_OK) {
                 return response.json();
+            } else if (response.status == STS_UNAUTHORIZED) {
+                const q = this.get_reply_queue(video_id);
+                this.send_reply({command: MessageUtil.command_get_video_json(),
+                                 result: "unauthorized",
+                                 video_id: video_id}, q.tag_ids);
+                return null;
             } else {
                 const q = this.get_reply_queue(video_id);
                 this.send_reply({command: MessageUtil.command_get_video_json(),
