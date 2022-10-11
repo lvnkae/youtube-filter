@@ -50,7 +50,12 @@ class TextUtil {
     remove_new_line_and_space(string) {
         return string.replace(/[\s|\r\n|\r|\n]+/g, "");
     }
-
+    /*!
+     *  @brief  空行と行頭スペースを削除
+     */
+    remove_blank_line_and_head_space(string) {
+        return this.remove_line_head_space(this.remove_blank_line(string));
+    }
     /*!
      *  @brief  改行で連結された文字列から座標でワード検索する
      *  @param  pos     文字位置

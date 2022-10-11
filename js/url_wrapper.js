@@ -74,7 +74,10 @@ class urlWrapper {
     }
     in_youtube_channel_page()
     {
-        return (this.subdir.length >=1 && this.subdir[0] == 'channel');
+        // sports(Egdi0XIXXZ-qJOFPf4JSKw)だけ構造が違うので除外
+        return this.subdir.length >=2 &&
+               this.subdir[0] == 'channel' &&
+               this.subdir[1] != 'UCEgdi0XIXXZ-qJOFPf4JSKw';
     }
     in_youtube_user_page()
     {
@@ -83,6 +86,14 @@ class urlWrapper {
     in_youtube_custom_channel_page()
     {
         return (this.subdir.length >=1 && this.subdir[0] == 'c');
+    }
+    in_youtube_sp_channel_page()
+    {
+        return this.subdir.length >=1 && 
+               (this.subdir[0] == 'gaming' || /* ゲーム */
+                this.subdir[0] == 'newucnews' || /* ニュース*/
+                this.subdir[0] == '360' || /* 360°動画 */
+                this.subdir[0] == 'live') /* ライブ*/
     }
     in_youtube_search_page()
     {
@@ -97,9 +108,12 @@ class urlWrapper {
                (this.subdir[1].slice(0, 8) == 'trending' ||
                 this.subdir[1] == 'explore');
     }
-    in_youtube_gaming()
+    in_youtube_sports()
     {
-        return (this.subdir.length >=1 && this.subdir[0] == 'gaming');
+        // 専用URLにしてほしい…
+        return this.subdir.length >=2 &&
+               this.subdir[0] == 'channel' &&
+               this.subdir[1] == 'UCEgdi0XIXXZ-qJOFPf4JSKw';
     }
     in_youtube_hashtag()
     {

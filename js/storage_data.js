@@ -159,8 +159,7 @@ class StorageData {
     channel_filter(channel, title) {
         for (const ngc of this.json.ng_channel) {
             if (this.conditional_filter_single(ngc, channel)) {
-                if (title == null ||
-                    ngc.black_titles.length == 0 ||
+                if (ngc.black_titles.length == 0 ||
                     StorageData.word_filter(title, ngc.black_titles)) {
                     return true;
                 }
@@ -179,19 +178,11 @@ class StorageData {
         if (this.json.ng_channel_id == null) {
             return false;
         }
-        if (title == null) {
-            for (const ngci of this.json.ng_channel_id) {
-                if (ngci.channel_id == channel_id) {
+        for (const ngci of this.json.ng_channel_id) {
+            if (ngci.channel_id == channel_id) {
+                if (ngci.black_titles.length == 0 ||
+                    StorageData.word_filter(title, ngci.black_titles)) {
                     return true;
-                }
-            }
-        } else {
-            for (const ngci of this.json.ng_channel_id) {
-                if (ngci.channel_id == channel_id) {
-                    if (ngci.black_titles.length == 0 ||
-                        StorageData.word_filter(title, ngci.black_titles)) {
-                        return true;
-                    }
                 }
             }
         }

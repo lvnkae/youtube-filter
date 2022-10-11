@@ -49,6 +49,20 @@ class YoutubeUtil {
         }
         return '';
     }
+    /*!
+     *  @brief  Mixリストタイトルからチャンネル名を切り出す
+     *  @note   "Mix - チャンネル名"という形式
+     *  @note   "Mix"の部分は言語で変わり得る
+     */
+    static get_channel_name_from_radio(str) {
+        const key = ' - ';
+        const inx = str.indexOf(key);
+        if (inx < 0) {
+            return str;
+        } else {
+            return str.substring(inx + key.length);
+        }
+    }
 
     /*!
      *  @brief  YoutubeチャンネルリンクからIDを切り出す
@@ -105,16 +119,42 @@ class YoutubeUtil {
         return YoutubeUtil.get_video_hash_by_node($(elem).find(tag));
     }
 
+    static get_content_title_tag() {
+        return "a#video-title";
+    }
+    static get_channel_name_tag() {
+        return "yt-formatted-string#text.style-scope.ytd-channel-name";
+    }
+    static get_channel_topic_tag() {
+        return "yt-formatted-string#title.style-scope.ytd-topic-channel-details-renderer";
+    }
+    static get_channel_link_tag() {
+        return "a.yt-simple-endpoint.style-scope.yt-formatted-string";
+    }
+
     /*!
      *  @brief  ページチャンネルURLを得る
      */
     static get_page_author_url() {
         return location.href;
     }
-
-    static get_channel_name_tag() {
-        return "yt-formatted-string#text.style-scope.ytd-channel-name";
+    /*!
+     *  @brief  ページチャンネル名を得る
+     */
+    static get_page_channel_name() {
+        const e_channel_name
+            = $("div#channel-header").find(YoutubeUtil.get_channel_name_tag());
+        if (e_channel_name.length > 0) {
+            return $(e_channel_name).text();
+        }
+        const tag_topic_name = YoutubeUtil.get_channel_topic_tag();
+        const e_channel_topic = $(tag_topic_name);
+        if (e_channel_topic.length > 0) {
+            return $(e_channel_topic).text();
+        }
+        return null;
     }
+
     /*!
      *  @brief  チャンネル名ノードを得る
      *  @note   elem    基準ノード
@@ -124,30 +164,19 @@ class YoutubeUtil {
         return HTMLUtil.find_first_appearing_element(elem, ch_tag);
     } 
     /*!
-     *  @brief  ページチャンネル名を得る
+     *  @brief  チャンネルリンクノードを得る
+     *  @note   elem    基準ノード
      */
-    static get_page_channel_name() {
-        const text_tag = $(YoutubeUtil.get_channel_name_tag());
-        if (text_tag.length > 0) {
-            return $(text_tag[0]).text();
+    static get_channel_link_element(elem) {
+        const e_channel_name = YoutubeUtil.get_channel_name_element(elem);
+        if (e_channel_name != null) {
+            const ch_tag = YoutubeUtil.get_channel_link_tag();
+            return HTMLUtil.find_first_appearing_element(e_channel_name, ch_tag);
         } else {
             return null;
         }
     }
-    /*!
-     *  @brief  Mixリストタイトルからチャンネル名を得る
-     *  @note   "Mix - チャンネル名"という形式
-     *  @note   "Mix"の部分は言語で変わり得る
-     */
-    static get_channel_name_from_radio(str) {
-        const key = ' - ';
-        const inx = str.indexOf(key);
-        if (inx < 0) {
-            return str;
-        } else {
-            return str.substring(inx + key.length);
-        }
-    }
+
     /*!
      *  @brief  チャンネル名を得る
      *  @note   elem    基準ノード
@@ -170,7 +199,17 @@ class YoutubeUtil {
             return $(ch_node).text(channel_name);
         }
     }
-    
+    /*!
+     *  @brief  チャンネル名を削除する
+     *  @note   elem    基準ノード
+     */
+    static remove_channel_name(elem) {
+        let ch_node = YoutubeUtil.get_channel_name_element(elem);
+        if (ch_node != null) {
+            $(ch_node).text("");
+        }
+    }
+
     /*!
      *  @brief  コメントを得る
      *  @note   textだけでなく絵文字も切り出す
@@ -205,6 +244,93 @@ class YoutubeUtil {
             return "div#dismissible"
         } else {
             return "";
+        }
+    }
+
+    /*!
+     *  @brief  水平配置動画群のヘッダタグを得る
+     */
+    static get_section_list_header_tag() {
+        return "ytd-item-section-renderer.style-scope.ytd-section-list-renderer";
+    }
+    /*!
+     *  @brief  水平配置動画群のヘッダクリアリングを許可する
+     *  @note   要素未生成段階(準備中)でのヘッダ削除禁止
+     */
+    static permit_clearing_section_list_header() {
+        $(YoutubeUtil.get_section_list_header_tag()).each((inx, elem)=> {
+            const sc_container = $(elem).find("div#scroll-container");
+            if (sc_container.length <= 0) {
+                return;
+            }
+            const items = $(sc_container).find("div#items");
+            if (items.length <= 0) {
+                return;
+            }
+            if (items[0].childNodes.length > 0) {
+                $(elem).attr('ready', '');
+            }
+        });
+    }
+    /*!
+     *  @brief  動画群のヘッダをクリアリングする
+     *  @note   属する動画が(フィルタリングされて)空ならヘッダも削除
+     */
+    static clearing_section_list_header() {
+        $(YoutubeUtil.get_section_list_header_tag()).each((inx, elem)=> {
+            if ($(elem).attr('ready') == null) {
+                return;
+            }
+            const sc_container = $(elem).find("div#scroll-container");
+            if (sc_container.length == 0) {
+                return;
+            }
+            const items = $(sc_container).find("div#items");
+            const right_arrow = $(elem).find("div#right-arrow");
+            if (items.length == 0 ||
+                right_arrow.length == 0 ||
+                items[0].childNodes.length > 0) {
+                return;
+            }
+            const button_renderer = $(right_arrow).find("ytd-button-renderer");
+            if ($(button_renderer).is(':visible')) {
+                // 右矢印ボタンが表示されていたらclick(scroll)してみる
+                // (未取得の要素取得要求)
+                if ($(button_renderer).attr('clicked') == null) {
+                    // 連射禁止
+                    $(button_renderer).attr('clicked', '');
+                    $(button_renderer).click();
+                }
+            } else {
+                // 要素が空かつ追加要素もない
+                $(elem).detach();
+            }
+        });
+    }
+
+    /*!
+     *  @brief  ぐるぐる対策
+     *  @note   コンテンツdetachで読み込み中マークが残ってしまう件
+     */
+    static remove_spiner_renderer(e_parent) {            
+        $(e_parent).find("ytd-continuation-item-renderer").each((inx, spin)=> {
+            const e_next = $(spin).next();
+            if (e_next.length > 0 && $(e_next).attr("hidden") == null) {
+                $(spin).detach();
+            }
+        });
+    }
+
+    /*!
+     *  @brief  回転式動画バナーを除去する
+     *  @note   gamingはchannelから専用ページ化された(19年春頃？)
+     *  @note   sportsははやく専用ページ化してほしい
+     */
+    static remove_carousel_banner() {
+        // フィルタ対象動画が含まれていても部分的には消せないので全消し
+        var elem = $("div#carousel-item.style-scope.ytd-carousel-item-renderer");
+        if (elem.length > 0) {
+            $(elem).detach();
         }
     }
 
@@ -304,12 +430,40 @@ class YoutubeUtil {
                    ln == 'ytd-reel-video-renderer' ||
                    ln == 'ytd-rich-grid-media' ||
                    ln == 'ytd-rich-grid-slim-media' ||
+                   ln == 'ytd-rich-grid-video-renderer' ||
                    ln == 'ytd-grid-video-renderer' ||
                    ln == 'ytd-grid-channel-renderer' ||
+                   ln == 'ytd-grid-playlist-renderer' ||
                    ln == 'ytd-compact-video-renderer' ||
-                   ln == 'ytd-rich-grid-video-renderer' ||
                    ln == 'ytd-compact-playlist-renderer';
         };
         return HTMLUtil.search_upper_node(elem, is_root);
+    }
+
+
+    static get_filtered_marker(element) {
+        return $(element).attr("marker");
+    }
+    static remove_filtered_marker(element) {
+        $(element).removeAttr("marker");
+    }
+    static set_filtered_marker(element, marker) {
+        return $(element).attr("marker", marker);
+    }
+
+    static set_renderer_node_channel_id(element, channel_id) {
+        $(element).attr("channel_id", channel_id);
+    }
+    static remove_renderer_node_channel_id(element) {
+        $(element).removeAttr("channel_id");
+    }
+    static debug_output_channel_id(element) {
+        const channel_id = $(element).attr("channel_id")
+        if (channel_id != null) {
+            console.log("ch = " + channel_id);
+        } else {
+            console.log("ch = null");
+        }
+
     }
 }
