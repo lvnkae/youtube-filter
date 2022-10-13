@@ -46,6 +46,15 @@ class Content {
                                                 request.html);
                     }
                 } else
+                if (request.command == MessageUtil.command_search_playlist()) {
+                    if (this.filter_instance) {
+                        this
+                        .filter_instance
+                        .tell_search_playlist_html(request.result,
+                                                   request.list_id,
+                                                   request.html);
+                    }
+                } else
                 if (request.command == MessageUtil.command_mute_channel_id()) {
                     const update
                         = this.storage.add_channel_id_mute_with_check(request.channel_id,

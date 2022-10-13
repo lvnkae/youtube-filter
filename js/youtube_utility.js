@@ -13,24 +13,9 @@ class YoutubeUtil {
         return author_url.indexOf("/c/") >= 0;
     }
 
-    /*!
-     *  @brief  トピック表記を含む文字列からチャンネル名を切り出す
-     */
-    static get_channel_from_topic(text) {
-        const text_div = text.split(" -");
-        const len = text_div.length;
-        if (len.length <= 0) {
-            return "";
-        } else { 
-            var channel = "";
-            const num = (text_div[len-1] == " トピック" ||
-                         text_div[len-1] == " Topic")
-                         ?len-1 :len;
-            for (var inx = 0; inx < num; inx++) {
-                channel += text_div[inx];
-            }
-            return channel;
-        }
+    static is_list_link(link) {
+        return link.indexOf("&list=") >= 0 ||
+               link.indexOf("?list=") >= 0;
     }
 
     /*!
@@ -48,20 +33,6 @@ class YoutubeUtil {
             return channel;
         }
         return '';
-    }
-    /*!
-     *  @brief  Mixリストタイトルからチャンネル名を切り出す
-     *  @note   "Mix - チャンネル名"という形式
-     *  @note   "Mix"の部分は言語で変わり得る
-     */
-    static get_channel_name_from_radio(str) {
-        const key = ' - ';
-        const inx = str.indexOf(key);
-        if (inx < 0) {
-            return str;
-        } else {
-            return str.substring(inx + key.length);
-        }
     }
 
     /*!
@@ -117,6 +88,32 @@ class YoutubeUtil {
      */
     static get_video_hash(elem, tag) {
         return YoutubeUtil.get_video_hash_by_node($(elem).find(tag));
+    }
+
+    /*!
+     *  @brief  Youtubeプレイリストノードからハッシュを得る
+     *  @param  nd_hash ハッシュ取得ノード
+     */
+    static cut_playlist_hash(link, delimiter) {
+        if (link.indexOf(delimiter) >= 0) {
+            const sp_href = link.split(delimiter);
+            const sp_href_no_opt = sp_href[sp_href.length-1].split("&");
+            return sp_href_no_opt[0];
+        }
+        return "";
+    }
+    static get_playlist_hash_by_node(nd_hash) {
+        let hash = "";
+        if (nd_hash.length > 0) {
+            const link = $(nd_hash).attr("href");
+            const delimiter = ["&list=", "?list="];
+            delimiter.forEach(det=> {
+                if (hash.length == 0) {
+                    hash = YoutubeUtil.cut_playlist_hash(link, det);
+                }
+            });
+        }
+        return hash;
     }
 
     static get_content_title_tag() {
@@ -435,6 +432,7 @@ class YoutubeUtil {
                    ln == 'ytd-grid-channel-renderer' ||
                    ln == 'ytd-grid-playlist-renderer' ||
                    ln == 'ytd-compact-video-renderer' ||
+                   ln == 'ytd-compact-radio-renderer' ||
                    ln == 'ytd-compact-playlist-renderer';
         };
         return HTMLUtil.search_upper_node(elem, is_root);
@@ -464,6 +462,5 @@ class YoutubeUtil {
         } else {
             console.log("ch = null");
         }
-
     }
 }

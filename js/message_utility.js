@@ -17,6 +17,7 @@ class MessageUtil {
     static command_get_videos_xml() { return "get_videos_xml"; }
     static command_get_channel_html() { return "get_channel_html"; }
     static command_search_video() { return "search_video"; }
+    static command_search_playlist() { return "search_playlist"; }
     static command_update_contextmenu() { return "update_contextmenu"; }
     static command_mute_channel_id() { return "mute_youtube_channel_id"; }
     static command_mute_comment_id() { return "mute_youtube_comment_id"; }
