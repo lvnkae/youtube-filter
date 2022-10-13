@@ -60,7 +60,7 @@ class VideoInfoAccessor {
     
     /*!
      *  @brief  チャンネルユーザ名からカスタムチャンネル名を得る
-     *  @param  custom_name カスタムチャンネル名
+     *  @param  username    チャンネルユーザ名
      */
     get_custom_name_by_username(username) {
         for (const video_id in this.video_info_map) {
@@ -87,6 +87,17 @@ class VideoInfoAccessor {
         }
     }
     /*!
+     *  @brief  動画IDにユーザ名を紐付ける
+     *  @param  video_id    動画ID
+     *  @param  username    チャンネルユーザ名
+     */
+    set_username(video_id, username) {
+        if (video_id in this.video_info_map) {
+            var obj = this.video_info_map[video_id];
+            obj.username = username;
+        }
+    }
+    /*!
      *  @brief  動画IDにカスタムチャンネル名を紐付ける
      *  @param  video_id    動画ID
      *  @param  custom_name カスタムチャンネル名
@@ -101,18 +112,8 @@ class VideoInfoAccessor {
     /*!
      *  @brief  動画ID登録
      *  @param  video_id    動画ID(識別にも使用)
-     *  @param  custom_name カスタムチャンネル名
      */
-    entry(video_id, custom_name) {
-        if (custom_name != null) {
-            // custom_nameに紐付いたjson取得要求は一度だけで良い
-            for (const video_id in this.video_info_map) {
-                const obj = this.video_info_map[video_id];
-                if (obj.custom_name != null && obj.custom_name == custom_name) {
-                    return;
-                }
-            }
-        }
+    entry(video_id) {
         if (video_id in this.video_info_map) {
         } else {
             // 新規登録
@@ -120,9 +121,6 @@ class VideoInfoAccessor {
             obj.video_id = video_id;
             obj.busy = false;
             this.video_info_map[video_id] = obj;
-        }
-        if (custom_name != null) {
-            this.video_info_map[video_id].custom_name = custom_name;
         }
     }
 
@@ -176,7 +174,7 @@ class VideoInfoAccessor {
 
     /*!
      *  @brief  チャンネルID取得完了通知
-     *  @param  username    ユーザページID
+     *  @param  username    チャンネルユーザ名
      *  @param  channel_id  チャンネルID
      *  @return ret_v       受け取った動画ID群
      *  @note   ユーザ名をキーに取得されたチャンネルIDを受け取る

@@ -9,6 +9,7 @@ class Background {
         this.videos_xml_accessor = new BGVideosXmlAccessor();
         this.channel_html_accessor = new BGChannelHTMLAccessor();
         this.video_searcher = new BGVideoSearcher();
+        this.playlist_searcher = new BGPlaylistSearcher();
         this.contextmenu_controller = new BGContextMenuController();
         //
         this.initialize();
@@ -25,6 +26,7 @@ class Background {
         this.videos_xml_accessor.entry(tab_id);
         this.channel_html_accessor.entry(tab_id);
         this.video_searcher.entry(tab_id);
+        this.playlist_searcher.entry(tab_id);
         this.contextmenu_controller.entry(tab_id);
         this.contextmenu_controller.create_menu(extention_id);
     }
@@ -46,6 +48,9 @@ class Background {
                 } else
                 if (request.command == MessageUtil.command_search_video()) {
                     this.video_searcher.on_message(request, sender);
+                } else
+                if (request.command == MessageUtil.command_search_playlist()) {
+                    this.playlist_searcher.on_message(request, sender);
                 } else
                 if (request.command == MessageUtil.command_update_contextmenu()) {
                     this.contextmenu_controller.on_message(request);

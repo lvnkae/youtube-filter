@@ -23,6 +23,7 @@ class FilterBase {
         this.video_info_accessor = new VideoInfoAccessor();
         this.channel_info_accessor = new ChannelInfoAccessor();
         this.video_searcher = new VideoSearcher();
+        this.playlist_searcher = new PlaylistSearcher();
         //
         this.current_location = new urlWrapper(location.href);
         this.after_domloaded_observer = null;

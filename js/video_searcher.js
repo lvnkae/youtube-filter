@@ -42,7 +42,7 @@ class VideoSearcher {
 
     /*!
      *  @brief  動画検索完了通知
-     *  @param  video_id    カスタムチャンネル名
+     *  @param  video_id    動画ID
      *  @param  html        検索結果(html)
      *  @param  post_func   後処理
      */
