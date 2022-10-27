@@ -146,7 +146,7 @@ class PlaylistSearcher {
             if (obj.username != null && obj.username == username) {
                 obj.channel_id = channel_id;
                 obj.busy = false;
-                ret_v.push(obj.list_id);
+                ret_v.push(list_id);
             }
         }
         return ret_v;
@@ -166,7 +166,7 @@ class PlaylistSearcher {
             if (obj.custom_name != null && obj.custom_name == custom_name) {
                 obj.channel_id = channel_id;
                 obj.busy = false;
-                ret_v.push(obj.list_id);
+                ret_v.push(list_id);
             }
         }
         return ret_v;

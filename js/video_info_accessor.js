@@ -108,6 +108,17 @@ class VideoInfoAccessor {
             obj.custom_name = custom_name;
         }
     }
+    /*!
+     *  @brief  動画IDにチャンネルIDを紐付ける
+     *  @param  video_id        動画ID
+     *  @param  channel_name    チャンネルID
+     */
+    set_channel_name(video_id, channel_name) {
+        if (video_id in this.video_info_map) {
+            var obj = this.video_info_map[video_id];
+            obj.channel_name = channel_name;
+        }
+    }
 
     /*!
      *  @brief  動画ID登録
