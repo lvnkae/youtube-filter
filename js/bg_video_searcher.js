@@ -15,9 +15,9 @@ class BGVideoSearcher extends BGMessageSender {
      */
     request_search_video(video_id, fparam) {
         const base_url =
-            'https://www.youtube.com/results?search_query=';
+            'https://www.youtube.com/results?search_query="';
         this.mark_reply_queue(video_id);
-        fetch(base_url + video_id + '&sp=EgIQAQ%253D%253D', {
+        fetch(base_url + video_id + '"&sp=EgIQAQ%253D%253D', {
             method: "GET",
             credentials: "omit",
         })

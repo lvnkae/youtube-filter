@@ -364,11 +364,7 @@ class YoutubeFilter extends FilterBase {
             }
             const renderer_root = YoutubeUtil.search_renderer_root($(elem));
             const elem_title = $(elem).find(tag_title);
-            const channel_info = this.video_info_accessor.get_channel_info(video_id);
-            if (renderer_root.length == 0 ||
-                elem_title.length == 0 ||
-                channel_info == null) {
-            } else {
+            if (renderer_root.length > 0 && elem_title.length > 0) {
                 const title = $(elem_title).text();
                 this.filtering_renderer_node_by_channel_info_or_entry_request(
                     renderer_root,
@@ -860,6 +856,234 @@ class YoutubeFilter extends FilterBase {
         }
     }
 
+    /*!
+     *  @brief  コメントフィルタリング呼び出し
+     *  @param  e_parent    親ノード
+     *  @param  tag_comment コメントタグ
+     *  @param  fl_func     フィルタ関数
+     */
+    call_filtering_comments(e_parent, tag_comment, fl_func) {
+        $(e_parent).find(tag_comment).each((inx, elem)=>{
+            fl_func(elem);
+        });
+    }
+    /*!
+     *  @brief  コメントフィルタ(1コメント分)
+     */
+    filtering_comment(elem) {
+        const author_tag
+            = "a#author-text.yt-simple-endpoint.style-scope.ytd-comment-renderer";
+        const comment_tag
+            = "yt-formatted-string#content-text.style-scope.ytd-comment-renderer";
+        let ret = {};
+        const elem_author = $(elem).find(author_tag);
+        if (elem_author.length != 1) {
+            return ret;
+        }
+        const elem_user = $(elem_author).find("span");
+        if (elem_user.length != 1) {
+            return ret;
+        }
+        const elem_comment = $(elem).find(comment_tag)
+        if (elem_comment.length != 1) {
+            return ret;
+        }
+        const username
+            = text_utility.remove_blank_line_and_head_space($(elem_user).text())
+        const author_url = $(elem_author).attr("href");
+        if (author_url == null) {
+            return ret;
+        }
+        const userid = YoutubeUtil.cut_channel_id(author_url);
+        const comment = YoutubeUtil.get_comment(elem_comment);
+        return this.storage.comment_filter(username, userid, comment);
+    }
+    /*!
+     *  @brief  コメント非表示ID登録
+     *  @note   ワードフィルタのオプション機能
+     *  @note   "非表示IDに自動で追加"用処理
+     */
+    add_id_to_storage_of_ng_comment(candidate_of_additional_ng_id) {
+        var additional_ng_id = [];
+        for (const ng_id of candidate_of_additional_ng_id) {
+            if (!this.storage.json.ng_comment_by_id.includes(ng_id)) {
+                additional_ng_id.push(ng_id);
+            }
+        }
+        if (additional_ng_id.length > 0) {
+            for (const ng_id of additional_ng_id) {
+                this.storage.json.ng_comment_by_id.push(ng_id);
+            }
+            this.storage.save();
+        }
+    }
+    /*!
+     *  @brief  リプライコメント群フィルタ
+     */
+    filtering_replies(comment_root) {
+        const nd_ex_contents = $(comment_root).find("div#expander-contents");
+        if (nd_ex_contents.length == 0) {
+            return;
+        }
+        let candidate_of_additional_ng_id = [];
+        let remain_reply = 0;
+        let have_reply = false;
+        const tag_reply = "ytd-comment-renderer";
+        const tag_elem = "div#main";
+        this.call_filtering_comments(nd_ex_contents, tag_reply, (reply_root)=> {
+            have_reply = true;
+            const elem = HTMLUtil.find_first_appearing_element(reply_root, tag_elem);
+            const ret = this.filtering_comment(elem);
+            if (ret.result) {
+                // shortページのcomment-dialogではcomment-rendererが使いまわされて
+                // いるためdetach厳禁。
+                // (detachされたrendererに再割当てされたコメントは非表示になってしまう)
+                $(reply_root).attr("hidden", "");
+                if (ret.add_ng_id) {
+                    candidate_of_additional_ng_id.push(ret.userid);
+                }
+            } else {
+                $(reply_root).removeAttr("hidden");
+                remain_reply++;
+            }
+        });
+        if (have_reply && remain_reply == 0) {
+            YoutubeUtil.set_num_reply_or_remove(comment_root, remain_reply);
+        }
+        this.add_id_to_storage_of_ng_comment(candidate_of_additional_ng_id);
+    }
+    /*!
+     *  @brief  リプライコメント群フィルタ
+     *  @note   observerからの呼び出し形
+     */
+    filtering_replies_from_observer(records) {
+        if (records[0].target.localName == "tp-yt-paper-button" &&
+            records[0].target.id == "button") {
+            return;
+        }
+        const target = records[0].target;
+        const comment_root = HTMLUtil.search_upper_node($(target), (e)=>{
+            if (e.localName == null ) {
+                return false;
+            }
+            return e.localName == "ytd-comment-thread-renderer";
+        });
+        this.filtering_replies(comment_root);
+    }
+    /*!
+     *  @brief  リプライコメント群フィルタ用observer準備
+     *  @note   初回のみ実行される
+     */
+    ready_filtering_replies_observer(comment_root) {
+        if ($(comment_root).find("div#expander-contents").length > 0) {
+            const comment_id = YoutubeUtil.get_comment_id(comment_root);
+            if (comment_id in this.reply_observer) {
+                return;
+            }
+            let observer = new MutationObserver((records)=> {
+                this.filtering_replies_from_observer(records);
+            });
+            for (var e of $(comment_root).find("ytd-comment-replies-renderer")) {
+                observer.observe(e, {
+                    childList: true,
+                    subtree: true,
+                });
+            }
+            this.reply_observer[comment_id] = observer;
+        }
+    }
+
+    /*!
+     *  @brief  コメント群フィルタリング(実体)
+     */
+    filtering_comments_core(func_replies_filter) {
+        if (!this.storage.have_ng_comment_data()) {
+            return;
+        }
+        let candidate_of_additional_ng_id = [];
+        const comments_root_grp = $("ytd-comments");
+        const tag_comment = "ytd-comment-thread-renderer";
+        const tag_elem = "div#main";
+        for (const comments_root of comments_root_grp) {
+            this.call_filtering_comments(comments_root, tag_comment, (comment_root)=> {
+                const elem
+                    = HTMLUtil.find_first_appearing_element(comment_root, tag_elem);
+                const ret = this.filtering_comment(elem);
+                if (ret.result) {
+                    // reply群を先に削除
+                    const tag_replies = "div#replies";
+                    HTMLUtil.detach_lower_node(comment_root, tag_replies);
+                    // スクロールによる追加読み込みが効かなくなるのでrootはdetachしない
+                    const comment_body = $(elem).parent().parent();
+                    $(comment_body).detach();
+                    if (ret.add_ng_id) {
+                        candidate_of_additional_ng_id.push(ret.userid);
+                    }
+                } else {
+                    func_replies_filter(comment_root);
+                }
+            });
+        }
+        this.add_id_to_storage_of_ng_comment(candidate_of_additional_ng_id);
+    }
+    /*!
+     *  @brief  コメントrenderer-observer生成
+     *  @note   rendererに変化(on/off・ソート条件)が生じたら
+     *  @note   rep-observerを捨てさせたい
+     */
+    create_comment_renderer_observer(tag_parent, tag) {
+        if (tag in this.comment_renderer_observer) {
+            return;
+        }
+        let ob_elem = [];
+        $(tag_parent).find(tag).each((inx, e)=> {
+            ob_elem.push(e);
+        });
+        if (ob_elem.length == 0) {
+            return;
+        }
+        let observer = new MutationObserver((rec)=> {
+            for (const id in this.reply_observer) {
+                this.reply_observer[id].disconnect();
+            }
+            this.reply_observer = [];
+        });
+        for (const e of ob_elem) {
+            observer.observe(e, {
+                childList: false,
+                subtree: false,
+                attributes: true
+            });
+        }
+        this.comment_renderer_observer[tag] = observer;
+    }
+    /*!
+     *  @brief  コメント群フィルタ
+     *  @note   filtering()から呼び出す形式
+     */
+    filtering_comments() {
+        const func_replies_filter = this.ready_filtering_replies_observer.bind(this);
+        this.filtering_comments_core(func_replies_filter);
+        // observerをrenderer変化タイミングで破棄(shortページ対策)
+        // 監視対象reply-tree-nodeはrepopごとに変わり得る
+        let ob_elem = [];
+        const tag_popup = YoutubeUtil.get_popup_container_tag();
+        const tag_dialog = "tp-yt-paper-dialog.style-scope.ytd-popup-container";
+        this.create_comment_renderer_observer(tag_popup, tag_dialog);
+        const tag_primary = "div#primary"
+        const tag_item_sec
+            = "ytd-item-section-renderer#sections.style-scope.ytd-comments";
+        this.create_comment_renderer_observer(tag_primary, tag_item_sec);
+    }
+    /*!
+     *  @brief  コメント群フィルタ
+     *  @note   外部から直接呼び出す形式
+     */
+    filtering_comments_direct() {
+        const func_replies_filter = this.filtering_replies.bind(this);
+        this.filtering_comments_core(func_replies_filter);
+    }
+
     call_recommended_contents_filter(fl_func) {
         const e_parent = $("div#related.style-scope.ytd-watch-flexy");
         if (e_parent.length > 0) {
@@ -1092,61 +1316,7 @@ class YoutubeFilter extends FilterBase {
     filtering_watch_video() {
         this.filtering_recommend_contents();
         this.filtering_endscreen_recommend_video();
-
-        // コメントフィルタ
-        if (this.storage.have_ng_comment_data()) {
-            var candidate_of_additional_ng_id = [];
-            const author_tag
-                = "a#author-text.yt-simple-endpoint.style-scope.ytd-comment-renderer";
-            const comment_tag
-                = "yt-formatted-string#content-text.style-scope.ytd-comment-renderer";
-            $("div#main.style-scope.ytd-comment-renderer").each((inx, elem)=> {
-                const elem_author = $(elem).find(author_tag);
-                if (elem_author.length != 1) {
-                    return;
-                }
-                const elem_user = $(elem_author).find("span");
-                if (elem_user.length != 1) {
-                    return;
-                }
-                const elem_comment = $(elem).find(comment_tag)
-                if (elem_comment.length != 1) {
-                    return;
-                }
-                const username
-                    = text_utility.remove_blank_line_and_head_space($(elem_user).text())
-                const userid = YoutubeUtil.cut_channel_id($(elem_author).attr("href"));
-                const comment = YoutubeUtil.get_comment(elem_comment);
-                const ret = this.storage.comment_filter(username, userid, comment);
-                if (ret.result) {
-                    const comment_root = $(elem).parent().parent();
-                    if ($(comment_root).attr("is-reply") != null) {
-                        // リプライのみ削除
-                        $(comment_root).detach();
-                    } else {
-                        // コメントスレッドごと削除
-                        $(comment_root).parent().detach();
-                    }
-                    if (ret.add_ng_id) {
-                        candidate_of_additional_ng_id.push(userid);
-                    }
-                }
-            });
-            {
-                var additional_ng_id = [];
-                for (const ng_id of candidate_of_additional_ng_id) {
-                    if (!this.storage.json.ng_comment_by_id.includes(ng_id)) {
-                        additional_ng_id.push(ng_id);
-                    }
-                }
-                if (additional_ng_id.length > 0) {
-                    for (const ng_id of additional_ng_id) {
-                        this.storage.json.ng_comment_by_id.push(ng_id);
-                    }
-                    this.storage.save();
-                }
-            }
-        }
+        this.filtering_comments();
     }
 
     /*!
@@ -1244,6 +1414,7 @@ class YoutubeFilter extends FilterBase {
             this.filtering_channel_page();
         } else if (loc.in_youtube_short_page()) {
             this.filtering_short_video();
+            this.filtering_comments();
         } else if (loc.in_youtube_movie_page()) {
             this.filtering_watch_video();
         } else if (loc.in_top_page() ||
@@ -1346,10 +1517,10 @@ class YoutubeFilter extends FilterBase {
             if (channel_id != null) {
                 if (obj.video_id != null) {
                     this.video_info_accessor.set_channel_id(obj.video_id, channel_id);
-                    this.post_filtering_by_video_id(obj.video_id, obj.channel_id);
+                    this.post_filtering_by_video_id(obj.video_id, channel_id);
                 } else if (obj.list_id != null) {
                     this.playlist_searcher.set_channel_id(obj.list_id, channel_id);
-                    this.post_filtering_by_playlist_id(obj.list_id, obj.channel_id);
+                    this.post_filtering_by_playlist_id(obj.list_id, channel_id);
                 }
             } else {
                 // usernameをキーにfeedを得る
@@ -1363,10 +1534,10 @@ class YoutubeFilter extends FilterBase {
             if (channel_id != null) {
                 if (obj.video_id != null) {
                     this.video_info_accessor.set_channel_id(obj.video_id, channel_id);
-                    this.post_filtering_by_video_id(obj.video_id, obj.channel_id);
+                    this.post_filtering_by_video_id(obj.video_id, channel_id);
                 } else if (obj.list_id != null) {
                     this.playlist_searcher.set_channel_id(obj.list_id, channel_id);
-                    this.post_filtering_by_playlist_id(obj.list_id, obj.channel_id);
+                    this.post_filtering_by_playlist_id(obj.list_id, channel_id);
                 }
             } else {
                 this.channel_info_accessor.entry(obj.custom_name);
@@ -1445,7 +1616,8 @@ class YoutubeFilter extends FilterBase {
         }
         const list_ids
             = this.playlist_searcher
-                  .tell_get_channel_id_by_custom_channel(obj.username, obj.channel_id);
+                  .tell_get_channel_id_by_custom_channel(obj.custom_name,
+                                                         obj.channel_id);
         for (const list_id of list_ids) {
             this.post_filtering_by_playlist_id(list_id, obj.channel_id);
         }        
@@ -1468,12 +1640,14 @@ class YoutubeFilter extends FilterBase {
 
     /*!
      *  @brief  動画検索結果(html)取得完了通知後処理
-     *  @param  video_id    動画ID
-     *  @param  author_url  チャンネルURL
+     *  @param  video_id        動画ID
+     *  @param  author_url      チャンネルURL
+     *  @param  channel_name    チャンネル名
      */
-    post_proc_tell_search_video_html(video_id, author_url) {
+    post_proc_tell_search_video_html(video_id, author_url, channel_name) {
         let obj = { video_id: video_id };
         const channel_code = YoutubeUtil.cut_channel_id(author_url);
+        this.video_info_accessor.set_channel_name(video_id, channel_name);
         if (YoutubeUtil.is_channel_url(author_url)) {
             this.video_info_accessor.set_channel_id(video_id, channel_code);
             obj.channel_id = channel_code;
@@ -1581,6 +1755,8 @@ class YoutubeFilter extends FilterBase {
     get_observing_node(elem) {
         const tag = "ytd-page-manager#page-manager.style-scope.ytd-app";
         $(tag).each((inx, e)=> { elem.push(e); });
+        const tag_popup = YoutubeUtil.get_popup_container_tag();
+        $(tag_popup).each((inx, e)=> { elem.push(e); });
     }
 
     callback_domloaded() {
@@ -1593,9 +1769,19 @@ class YoutubeFilter extends FilterBase {
      *  @retun  true    無効
      */
     is_valid_records(records) {
+        const chk_node = records[0].target;
         // マウスオーバによるアイテム追加は弾きたい
-        if (records[0].target.id.indexOf('-overlay') >= 0) {
-            return; true;
+        if (chk_node.id.indexOf('-overlay') >= 0) {
+            return true;
+        }
+        if (chk_node.id.indexOf('tooltip') >= 0) {
+            return true;
+        }
+        if (chk_node.className.indexOf('-overlay') >= 0) {
+            return true;
+        }
+        if (chk_node.className.indexOf('tooltip') >= 0) {
+            return true;
         }
         return false;
     }
@@ -1607,5 +1793,7 @@ class YoutubeFilter extends FilterBase {
         super(storage);
         super.create_after_domloaded_observer(this.is_valid_records.bind(this));
         this.dismissible_tag = null;
+        this.reply_observer = [];
+        this.comment_renderer_observer = [];
     }
 }

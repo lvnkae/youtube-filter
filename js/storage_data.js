@@ -210,7 +210,7 @@ class StorageData {
      *  @param  comment コメント本体
      */
     comment_filter(name, id, comment) {
-        var ret = {result:true, add_ng_id:false};
+        var ret = {result:true, add_ng_id:false, userid:id};
         //
         if (this.json.ng_comment_by_user != null) {
             for (const ngcu of this.json.ng_comment_by_user) {
