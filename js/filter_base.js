@@ -77,6 +77,7 @@ class FilterBase {
                 this.filtering();
                 this.add_iframe_onmouse_monitoring();
             } else {
+                this.callback_base_element_change();
                 // 短時間の連続追加はまとめて処理したい気持ち
                 if (this.filtering_timer == null) {
                     this.filtering_timer = setTimeout(()=> {

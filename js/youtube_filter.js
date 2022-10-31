@@ -953,50 +953,9 @@ class YoutubeFilter extends FilterBase {
         this.add_id_to_storage_of_ng_comment(candidate_of_additional_ng_id);
     }
     /*!
-     *  @brief  リプライコメント群フィルタ
-     *  @note   observerからの呼び出し形
+     *  @brief  コメント群フィルタリング
      */
-    filtering_replies_from_observer(records) {
-        if (records[0].target.localName == "tp-yt-paper-button" &&
-            records[0].target.id == "button") {
-            return;
-        }
-        const target = records[0].target;
-        const comment_root = HTMLUtil.search_upper_node($(target), (e)=>{
-            if (e.localName == null ) {
-                return false;
-            }
-            return e.localName == "ytd-comment-thread-renderer";
-        });
-        this.filtering_replies(comment_root);
-    }
-    /*!
-     *  @brief  リプライコメント群フィルタ用observer準備
-     *  @note   初回のみ実行される
-     */
-    ready_filtering_replies_observer(comment_root) {
-        if ($(comment_root).find("div#expander-contents").length > 0) {
-            const comment_id = YoutubeUtil.get_comment_id(comment_root);
-            if (comment_id in this.reply_observer) {
-                return;
-            }
-            let observer = new MutationObserver((records)=> {
-                this.filtering_replies_from_observer(records);
-            });
-            for (var e of $(comment_root).find("ytd-comment-replies-renderer")) {
-                observer.observe(e, {
-                    childList: true,
-                    subtree: true,
-                });
-            }
-            this.reply_observer[comment_id] = observer;
-        }
-    }
-
-    /*!
-     *  @brief  コメント群フィルタリング(実体)
-     */
-    filtering_comments_core(func_replies_filter) {
+    filtering_comments() {
         if (!this.storage.have_ng_comment_data()) {
             return;
         }
@@ -1020,68 +979,11 @@ class YoutubeFilter extends FilterBase {
                         candidate_of_additional_ng_id.push(ret.userid);
                     }
                 } else {
-                    func_replies_filter(comment_root);
+                    this.filtering_replies(comment_root);
                 }
             });
         }
         this.add_id_to_storage_of_ng_comment(candidate_of_additional_ng_id);
-    }
-    /*!
-     *  @brief  コメントrenderer-observer生成
-     *  @note   rendererに変化(on/off・ソート条件)が生じたら
-     *  @note   rep-observerを捨てさせたい
-     */
-    create_comment_renderer_observer(tag_parent, tag) {
-        if (tag in this.comment_renderer_observer) {
-            return;
-        }
-        let ob_elem = [];
-        $(tag_parent).find(tag).each((inx, e)=> {
-            ob_elem.push(e);
-        });
-        if (ob_elem.length == 0) {
-            return;
-        }
-        let observer = new MutationObserver((rec)=> {
-            for (const id in this.reply_observer) {
-                this.reply_observer[id].disconnect();
-            }
-            this.reply_observer = [];
-        });
-        for (const e of ob_elem) {
-            observer.observe(e, {
-                childList: false,
-                subtree: false,
-                attributes: true
-            });
-        }
-        this.comment_renderer_observer[tag] = observer;
-    }
-    /*!
-     *  @brief  コメント群フィルタ
-     *  @note   filtering()から呼び出す形式
-     */
-    filtering_comments() {
-        const func_replies_filter = this.ready_filtering_replies_observer.bind(this);
-        this.filtering_comments_core(func_replies_filter);
-        // observerをrenderer変化タイミングで破棄(shortページ対策)
-        // 監視対象reply-tree-nodeはrepopごとに変わり得る
-        let ob_elem = [];
-        const tag_popup = YoutubeUtil.get_popup_container_tag();
-        const tag_dialog = "tp-yt-paper-dialog.style-scope.ytd-popup-container";
-        this.create_comment_renderer_observer(tag_popup, tag_dialog);
-        const tag_primary = "div#primary"
-        const tag_item_sec
-            = "ytd-item-section-renderer#sections.style-scope.ytd-comments";
-        this.create_comment_renderer_observer(tag_primary, tag_item_sec);
-    }
-    /*!
-     *  @brief  コメント群フィルタ
-     *  @note   外部から直接呼び出す形式
-     */
-    filtering_comments_direct() {
-        const func_replies_filter = this.filtering_replies.bind(this);
-        this.filtering_comments_core(func_replies_filter);
     }
 
     call_recommended_contents_filter(fl_func) {
@@ -1316,7 +1218,6 @@ class YoutubeFilter extends FilterBase {
     filtering_watch_video() {
         this.filtering_recommend_contents();
         this.filtering_endscreen_recommend_video();
-        this.filtering_comments();
     }
 
     /*!
@@ -1414,7 +1315,6 @@ class YoutubeFilter extends FilterBase {
             this.filtering_channel_page();
         } else if (loc.in_youtube_short_page()) {
             this.filtering_short_video();
-            this.filtering_comments();
         } else if (loc.in_youtube_movie_page()) {
             this.filtering_watch_video();
         } else if (loc.in_top_page() ||
@@ -1755,8 +1655,6 @@ class YoutubeFilter extends FilterBase {
     get_observing_node(elem) {
         const tag = "ytd-page-manager#page-manager.style-scope.ytd-app";
         $(tag).each((inx, e)=> { elem.push(e); });
-        const tag_popup = YoutubeUtil.get_popup_container_tag();
-        $(tag_popup).each((inx, e)=> { elem.push(e); });
     }
 
     callback_domloaded() {
@@ -1784,6 +1682,54 @@ class YoutubeFilter extends FilterBase {
             return true;
         }
         return false;
+    }
+    /*!
+     */
+    create_comment_observer(tag_parent, tag) {
+        if (tag in this.comment_renderer_observer) {
+            return;
+        }
+        let ob_elem = [];
+        $(tag_parent).find(tag).each((inx, e)=> {
+            ob_elem.push(e);
+        });
+        if (ob_elem.length == 0) {
+            return;
+        }
+        let observer = new MutationObserver((records)=> {
+            const tgt = records[0].target;
+            if (tgt.id == "button" ||
+                tgt.id == "tooltip" ||
+                tgt.localName == "yt-img-shadow" ||
+                tgt.className != null && tgt.className.indexOf("button") > 0) {
+                return;
+            }
+            this.filtering_comments();
+        });
+        for (const e of ob_elem) {
+            observer.observe(e, {
+                childList: true,
+                subtree: true,
+            });
+        }
+        this.comment_renderer_observer[tag] = observer;
+    }
+    /*!
+     *  @brief  element追加callback
+     *  @note   after_domloaded_observerから呼ばれる
+     */
+    callback_base_element_change() {
+        if (Object.keys(this.comment_renderer_observer).length > 0) {
+            return;
+        }
+        let ob_elem = [];
+        const tag_popup = YoutubeUtil.get_popup_container_tag();
+        const tag_dialog = "tp-yt-paper-dialog.style-scope.ytd-popup-container";
+        this.create_comment_observer(tag_popup, tag_dialog);
+        const tag_primary = "div#primary"
+        const tag_item_sec
+            = "ytd-item-section-renderer#sections.style-scope.ytd-comments";
+        this.create_comment_observer(tag_primary, tag_item_sec);
     }
 
     /*!
