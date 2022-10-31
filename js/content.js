@@ -74,7 +74,7 @@ class Content {
                         this.storage.save();
                         this.storage.update_text();
                         if (this.storage.json.active) {
-                            this.filter_instance.filtering_comments_direct();
+                            this.filter_instance.filtering_comments();
                         }
                     }
                 }

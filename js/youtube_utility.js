@@ -245,51 +245,11 @@ class YoutubeUtil {
         return "";
     }
     /*!
-     *  @brief  読み込み完了までreply群を隠しておく
-     *  @retval true    読み込み完了してる
-     *  @note   replyは開いたタイミングでサーバから取得されるが
-     *  @note   フィルタされる前に一瞬見えてしまう → 隠しておく
-     */
-    static hide_replies_until_load_over(nd_ex_header, nd_ex_contents, have_reply) {
-        if (nd_ex_contents.attr("loaded") != null) {
-            return true;
-        }
-        const is_hidden = nd_ex_contents.attr("hidden") != null;
-        const nd_spinner = nd_ex_contents.find("tp-yt-paper-spinner");
-        const is_spinner_hidden = nd_spinner.attr("hidden") != null;
-        const tag_less_button = "ytd-button-renderer#less-replies";
-        const nd_less_button = nd_ex_header.find(tag_less_button);
-        const is_less_hidden = nd_less_button.attr("hidden") != null;
-        if (is_hidden) {
-            if (nd_ex_contents.attr("loading") != null && have_reply) {
-                // spinnerのhiddenを見るのは"他の返信を表示"対策
-                if (nd_spinner.length == 0 || is_spinner_hidden) {
-                    HTMLUtil.detach_lower_node(nd_less_button, "div#spacer");
-                    if (!is_less_hidden) {
-                        // 即閉じ対策
-                        $(nd_ex_contents).removeAttr("hidden");
-                    }
-                    $(nd_ex_contents).removeAttr("loading");
-                    $(nd_ex_contents).attr("loaded", "");
-                    return true;
-                }
-            }
-        } else {
-            if (nd_spinner.length > 0) {
-                $(nd_ex_contents).attr("hidden", "");
-                $(nd_ex_contents).attr("loading", "");
-                // 瞬間見苦しいのでspinner高相当のspacerを差し込んでおく
-                $(nd_less_button).append('<div id="spacer"><br><br><br></div>');
-            }
-        }
-        return false;
-    }
-    /*!
      *  @brief  返信数をセットする
      *  @note   0ならheaderごと削除
      *  @note   ※headerの使いまわしがあるらしくtextをいじると
      *  @note   ※コメント並べ替え時に不具合が生じるので
-     *  @note   ※返信数変更機能は封印
+     *  @note   ※返信数変更機能は削除
      *  @note   (element追加/削除で処理されるせいでeventが消える？)
      */
     static set_num_reply_or_remove(comment_root, num) {
@@ -301,28 +261,6 @@ class YoutubeUtil {
         if (num == 0) {
             const nd_replies = $(comment_root).find("div#replies");
             $(nd_replies).detach();
-        } else {
-            const nd_header = $(comment_root).find("div.expander-header");
-            if (nd_header.length == 0) {
-                return;
-            }
-            // text変更はelement削除/追加で処理されるため
-            // 変更markerをつけて弾かないと
-            //   text変更
-            //    → element削除/追加
-            //      → filtering
-            //       → text変更
-            // が無限に繰り返される
-            const prev_num = $(nd_header).attr("prev_num");
-            if (prev_num != null && prev_num == num) {
-                return;
-            }
-            $(nd_header).attr("prev_num", num);
-            //
-            nd_header.find("yt-formatted-string#text").each((inx, nd_text)=> {
-                const new_text = $(nd_text).text().replace(/[0-9]+/, num); 
-                $(nd_text).text(new_text);
-            });
         }
     }
 
