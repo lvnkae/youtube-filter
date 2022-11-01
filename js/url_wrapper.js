@@ -123,4 +123,11 @@ class urlWrapper {
     {
         return (this.subdir.length >=1 && this.subdir[0] == 'shorts');
     }
+    in_youtube_feeds() 
+    {
+        return this.subdir.length >=2 &&
+               this.subdir[0] == 'feed' &&
+               this.subdir[1].indexOf('subscriptions') >= 0;
+
+    }
 }

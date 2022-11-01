@@ -332,7 +332,7 @@ class YoutubeUtil {
      *  @note   21年2月下旬頃修正されたが、youtubeは鍼灸混在がよくあるので
      *  @note   どちらでも対応できるよう細工しておく…いずれ外す
      */
-    static get_div_dismissble() {
+    static get_div_dismissible() {
         if ($("div#dismissable").length > 0) {
             return "div#dismissable"
         } else 
@@ -529,6 +529,7 @@ class YoutubeUtil {
                    ln == 'ytd-rich-grid-video-renderer' ||
                    ln == 'ytd-grid-video-renderer' ||
                    ln == 'ytd-grid-channel-renderer' ||
+                   ln == 'ytd-grid-show-renderer' ||
                    ln == 'ytd-grid-playlist-renderer' ||
                    ln == 'ytd-compact-video-renderer' ||
                    ln == 'ytd-compact-radio-renderer' ||
