@@ -49,7 +49,8 @@ class ContextMenuController_Youtube extends ContextMenuController {
         // endscreen-content(動画終了画面おすすめ動画)例外
         return HTMLUtil.search_upper_node($(element), (e)=> {
             return e.localName == 'a' &&
-                   e.className == 'ytp-videowall-still ytp-suggestion-set';
+                   e.className != null &&
+                   e.className.indexOf('ytp-videowall-still') >= 0;
         });
     }
     /*!
