@@ -79,6 +79,9 @@ class Popup {
         this.checkbox_sw_disable_annotation().change(()=> {
             this.button_save_enable();
         });
+        this.checkbox_sw_disable_border_radius().change(()=> {
+            this.button_save_enable();
+        });
         this.checkbox_regexp().change(()=> {
             this.button_save_enable();
         });
@@ -141,9 +144,15 @@ class Popup {
         this.textarea_filter_comment_by_word().keyup(()=> {
             this.textarea_filter_comment_by_word_keyup();
         });
+        this.textarea_import_storage().on('paste',(e)=> {
+            this.button_import_enable();
+        });
         //
         this.button_save().click(()=> {
             this.button_save_click();
+        });
+        this.button_import().click(()=> {
+            this.button_import_click();
         });
     }
 
@@ -155,6 +164,9 @@ class Popup {
     }
     checkbox_sw_disable_annotation() {
         return $("input[name=sw_disable_annotation]");
+    }
+    checkbox_sw_disable_border_radius() {
+        return $("input[name=sw_disable_border_radius]");
     }
     checkbox_regexp() {
         return $("input#regexp");
@@ -232,6 +244,31 @@ class Popup {
     textarea_filter_comment_by_word() {
         return $("textarea[name=filter_comment_by_word]");
     }
+    textarea_export_storage() {
+        return $("textarea[name=export_storage]");
+    }
+    textarea_import_storage() {
+        return $("textarea[name=import_storage]");
+    }
+
+    button_save() {
+        return $("button[name=req_save]");
+    }
+    button_save_enable() {
+        this.button_save().prop("disabled", false);
+    }
+    button_save_disable() {
+        this.button_save().prop("disabled", true);
+    }
+    button_import() {
+        return $("button[name=req_import]");
+    }
+    button_import_enable() {
+        this.button_import().prop("disabled", false);
+    }
+    button_import_disable() {
+        this.button_import().prop("disabled", true);
+    }
 
     hide_textarea_all() {
         this.textarea_filter_channel().hide();
@@ -243,6 +280,9 @@ class Popup {
         this.textarea_filter_comment_by_id().hide();
         this.textarea_filter_comment_by_word().hide();
         this.hide_ex_comment_by_user();
+        this.textarea_export_storage().hide();
+        this.textarea_import_storage().hide();
+        this.textarea_import_storage().val("");
     }
     hide_ex_channel() {
         this.textarea_filter_ex_channel().hide();
@@ -293,6 +333,16 @@ class Popup {
         this.checkbox_label_com_perfect_match().show();
         this.checkbox_label_com_normalize().show();
         this.checkbox_label_com_auto_ng_id().show();
+    }
+    show_export_storage() {
+        this.textarea_export_storage().val(StoragePorter.export(this.storage.json));
+        this.textarea_export_storage().show();
+        this.button_save().hide();
+    }
+    show_import_storage() {
+        this.textarea_import_storage().show();
+        this.button_save().hide();
+        this.button_import().show();
     }
 
     textarea_filter_channel_keyup() {
@@ -545,9 +595,17 @@ class Popup {
     is_selected_ng_comment_by_word() {
         return this.selectbox_filter().val() == "ng_comment_word";
     }
+    is_selected_export_storage() {
+        return this.selectbox_filter().val() == "export";
+    }
+    is_selected_import_storage() {
+        return this.selectbox_filter().val() == "import";
+    }
 
     selectbox_filter_change() {
         this.hide_textarea_all();
+        this.button_import().hide();
+        this.button_save().show();
         if (this.is_selected_ng_channel()) {
             this.textarea_filter_channel().show();
         } else if (this.is_selected_ng_channel_id()) {
@@ -564,14 +622,15 @@ class Popup {
             this.textarea_filter_comment_by_id().show();
         } else if (this.is_selected_ng_comment_by_word()) {
             this.textarea_filter_comment_by_word().show();
+        } else if (this.is_selected_export_storage()) {
+            this.show_export_storage();
+        } else if (this.is_selected_import_storage()) {
+            this.show_import_storage();
         } else {
             this.show_ex_comment_by_user();
         }
     }
 
-    button_save() {
-        return $("button[name=req_save]");
-    }
     button_save_click() {
         this.storage.clear();
         if (this.ex_channel_last != '') {
@@ -692,6 +751,8 @@ class Popup {
             = this.checkbox_sw_stop_autoplay().prop("checked");
         this.storage.json.disable_annotation
             = this.checkbox_sw_disable_annotation().prop("checked");
+        this.storage.json.disable_border_radius
+            = this.checkbox_sw_disable_border_radius().prop("checked");
         this.storage.save();
         this.send_message_to_relative_tab(
             {command:MessageUtil.command_update_storage()});
@@ -700,11 +761,18 @@ class Popup {
         this.badge.update(this.storage);
         this.storage.update_text();
     }
-    button_save_enable() {
-        this.button_save().prop("disabled", false);
-    }
-    button_save_disable() {
-        this.button_save().prop("disabled", true);
+
+    button_import_click() {
+        const importer = new StoragePorter(this.storage.json);
+        if (importer.import(this.textarea_import_storage().val())) {
+            this.storage.json = importer.json;
+            this.storage.save();
+            this.storage.update_text();
+            this.updateTextarea();
+            this.textarea_import_storage().val("[[OK]]");
+        } else {
+            this.textarea_import_storage().val("[[ERROR]]");
+        }
     }
 
     updateCheckbox() {
@@ -716,6 +784,9 @@ class Popup {
         this.checkbox_sw_disable_annotation().prop("checked",
             json.disable_annotation == null ?false
                                             :json.disable_annotation);
+        this.checkbox_sw_disable_border_radius().prop("checked",
+            json.disable_border_radius == null ?false
+                                               :json.disable_border_radius);
     }
 
     updateTextarea() {
