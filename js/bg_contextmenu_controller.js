@@ -11,6 +11,9 @@ class BGContextMenuController extends BGMessageSender {
      *  @param  request
      */
     on_message(request) {
+        if (this.context_menu_item_id == null) {
+            return;
+        }
         if (request.title == null) {
             chrome.contextMenus.update(this.context_menu_item_id, { 
                 "visible": false
