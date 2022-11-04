@@ -277,4 +277,12 @@ class StorageData {
                this.ng_comment_by_id_text != '' ||
                this.ng_comment_by_word_text != '';
     }
+    /*!
+     *  @brief  (thumbnailの)角丸を無効にすべきか
+     *  @retval true    無効にすべき
+     */
+    is_disable_border_radius() {
+        return this.json.disable_border_radius != null &&
+               this.json.disable_border_radius != false;
+    }
 }

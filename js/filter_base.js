@@ -38,10 +38,21 @@ class FilterBase {
      */
     add_iframe_onmouse_monitoring() {}
     /*!
+     *  @brief  キー要素observer準備完了callback
+     */
+    callback_ready_element_observer() {}
+    /*!
      *  @brief  DOM要素追加callback
-     *  @note   DOM要素追加タイミングで行いたい処理群
+     *  @note   DOM要素追加タイミングで行いたい処理
+     *  @note   フィルタON/OFF関係なく呼ばれる
      */
     callback_domelement_adition() {}
+    /*!
+     *  @brief  キーDOM要素変更callback
+     *  @note   有効な要素追加/削除があった場合の処理
+     *  @note   フィルタがOFFなら呼ばれない
+     */
+    callback_observing_element_change() {}
     /*!
      *  @brief  高速化用マーカーをクリアする
      */
@@ -54,6 +65,8 @@ class FilterBase {
      */
     create_after_domloaded_observer(func_is_invalid_records) {
         this.after_domloaded_observer = new MutationObserver((records)=> {
+            const loc = this.current_location;
+            const b_change_url = loc.url != location.href;
             //
             this.callback_domelement_adition();
             //
@@ -66,8 +79,9 @@ class FilterBase {
             if (func_is_invalid_records(records)) {
                 return; // 無効
             }
-            const loc = this.current_location;
-            if (loc.url != location.href) {
+            this.callback_base_element_change(records, b_change_url);
+            //
+            if (b_change_url) {
                 // URLが変わった(=下位フレーム再構成)らタイマー捨てて即処理
                 if (this.filtering_timer != null) {
                     clearTimeout(this.filtering_timer);
@@ -77,7 +91,6 @@ class FilterBase {
                 this.filtering();
                 this.add_iframe_onmouse_monitoring();
             } else {
-                this.callback_base_element_change();
                 // 短時間の連続追加はまとめて処理したい気持ち
                 if (this.filtering_timer == null) {
                     this.filtering_timer = setTimeout(()=> {
@@ -116,12 +129,14 @@ class FilterBase {
             this.observer_timer = setInterval(()=> {
                 if (this.ready_element_observer()) {
                     this.add_iframe_onmouse_monitoring();
+                    this.callback_ready_element_observer();
                     clearInterval(this.observer_timer);
                     this.observer_timer = null;
                 }
             }, 33); /* 1/30sec */
         } else {
             this.add_iframe_onmouse_monitoring();
+            this.callback_ready_element_observer();
         }
     }
 
