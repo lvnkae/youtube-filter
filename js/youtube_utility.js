@@ -449,6 +449,26 @@ class YoutubeUtil {
             });
         }
     }
+    /*!
+     *  @brief  thumbnailのborder-radiusを無効化する
+     */
+    static disable_border_radius_of_thumbnail() {
+        // inlineed-cssの置き換え
+        const NLC = text_utility.new_line_code_lf();
+        const anti_border_radius_head =
+            'ytd-thumbnail[size=large] a.ytd-thumbnail,ytd-thumbnail[size=large]:before { border-radius: 0px; }' + NLC +
+            'ytd-thumbnail[size=medium] a.ytd-thumbnail,ytd-thumbnail[size=medium]:before { border-radius: 0px; }' + NLC +
+            'ytd-playlist-thumbnail[size=large] a.ytd-playlist-thumbnail,ytd-playlist-thumbnail[size=large]:before { border-radius: 0px; }' + NLC +
+            'ytd-playlist-thumbnail[size=medium] a.ytd-playlist-thumbnail,ytd-playlist-thumbnail[size=medium]:before { border-radius: 0px; }' + NLC +
+            '.player-container.ytd-reel-video-renderer { border-radius: 0px; }';
+        $('head').append('<style>' + anti_border_radius_head + '</style>');
+        // www.player.cssの置き換え(headだと負ける)
+        const anti_border_radius_body =
+            'ytd-video-preview:not([has-endorsement]) #inline-preview-player.ytp-rounded-inline-preview' +
+            ',ytd-video-preview:not([has-endorsement]) #inline-preview-player.ytp-rounded-inline-preview' +
+            ' .html5-main-video { border-radius: 0px; }';
+        $('body').append('<style>' + anti_border_radius_body + '</style>');
+    }
 
     static search_renderer_root(elem) {
         const is_root = function(e) {
