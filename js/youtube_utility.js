@@ -102,18 +102,23 @@ class YoutubeUtil {
         }
         return "";
     }
-    static get_playlist_hash_by_node(nd_hash) {
+    static get_playlist_hash(link) {
         let hash = "";
+        const delimiter = ["&list=", "?list="];
+        delimiter.forEach(det=> {
+            if (hash.length == 0) {
+                hash = YoutubeUtil.cut_playlist_hash(link, det);
+            }
+        });
+        return hash;
+    }
+    static get_playlist_hash_by_node(nd_hash) {
         if (nd_hash.length > 0) {
             const link = $(nd_hash).attr("href");
-            const delimiter = ["&list=", "?list="];
-            delimiter.forEach(det=> {
-                if (hash.length == 0) {
-                    hash = YoutubeUtil.cut_playlist_hash(link, det);
-                }
-            });
+            return YoutubeUtil.get_playlist_hash(link);
+        } else {
+            return "";
         }
-        return hash;
     }
 
     static get_content_title_tag() {
@@ -460,13 +465,17 @@ class YoutubeUtil {
             'ytd-thumbnail[size=medium] a.ytd-thumbnail,ytd-thumbnail[size=medium]:before { border-radius: 0px; }' + NLC +
             'ytd-playlist-thumbnail[size=large] a.ytd-playlist-thumbnail,ytd-playlist-thumbnail[size=large]:before { border-radius: 0px; }' + NLC +
             'ytd-playlist-thumbnail[size=medium] a.ytd-playlist-thumbnail,ytd-playlist-thumbnail[size=medium]:before { border-radius: 0px; }' + NLC +
+            'ytd-channel-video-player-renderer[rounded] #player.ytd-channel-video-player-renderer { border-radius: 0px; }' + NLC +
+            '.image-wrapper.ytd-hero-playlist-thumbnail-renderer { border-radius: 0px; }' + NLC +
             '.player-container.ytd-reel-video-renderer { border-radius: 0px; }';
         $('head').append('<style>' + anti_border_radius_head + '</style>');
         // www.player.cssの置き換え(headだと負ける)
         const anti_border_radius_body =
             'ytd-video-preview:not([has-endorsement]) #inline-preview-player.ytp-rounded-inline-preview' +
             ',ytd-video-preview:not([has-endorsement]) #inline-preview-player.ytp-rounded-inline-preview' +
-            ' .html5-main-video { border-radius: 0px; }';
+            ' .html5-main-video { border-radius: 0px; }' + NLC +
+            '.ytp-ce-video.ytp-ce-large-round, .ytp-ce-playlist.ytp-ce-large-round, .ytp-ce-large-round' +
+            ' .ytp-ce-expanding-overlay-background { border-radius: 0px }'
         $('body').append('<style>' + anti_border_radius_body + '</style>');
     }
 

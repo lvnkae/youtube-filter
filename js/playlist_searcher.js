@@ -21,6 +21,22 @@ class PlaylistSearcher {
         }
         return null;
     }
+    /*!
+     *  @brief  チャンネル情報取得
+     *  @param  list_id リストID
+     */
+    get_channel_info(list_id) {
+        if (list_id in this.search_list_map) {
+            const obj = this.search_list_map[list_id];
+            if (!obj.busy) {
+                let ret = {};
+                ret.id = obj.channel_id;
+                ret.name = obj.channel_name;
+                return ret;
+            }
+        }
+        return null;
+    }
 
     /*!
      *  @brief  リストIDにチャンネルIDを紐付ける
@@ -32,6 +48,15 @@ class PlaylistSearcher {
             let obj = this.search_list_map[list_id];
             obj.channel_id = channel_id;
             obj.busy = false;
+        }
+    }
+    /*!
+     *  @brief  リストIDにチャンネル名を紐付ける
+     */
+    set_channel_name(list_id, channel) {
+        if (list_id in this.search_list_map) {
+            let obj = this.search_list_map[list_id];
+            obj.channel_name = channel;
         }
     }
     /*!
@@ -102,13 +127,16 @@ class PlaylistSearcher {
         if (elem_script.length == 0) {
             return;
         }
-        let author_url = null;
+        let author_url = "";
+        let channel_name = "";
         const key_script_top = 'var ytInit';
         const key_url = 'webCommandMetadata":{"url":"/';
         const len_key_url = key_url.length;
         const key_list_id = 'playlistRenderer":{"playlistId":"'
+        const key_channel_name = 'longBylineText":{"runs":[{"text":"';
+        const len_key_channel_name = key_channel_name.length;
         $(elem_script).each((inx, elem)=>{
-            if (elem.innerText.indexOf(key_script_top) != 0) {
+            if (!elem.innerText.startsWith(key_script_top)) {
                 return true;
             }
             const search_top = elem.innerText.indexOf(key_list_id + list_id);
@@ -127,9 +155,18 @@ class PlaylistSearcher {
             }
             const cut_end = elem.innerText.indexOf('"', cut_top + len_key_url);
             author_url = elem.innerText.substring(cut_top + len_key_url -1, cut_end);
+            //
+            const cn_cut_top = elem.innerText.indexOf(key_channel_name, search_top);
+            if (cn_cut_top > 0) {
+                const cn_cut_end
+                    = elem.innerText.indexOf('"', cn_cut_top + len_key_channel_name);
+                channel_name
+                    = elem.innerText.substring(cn_cut_top + len_key_channel_name,
+                                               cn_cut_end);
+            }
             return false;
         });
-        post_func(list_id, author_url);
+        post_func(list_id, author_url, channel_name);
     }
 
     /*!

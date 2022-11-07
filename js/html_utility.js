@@ -35,6 +35,18 @@ class HTMLUtil {
         return null
     }
 
+    static search_node(elem, key, func) {
+        let e_ret = null;
+        $(elem).find(key).each((inx, elem)=> {
+            if (func(elem)) {
+                e_ret = elem;
+                return false;
+            } else {
+                return true;
+            }
+        });
+        return e_ret;
+    }
 
     static search_upper_node(elem, func) {
         while(elem.length > 0) {
@@ -71,5 +83,12 @@ class HTMLUtil {
             // childrenは減っていく
             $(elem.children[0]).detach();
         }
+    }
+
+    /*!
+     *  @brief  urlからqueryパラメータをカットする
+     */
+    static cut_url_query_param(url) {
+        return url.split("?")[0];
     }
 }
