@@ -17,19 +17,37 @@ class GoogleUtil {
     }
 
     /*!
-     *  @brief  検索結果動画ノードからYoutube動画チャンネル名を得る
+     *  @brief  検索結果ノードからYoutube動画チャンネル名を得る
      *  @param  nd_ggl  検索結果ノード
      */
-    static get_channel_from_video_node(nd_ggl) {
+    static get_channel_name(nd_ggl) {
         return $(nd_ggl).attr("channel_name")
     }
 
     /*!
-     *  @brief  動画スクロールカードノードからYoutube動画チャンネル名を得る
-     *  @param  nd_a    <a>ノード
+     *  @brief  検索結果ノードにYoutubeチャンネル情報を書き込んでおく
+     *  @param  nd_ggl  検索結果ノード
+     *  @note   ContextMenus用
      */
-    static get_channel_from_video_card_node(nd_a) {
-        return $($($(nd_a[0]).nextAll()[1]).children()[0]).text();
+    static set_channel_info(nd_ggl, channel_id, channel) {
+        $(nd_ggl).attr("channel_id", channel_id);
+        $(nd_ggl).attr("channel_name", channel);
+    }
+
+    /*!
+     *  @brief  動画スクロールカードノードからYoutube動画チャンネル名を得る
+     *  @param  nd_div  <div>ノード[チャンネル名]
+     */
+    static get_channel_from_video_card_node(nd_div) {
+        const nd_span = $(nd_div).find("span");
+        for (const span of nd_span) {
+            for (const ch_nd of span.childNodes) {
+                if (ch_nd.nodeName == "#text") {
+                    return text_utility.remove_blank_line_and_head_space(ch_nd.nodeValue);
+                }
+            }
+        }
+        return "";
     }
 
     /*!
@@ -44,7 +62,22 @@ class GoogleUtil {
         return decodeURIComponent(url);
     }
 
-    static get_movie_search_tag() {
-        return 'VibNM';
+    /*!
+     *  @brief  Google検索ノードを消す
+     */
+    static detach_search_node(elem) {
+        const c = HTMLUtil.search_node(elem, "div", (e)=> {
+            return true;
+        });
+        if (c == null) {
+            return;
+        }
+        const tgt = HTMLUtil.search_node(c, "div", (e)=> {
+            return true;
+        });
+        if (tgt == null) {
+            return;
+        }
+        $(tgt).detach();
     }
 }

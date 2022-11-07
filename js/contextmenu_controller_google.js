@@ -3,61 +3,14 @@
  */
 class ContextMenuController_Google extends ContextMenuController {
 
-
-    static get_searched_node_chanel(nd_ggl) {
-        const a_tag = $(nd_ggl).find("a");
-        if (a_tag.length == 0) {
-            return null;
-        }
-        const href = $(a_tag[0]).attr("href");
-        if (href == null) {
-            return null;
-        }
-        const url = new urlWrapper(GoogleUtil.cut_searched_url(href));
-        if (!url.in_google_searched_youtube()) {
-            return null;
-        }
-        if (url.in_youtube_movie_page()) {
-            return GoogleUtil.get_channel_from_video_node(nd_ggl);
-        } else
-        if (url.in_youtube_channel_page() || url.in_youtube_user_page()) {
-            return null; // 右クリミュート不要
-        } else
-        if (url.in_youtube_playlist_page()) {
-            return null; // ?playlistは旧仕様っぽい(動画＋list=に統合？)
-        }
-        return null;
-    }
-
-    static get_inner_card_node_channel(nd_ggl) {
-        if (nd_ggl[0].localName != 'g-inner-card') {
-            return null;
-        }
-        const a_tag = $(nd_ggl).find("a");
-        if (a_tag.length ==0) {
-            return null;
-        }
-        const href = $(a_tag[0]).attr("href");
-        if (href == null) {
-            return null;
-        }
-        const url = new urlWrapper(GoogleUtil.cut_searched_url(href));
-        if (!url.in_google_searched_youtube()) {
-            return null;
-        }
-        return GoogleUtil.get_channel_from_video_card_node(a_tag);
-    }
+    static TYPE_CHANNEL = 1;
 
     /*!
      *  @brief  Youtubeチャンネル名を得る
      *  @param  element 検索結果起点ノード
      */
-    get_channel(nd_ggl) {
-        const ch = ContextMenuController_Google.get_searched_node_chanel(nd_ggl);
-        if (ch != null) {
-            return ch;
-        }
-        return ContextMenuController_Google.get_inner_card_node_channel(nd_ggl);
+    get_channel(element) {
+        return GoogleUtil.get_channel_name(element);
     }
     
     /*!
@@ -65,51 +18,57 @@ class ContextMenuController_Google extends ContextMenuController {
      *  @param  element 右クリックされたelement
      */
     get_google_node(element) {
+        const nd_sub = HTMLUtil.search_upper_node($(element), (e)=> {
+            return (e.localName == 'g-inner-card' || e.localName == 'video-voyager') && 
+                   $(e).attr("channel_id") != null;
+        });
+        if (nd_sub.length > 0) {
+            return nd_sub;
+        }
         const nd_gs = HTMLUtil.search_upper_node($(element), (e)=> {
             return e.localName == 'div' &&
-                   e.classList.length > 0 &&
-                   e.classList[0] == 'g';
+                   $(e).attr("channel_id") != null;
         });
         if (nd_gs.length > 0) {
             return nd_gs;
         }
-        const nd_mv = HTMLUtil.search_upper_node($(element), (e)=> {
-            return e.localName == 'div' &&
-                   e.classList.length > 0 &&
-                   e.classList[0] == GoogleUtil.get_movie_search_tag();
-        });
-        if (nd_mv.length > 0) {
-            return nd_mv;
-        }
-        return YoutubeUtil.search_upper_node($(element), (e)=> {
-            return e.localName == 'g-inner-card';
-                   e.className != '';
-        });
+       return {length:0};
     }
 
     /*!
-     *  @brief  event:右クリック
-     *  @param  loc     現在location(urlWrapper)
-     *  @param  element 右クリックされたelement
+     *  @brief  右クリックメニューの独自項目を有効化
+     *  @param  element
      */
-    event_mouse_right_click(loc, element) {
+    on_mute_menu(type, element) {
+        if (type == ContextMenuController_Google.TYPE_CHANNEL) {
+            return super.on_usermute(element);
+        } else {
+            return false;
+        }
+    }
+
+    /*!
+     *  @brief  elementの基準ノード取得
+     *  @param  loc     現在location(urlWrapper)
+     *  @param  target  注目element
+     */
+    get_base_node(loc, element) {
+        const ret = { type:ContextMenuController.TYPE_NONE, base_node:{length:0}};
         if (!loc.in_google()) {
-            return;
+            return ret;
         }
-        if (this.filter_active) {
-            const nd_ggl = this.get_google_node(element);
-            if (nd_ggl.length > 0 &&
-                super.on_usermute(nd_ggl)) {
-                return;
-            }
+        const nd_ggl = this.get_google_node(element);
+        if (nd_ggl.length > 0) {
+            ret.type = ContextMenuController_Google.TYPE_CHANNEL;
+            ret.base_node = nd_ggl;
+            return ret;
         }
-        ContextMenuController.off_original_menu();
+        return ret;
     }
 
     /*!
      */
     constructor(active) {
-        super();
-        this.filter_active = true;
+        super(active);
     }
 }

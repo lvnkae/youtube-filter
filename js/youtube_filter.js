@@ -1783,7 +1783,7 @@ class YoutubeFilter extends FilterBase {
             if (tgt.id == "button" ||
                 tgt.id == "tooltip" ||
                 tgt.localName == "yt-img-shadow" ||
-                tgt.className != null && tgt.className.indexOf("button") > 0) {
+                tgt.className != null && tgt.className.indexOf("button") >= 0) {
                 return;
             }
             this.filtering_comments();
@@ -1800,7 +1800,7 @@ class YoutubeFilter extends FilterBase {
      *  @brief  element追加callback
      *  @note   after_domloaded_observerから呼ばれる
      */
-    callback_base_element_change(records, b_change_url) {
+    callback_observing_element_change(records, b_change_url) {
         // URL変更時処理
         if (b_change_url) {
             for (const key in this.comment_renderer_observer) {

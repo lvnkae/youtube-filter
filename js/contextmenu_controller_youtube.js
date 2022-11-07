@@ -3,6 +3,9 @@
  */
 class ContextMenuController_Youtube extends ContextMenuController {
 
+    static TYPE_CHANNEL = 1;
+    static TYPE_COMMENT = 2;
+
     static get_channel_text(element) {
         // 動画/チャンネル/プレイリスト
         const ch_name = YoutubeUtil.get_channel_name(element);
@@ -100,11 +103,27 @@ class ContextMenuController_Youtube extends ContextMenuController {
     }
 
     /*!
-     *  @brief  event:右クリック
-     *  @param  loc     現在location(urlWrapper)
-     *  @param  target  右クリックされたelement
+     *  @brief  右クリックメニューの独自項目を有効化
+     *  @param  element
      */
-    event_mouse_right_click(loc, element) {
+    on_mute_menu(type, element) {
+        if (type == ContextMenuController_Youtube.TYPE_CHANNEL) {
+            return super.on_usermute(element);
+        } else
+        if (type == ContextMenuController_Youtube.TYPE_COMMENT) {
+            return this.on_commentmute(element);
+        } else {
+            return false;
+        }
+    }
+
+    /*!
+     *  @brief  elementの基準ノード取得
+     *  @param  loc     現在location(urlWrapper)
+     *  @param  target  注目element
+     */
+    get_base_node(loc, element) {
+        const ret = { type:ContextMenuController.TYPE_NONE, base_node:{length:0}};
         if (!loc.in_youtube_custom_channel_page() &&
             !loc.in_youtube_sp_channel_page() &&
             !loc.in_youtube_channel_page() &&
@@ -116,27 +135,26 @@ class ContextMenuController_Youtube extends ContextMenuController {
             !loc.in_youtube_hashtag() &&
             !loc.in_youtube_sports() &&
             !loc.in_top_page()) {
-            return;
+            return ret;
         }
-        if (this.filter_active) {
-            const nd_renderer = this.get_renderer_node(element);
-            if (nd_renderer.length > 0 &&
-                super.on_usermute(nd_renderer)) {
-                return;
-            }
-            const nd_comment = this.get_comment_node(element);
-            if (nd_comment.length > 0 &&
-                this.on_commentmute(nd_comment)) {
-                return;
-            }
+        const nd_renderer = this.get_renderer_node(element);
+        if (nd_renderer.length > 0) {
+            ret.type = ContextMenuController_Youtube.TYPE_CHANNEL;
+            ret.base_node = nd_renderer;
+            return ret; 
         }
-        ContextMenuController.off_original_menu();
+        const nd_comment = this.get_comment_node(element);
+        if (nd_comment.length > 0) {
+            ret.type = ContextMenuController_Youtube.TYPE_COMMENT;
+            ret.base_node = nd_comment;
+            return ret;
+        }
+        return ret;
     }
 
     /*!
      */
     constructor(active) {
-        super();
-        this.filter_active = active;
+        super(active);
     }
 }

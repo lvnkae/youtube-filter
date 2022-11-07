@@ -3,12 +3,15 @@
  */
 class ContextMenuController {
 
+    static TYPE_NONE = 0;
+
     /*!
-     *  @brief  マウスの右ボタンか
-     *  @param  button  ボタン情報
+     *  @brief  各種バッファのクリア
      */
-    static is_button_right(button) {
-        return button == 2;
+    clear() {
+        this.monitoring_target = null;
+        this.monitoring_target_base = {length:0};
+        this.context_menu =  { channel_id:null };
     }
 
     /*!
@@ -26,6 +29,10 @@ class ContextMenuController {
         if (channel_id == null) {
             return false;
         }
+        if (channel_id == this.context_menu.channel_id) {
+            return true; // 前回と同じなので不要
+        }
+        this.context_menu.channel_id = channel_id;
         const title = channel_st + "をミュート";
         MessageUtil.send_message({
             command: MessageUtil.command_update_contextmenu(),
@@ -39,35 +46,24 @@ class ContextMenuController {
     /*!
      *  @brief  右クリックメニューの拡張機能固有項目を無効化
      */
-    static off_original_menu() {
+    off_original_menu() {
+        if (null == this.context_menu.channel_id) {
+            return true; // 前回と同じなので不要
+        }
+        this.context_menu.channel_id = null;
         MessageUtil.send_message({
             command: MessageUtil.command_update_contextmenu(),
         });
     }
 
-    /*!
-     *  @brief  固有メニュー無効化
-     *  @param  doc     無効化対象DOM
-     *  @note   document外document用(子iframeとか)
-     */
-    disable_original_menu(doc) {
-        doc.addEventListener('mousedown', (e)=> {
-            if (!ContextMenuController.is_button_right(e.button)) {
+    update_context_menu(ret) {
+        if (this.filter_active) {
+            if (this.monitoring_target_base.length > 0 &&
+                this.on_mute_menu(ret.type, this.monitoring_target_base)) {
                 return;
             }
-            ContextMenuController.off_original_menu();
-            this.monitoring_target = null;
-        });
-        doc.addEventListener('mousemove', (e)=> {
-            if (!ContextMenuController.is_button_right(e.buttons)) {
-                return;
-            }
-            if (null == this.monitoring_target) {
-                return;
-            }
-            ContextMenuController.off_original_menu();
-            this.monitoring_target = null;
-        });
+        }
+        this.off_original_menu();
     }
 
     enable_original_menu(doc) {
@@ -79,31 +75,31 @@ class ContextMenuController {
         //   'mousedown' 右ボタン押下時にcontextmenuをupdate
         //   'mousemove' 右ボタン押下+移動してたらtargetの変化を監視し再update
         // の2段Listener体制でねじ込む
-        doc.addEventListener('mousedown', (e)=> {
-            if (!ContextMenuController.is_button_right(e.button)) {
-                return;
-            }
-            this.event_mouse_right_click(new urlWrapper(location.href), e.target);
-            this.monitoring_target = e.target;
-        });
-        doc.addEventListener('mousemove', (e)=> {
-            // note
-            // 移動中のマウスボタン押下は"buttons"で見る
-            if (!ContextMenuController.is_button_right(e.buttons)) {
-                return;
-            }
+        // ※service_workerでは'mousedown'でも間に合わないタイミングがある
+        // ※cf.破棄→再生成直後(確定で間に合わない)
+        // ※'mousemove'で監視対象が変化したら即updateするようにしてみる
+        doc.addEventListener('mousemove', (e) => {
             if (e.target == this.monitoring_target) {
                 return;
             }
-            this.event_mouse_right_click(new urlWrapper(location.href), e.target);
+            let ret = { type: ContextMenuController.TYPE_NONE, base_node:{length:0}};
+            if (this.filter_active) {
+                ret = this.get_base_node(new urlWrapper(location.href), e.target);
+            }
+            if (ret.base_node[0] == this.monitoring_target_base[0]) {
+                return;
+            }
             this.monitoring_target = e.target;
+            this.monitoring_target_base = ret.base_node;
+            this.update_context_menu(ret);
         });
     }
 
 
-    constructor() {
-        this.prevent = false;
-        this.monitoring_target = null;
+
+    constructor(active) {
+        this.filter_active = active;
+        this.clear();
         this.enable_original_menu(document);
     }
 }
