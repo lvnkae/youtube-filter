@@ -57,8 +57,8 @@ class GoogleUtil {
      *  @note   "https://google.com/url?"という中継リンクをカットする
      */
     static cut_searched_url(href) {
-        if (!GoogleUtil.is_searched_url(href)) {
-            return href;
+        if (!href.startsWith('/url?')) {
+            return href;    
         }
         const url = href.split('&url=')[1].split('&usg=')[0]
         return decodeURIComponent(url);
