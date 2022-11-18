@@ -74,9 +74,9 @@ class GoogleFilter extends FilterBase {
                 this.author_info_accessor.entry(username);
             }
         } else
-        if (YoutubeUtil.is_custom_channel_url(url)) {
-            const custom_name = YoutubeUtil.cut_channel_id(url);
-            const channel_id = this.channel_info_accessor.get_channel_id(custom_name);
+        if (YoutubeUtil.is_uniquepage_url(url)) {
+            const unique_name = YoutubeUtil.cut_channel_id(url);
+            const channel_id = this.channel_info_accessor.get_channel_id(unique_name);
             if (channel_id != null) {
                 if (this.storage.channel_id_filter(channel_id)) {
                     GoogleUtil.detach_search_node(elem);
@@ -84,7 +84,7 @@ class GoogleFilter extends FilterBase {
                     GoogleUtil.set_channel_info(elem, channel_id, channel);
                 }
             } else {
-                this.channel_info_accessor.entry(custom_name);
+                this.channel_info_accessor.entry(unique_name);
             }
         }
     }
@@ -223,7 +223,8 @@ class GoogleFilter extends FilterBase {
                 this.youtube_video_filter(elem, title, urlW.url);
             } else if (urlW.in_youtube_channel_page() ||
                        urlW.in_youtube_user_page() ||
-                       urlW.in_youtube_custom_channel_page()) {
+                       urlW.in_youtube_custom_channel_page() ||
+                       urlW.in_youtube_handle_page()) {
                 const channel_url = HTMLUtil.cut_url_query_param(urlW.url);
                 this.youtube_channel_filter(elem, title, channel_url);
             } else if (urlW.in_youtube_playlist_page()) {
@@ -273,8 +274,8 @@ class GoogleFilter extends FilterBase {
             }
         } else {
             // jsonからチャンネルIDもuserも得られなかった場合の最終手段
-            const custom_name = obj.custom_name;
-            const channel_id = this.channel_info_accessor.get_channel_id(custom_name);
+            const unique_name = obj.unique_name;
+            const channel_id = this.channel_info_accessor.get_channel_id(unique_name);
             if (channel_id != null) {
                 if (obj.video_id != null) {
                     this.video_info_accessor.set_channel_id(obj.video_id, channel_id);
@@ -283,7 +284,7 @@ class GoogleFilter extends FilterBase {
                 }
                 this.filtering();
             } else {
-                this.channel_info_accessor.entry(obj.custom_name);
+                this.channel_info_accessor.entry(obj.unique_name);
                 this.channel_info_accessor.kick();
             }
         }
@@ -336,23 +337,23 @@ class GoogleFilter extends FilterBase {
      */
     post_proc_tell_get_channel_html(obj) {
         this.video_info_accessor
-                  .tell_get_channel_id_by_custom_channel(obj.custom_name, 
+                  .tell_get_channel_id_by_unique_channel(obj.unique_name, 
                                                          obj.channel_id);
         this.playlist_searcher
-            .tell_get_channel_id_by_custom_channel(obj.custom_name,
+            .tell_get_channel_id_by_unique_channel(obj.unique_name,
                                                    obj.channel_id);
         this.filtering();
     }
     /*!
-     *  @brief  カスタムチャンネル情報(html)取得完了通知
+     *  @brief  チャンネル情報(html)取得完了通知
      *  @param  result      結果
-     *  @param  custom_name カスタムチャンネル名
+     *  @param  unique_name カスタムチャンネル名/ハンドル
      *  @param  html        チャンネル情報(html)
      */
-    tell_get_channel_html(result, custom_name, html) {
+    tell_get_channel_html(result, unique_name, html) {
         if (result == "success") {
             this.channel_info_accessor
-                .tell_get_html(custom_name,
+                .tell_get_html(unique_name,
                                html,
                                this.post_proc_tell_get_channel_html.bind(this));
         }
@@ -373,9 +374,9 @@ class GoogleFilter extends FilterBase {
         } else if (YoutubeUtil.is_userpage_url(author_url)) {
             obj.username = channel_code;
             this.video_info_accessor.set_username(video_id, channel_code);
-        } else if (YoutubeUtil.is_custom_channel_url(author_url)) {
-            obj.custom_name = channel_code;
-            this.video_info_accessor.set_custom_name(video_id, channel_code);
+        } else if (YoutubeUtil.is_uniquepage_url(author_url)) {
+            obj.unique_name = channel_code;
+            this.video_info_accessor.set_unique_name(video_id, channel_code);
         } else {
             return; // 何らかの不具合
         }
@@ -415,9 +416,9 @@ class GoogleFilter extends FilterBase {
         } else if (YoutubeUtil.is_userpage_url(author_url)) {
             obj.username = channel_code;_            
             this.playlist_searcher.set_username(list_id, channel_code);
-        } else if (YoutubeUtil.is_custom_channel_url(author_url)) {
-            obj.custom_name = channel_code;
-            this.playlist_searcher.set_custom_name(list_id, channel_code);
+        } else if (YoutubeUtil.is_uniquepage_url(author_url)) {
+            obj.unique_name = channel_code;
+            this.playlist_searcher.set_unique_name(list_id, channel_code);
         } else {
             return; // 何らかの不具合
         }

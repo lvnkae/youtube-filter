@@ -127,6 +127,7 @@ class ContextMenuController_Youtube extends ContextMenuController {
         if (!loc.in_youtube_custom_channel_page() &&
             !loc.in_youtube_sp_channel_page() &&
             !loc.in_youtube_channel_page() &&
+            !loc.in_youtube_handle_page() &&
             !loc.in_youtube_user_page() &&
             !loc.in_youtube_search_page() &&
             !loc.in_youtube_short_page() &&

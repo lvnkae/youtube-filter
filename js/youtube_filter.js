@@ -8,18 +8,6 @@ class YoutubeFilter extends FilterBase {
     }
 
     /*!
-     *  @brief  カスタムチャンネル名からチャンネルIDを得る
-     *  @param  custom_name カスタムチャンネル名
-     */
-    get_custom_channel_channel_id(custom_name) {
-        const channel_id = this.channel_info_accessor.get_channel_id(custom_name);
-        if (channel_id != null) {
-            return channel_id;
-        }
-        return this.video_info_accessor.get_channel_id_by_cunstom_channel(custom_name);
-    }
-
-    /*!
      *  @brief  チャンネルURLからチャンネルIDを得る
      *  @note   取得できなければ必要な情報をネットワーク経由で得る
      *  @note   (要求をentryするだけ)
@@ -35,8 +23,8 @@ class YoutubeFilter extends FilterBase {
                 return channel_id;
             }
             this.author_info_accessor.entry(channel_code);
-        } else if (YoutubeUtil.is_custom_channel_url(author_url)) {
-            const channel_id = this.get_custom_channel_channel_id(channel_code);
+        } else if (YoutubeUtil.is_uniquepage_url(author_url)) {
+            const channel_id = this.channel_info_accessor.get_channel_id(channel_code);
             if (channel_id != null) {
                 return channel_id;
             }
@@ -221,7 +209,7 @@ class YoutubeFilter extends FilterBase {
      *  @param  elem            親ノード
      *  @param  tag_title       動画タイトルタグ
      *  @param  tag_channel     動画チャンネルタグ
-     *  @param  channel_code    ユーザ名/カスタムチャンネル名
+     *  @param  channel_code    ユーザ名/カスタムチャンネル名/ハンドル
      *  @param  channel_id      チャンネルID
      *  @param  chk_func        チャンネル判別関数
      *  @retval true            処理打ち切りまたは要素削除
@@ -275,22 +263,22 @@ class YoutubeFilter extends FilterBase {
             YoutubeUtil.is_userpage_url);
     }
     /*!
-     *  @brief  動画フィルタ(カスタムチャンネル名)
+     *  @brief  動画フィルタ(カスタムチャンネル名/ハンドル)
      *  @param  elem        親ノード
      *  @param  tag_title   動画タイトルタグ
      *  @param  tag_channel 動画チャンネルタグ
-     *  @param  custom_name カスタムチャンネル名
+     *  @param  unique_name 独自チャンネル名
      *  @param  channel_id  チャンネルID
      *  @retval true        処理打ち切りまたは要素削除
      */
-    filtering_video_by_custom_name(elem, tag_title, tag_channel,
-                                   custom_name, channel_id) {
+    filtering_video_by_unique_name(elem, tag_title, tag_channel,
+                                   unique_name, channel_id) {
         return this.filtering_video_by_channel_code(elem,
             tag_title,
             tag_channel,
-            custom_name,
+            unique_name,
             channel_id,
-            YoutubeUtil.is_custom_channel_url);
+            YoutubeUtil.is_uniquepage_url);
     }
 
     /*!
@@ -423,10 +411,10 @@ class YoutubeFilter extends FilterBase {
     }
     /*!
      *  @brief  short動画フィルタ(チャンネルコード)
-     *  @param  channel_code    ユーザ名/カスタムチャンネル名
+     *  @param  channel_code    ユーザ名/カスタムチャンネル名/ハンドル
      *  @param  channel_id      チャンネルID
      *  @param  chk_func        チャンネル判別関数
-     *  @note   動画更新情報(xml)またはカスタムチャンネル情報(html)↓
+     *  @note   動画更新情報(xml)またはチャンネル情報(html)↓
      *  @note   取得完了通知後処理から呼ばれる
      */
     filtering_short_video_by_channel_code(channel_code, channel_id, chk_func) {
@@ -482,7 +470,7 @@ class YoutubeFilter extends FilterBase {
     }
     /*!
      *  @brief  動画(Youtube検索)にフィルタをかける
-     *  @param  channel_code    ユーザ名/カスタムチャンネル名
+     *  @param  channel_code    ユーザ名/カスタムチャンネル名/ハンドル
      *  @param  channel_id      チャンネルID
      *  @param  fl_func         フィルタ関数
      *  @note   チャンネルコードを持つ動画のフィルタリング
@@ -529,10 +517,10 @@ class YoutubeFilter extends FilterBase {
     }
     /*!
      *  @brief  チャンネル(Youtube検索)にフィルタをかける
-     *  @param  channel_code    ユーザ名/カスタムチャンネル名
+     *  @param  channel_code    ユーザ名/カスタムチャンネル名/ハンドル
      *  @param  channel_id      チャンネルID
      *  @param  chk_func        チャンネル判別関数
-     *  @note   動画更新情報(xml)またはカスタムチャンネル情報(html)↓
+     *  @note   動画更新情報(xml)またはチャンネル情報(html)↓
      *  @note   取得完了通知後処理から呼ばれる
      */
     filtering_searched_channel_by_channel_id(channel_code, channel_id, chk_func) {
@@ -608,10 +596,10 @@ class YoutubeFilter extends FilterBase {
         });
     }
     /*!
-     *  @param  channel_code    ユーザ名/カスタムチャンネル名
+     *  @param  channel_code    ユーザ名/カスタムチャンネル名/ハンドル
      *  @param  channel_id      チャンネルID
      *  @param  fl_func         フィルタ関数
-     *  @note   動画更新情報(xml)またはカスタムチャンネル情報(html)↓
+     *  @note   動画更新情報(xml)またはチャンネル情報(html)↓
      *  @note   取得完了通知後処理から呼ばれる
      */
     filtering_searched_playlist_by_channel_id(channel_code, channel_id, fl_func) {
@@ -680,7 +668,7 @@ class YoutubeFilter extends FilterBase {
     }
     /*!
      *  @brief  水平スクロール動画群にフィルタをかける
-     *  @param  channel_code    ユーザ名/カスタムチャンネル名
+     *  @param  channel_code    ユーザ名/カスタムチャンネル名/ハンドル
      *  @param  channel_id      チャンネルID
      *  @param  fl_func         フィルタ関数
      *  @note   チャンネルコードを持つ動画のフィルタリング
@@ -787,10 +775,10 @@ class YoutubeFilter extends FilterBase {
     }
     /*!
      *  @brief  動画(チャンネルページ)にフィルタをかける
-     *  @param  channel_code    ユーザ名/カスタムチャンネル名
+     *  @param  channel_code    ユーザ名/カスタムチャンネル名/ハンドル
      *  @param  channel_id      チャンネルID
      *  @param  fl_func         フィルタ関数
-     *  @note   動画更新情報(xml)またはカスタムチャンネル情報(html)↓
+     *  @note   動画更新情報(xml)またはチャンネル情報(html)↓
      *  @note   取得完了通知後処理から呼ばれる
      */
     filtering_channel_videos_by_channel_id(channel_code, channel_id, fl_func) {
@@ -829,10 +817,10 @@ class YoutubeFilter extends FilterBase {
     }
     /*!
      *  @brief  プレイリスト(チャンネルページ)にフィルタをかける
-     *  @param  channel_code    ユーザ名/カスタムチャンネル名
+     *  @param  channel_code    ユーザ名/カスタムチャンネル名/ハンドル
      *  @param  channel_id      チャンネルID
      *  @param  fl_func         フィルタ関数
-     *  @note   動画更新情報(xml)またはカスタムチャンネル情報(html)↓
+     *  @note   動画更新情報(xml)またはチャンネル情報(html)↓
      *  @note   取得完了通知後処理から呼ばれる
      */
     filtering_channel_playlists_by_channel_id(channel_code, channel_id, fl_func) {
@@ -889,10 +877,10 @@ class YoutubeFilter extends FilterBase {
     }
     /*!
      *  @brief  チャンネル(チャンネルページ)にフィルタをかける
-     *  @param  channel_code    ユーザ名/カスタムチャンネル名
+     *  @param  channel_code    ユーザ名/カスタムチャンネル名/ハンドル
      *  @param  channel_id      チャンネルID
      *  @param  chk_func        チャンネル判別関数
-     *  @note   動画更新情報(xml)またはカスタムチャンネル情報(html)↓
+     *  @note   動画更新情報(xml)またはチャンネル情報(html)↓
      *  @note   取得完了通知後処理から呼ばれる
      */
     filtering_channel_channels_by_channel_id(channel_code, channel_id, chk_func) {
@@ -1335,7 +1323,7 @@ class YoutubeFilter extends FilterBase {
     }
     /*!
      *  @brief  動画(Youtubeホーム)にフィルタをかける
-     *  @param  channel_code    ユーザ名/カスタムチャンネル名
+     *  @param  channel_code    ユーザ名/カスタムチャンネル名/ハンドル
      *  @param  channel_id      チャンネルID
      *  @param  fl_func         フィルタ関数
      *  @note   チャンネルコードを持つ動画のフィルタリング
@@ -1379,7 +1367,8 @@ class YoutubeFilter extends FilterBase {
         } else if (loc.in_youtube_sp_channel_page() ||
                    loc.in_youtube_channel_page() ||
                    loc.in_youtube_user_page() ||
-                   loc.in_youtube_custom_channel_page()) {
+                   loc.in_youtube_custom_channel_page() ||
+                   loc.in_youtube_handle_page()) {
             this.filtering_channel_page();
         } else if (loc.in_youtube_short_page()) {
             this.filtering_short_video();
@@ -1403,7 +1392,7 @@ class YoutubeFilter extends FilterBase {
 
     /*!
      *  @brief  ポストフィルタ(チャンネルコード)
-     *  @param  channel_code    ユーザ名/カスタムチャンネル名
+     *  @param  channel_code    ユーザ名/カスタムチャンネル名/ハンドル
      *  @param  channel_id      チャンネルID
      *  @param  fl_func         フィルタリング関数
      *  @param  chk_func        urlチェック関数
@@ -1411,9 +1400,11 @@ class YoutubeFilter extends FilterBase {
      */
     post_filtering_by_channel_code(channel_code, channel_id, fl_func, chk_func) {
         const loc = this.current_location;
-        if (loc.in_youtube_channel_page() ||
+        if (loc.in_youtube_sp_channel_page() ||
+            loc.in_youtube_channel_page() ||
             loc.in_youtube_user_page() ||
-            loc.in_youtube_custom_channel_page()) {
+            loc.in_youtube_custom_channel_page() ||
+            loc.in_youtube_handle_page()) {
             if (channel_code == YoutubeUtil.cut_channel_id(loc.url)) {
                 this.filtering_channel_private_contents_by_channel_id(channel_id);
             }
@@ -1442,14 +1433,14 @@ class YoutubeFilter extends FilterBase {
         this.post_filtering_by_channel_code(username, channel_id, fl_func, chk_func);
     }
     /*!
-     *  @brief  ポストフィルタ(カスタムチャンネル名)
-     *  @note   カスタムチャンネル名を基点とした各種フィルタ処理
+     *  @brief  ポストフィルタ(カスタムチャンネル名/ハンドル)
+     *  @note   独自チャンネル名を基点とした各種フィルタ処理
      *  @note   チャンネルID受信処理から呼ばれる
      */
-    post_filtering_by_custom_name(custom_name, channel_id) {
-        const fl_func = this.filtering_video_by_custom_name.bind(this);
-        const chk_func = YoutubeUtil.is_custom_channel_url;
-        this.post_filtering_by_channel_code(custom_name, channel_id, fl_func, chk_func);
+    post_filtering_by_unique_name(unique_name, channel_id) {
+        const fl_func = this.filtering_video_by_unique_name.bind(this);
+        const chk_func = YoutubeUtil.is_uniquepage_url;
+        this.post_filtering_by_channel_code(unique_name, channel_id, fl_func, chk_func);
     }
     /*!
      *  @brief  ポストフィルタ(動画ID)
@@ -1498,8 +1489,8 @@ class YoutubeFilter extends FilterBase {
             }
         } else {
             // jsonからチャンネルIDもuserも得られなかった場合の最終手段
-            const custom_name = obj.custom_name;
-            const channel_id = this.channel_info_accessor.get_channel_id(custom_name);
+            const unique_name = obj.unique_name;
+            const channel_id = this.channel_info_accessor.get_channel_id(unique_name);
             if (channel_id != null) {
                 if (obj.video_id != null) {
                     this.video_info_accessor.set_channel_id(obj.video_id, channel_id);
@@ -1509,7 +1500,7 @@ class YoutubeFilter extends FilterBase {
                     this.post_filtering_by_playlist_id(obj.list_id, channel_id);
                 }
             } else {
-                this.channel_info_accessor.entry(obj.custom_name);
+                this.channel_info_accessor.entry(obj.unique_name);
                 this.channel_info_accessor.kick();
             }
         }
@@ -1549,12 +1540,6 @@ class YoutubeFilter extends FilterBase {
             this.post_filtering_by_playlist_id(list_id, obj.channel_id);
         }        
         this.post_filtering_by_username(obj.username, obj.channel_id);
-        //
-        const custom_name
-            = this.video_info_accessor.get_custom_name_by_username(obj.username);
-        if (custom_name != null) {
-            this.post_filtering_by_custom_name(custom_name, obj.channel_id);
-        }
     }
     /*!
      *  @brief  動画更新情報(feed)取得完了通知
@@ -1572,36 +1557,36 @@ class YoutubeFilter extends FilterBase {
     }
 
     /*!
-     *  @brief  カスタムチャンネル情報(html)取得完了通知後処理
+     *  @brief  チャンネル情報(html)取得完了通知後処理
      *  @param  obj 動画オブジェクト
      */
     post_proc_tell_get_channel_html(obj) {
         const video_ids
             = this.video_info_accessor
-                  .tell_get_channel_id_by_custom_channel(obj.custom_name,
+                  .tell_get_channel_id_by_unique_channel(obj.unique_name,
                                                          obj.channel_id);
         for (const video_id of video_ids) {
             this.post_filtering_by_video_id(video_id, obj.channel_id);
         }
         const list_ids
             = this.playlist_searcher
-                  .tell_get_channel_id_by_custom_channel(obj.custom_name,
+                  .tell_get_channel_id_by_unique_channel(obj.unique_name,
                                                          obj.channel_id);
         for (const list_id of list_ids) {
             this.post_filtering_by_playlist_id(list_id, obj.channel_id);
         }        
-        this.post_filtering_by_custom_name(obj.custom_name, obj.channel_id);
+        this.post_filtering_by_unique_name(obj.unique_name, obj.channel_id);
     }
     /*!
-     *  @brief  カスタムチャンネル情報(html)取得完了通知
+     *  @brief  チャンネル情報(html)取得完了通知
      *  @param  result      結果
-     *  @param  custom_name カスタムチャンネル名
+     *  @param  unique_name カスタムチャンネル名/ハンドル
      *  @param  html        チャンネル情報(html)
      */
-    tell_get_channel_html(result, custom_name, html) {
+    tell_get_channel_html(result, unique_name, html) {
         if (result == "success") {
             this.channel_info_accessor
-                .tell_get_html(custom_name,
+                .tell_get_html(unique_name,
                                html,
                                this.post_proc_tell_get_channel_html.bind(this));
         }
@@ -1623,9 +1608,9 @@ class YoutubeFilter extends FilterBase {
         } else if (YoutubeUtil.is_userpage_url(author_url)) {
             obj.username = channel_code;
             this.video_info_accessor.set_username(video_id, channel_code);
-        } else if (YoutubeUtil.is_custom_channel_url(author_url)) {
-            obj.custom_name = channel_code;
-            this.video_info_accessor.set_custom_name(video_id, channel_code);
+        } else if (YoutubeUtil.is_uniquepage_url(author_url)) {
+            obj.unique_name = channel_code;
+            this.video_info_accessor.set_unique_name(video_id, channel_code);
         } else {
             return; // 何らかの不具合
         }
@@ -1663,9 +1648,9 @@ class YoutubeFilter extends FilterBase {
         } else if (YoutubeUtil.is_userpage_url(author_url)) {
             obj.username = channel_code;_            
             this.playlist_searcher.set_username(list_id, channel_code);
-        } else if (YoutubeUtil.is_custom_channel_url(author_url)) {
-            obj.custom_name = channel_code;
-            this.playlist_searcher.set_custom_name(list_id, channel_code);
+        } else if (YoutubeUtil.is_uniquepage_url(author_url)) {
+            obj.unique_name = channel_code;
+            this.playlist_searcher.set_unique_name(list_id, channel_code);
         } else {
             return; // 何らかの不具合
         }
@@ -1702,7 +1687,8 @@ class YoutubeFilter extends FilterBase {
         } else if (loc.in_youtube_sp_channel_page() ||
                    loc.in_youtube_channel_page() ||
                    loc.in_youtube_user_page() ||
-                   loc.in_youtube_custom_channel_page()) {
+                   loc.in_youtube_custom_channel_page() ||
+                   loc.in_youtube_handle_page()) {
             this.clear_short_slim_videos_marker(".style-scope.ytd-reel-item-renderer");
             this.clear_short_slim_videos_marker(".style-scope.ytd-rich-grid-slim-media");
         }

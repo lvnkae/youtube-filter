@@ -12,6 +12,13 @@ class YoutubeUtil {
     static is_custom_channel_url(author_url) {
         return author_url.indexOf("/c/") >= 0;
     }
+    static is_handle_channel_url(author_url) {
+        return author_url.indexOf("/@") >= 0;
+    }
+    static is_uniquepage_url(author_url) {
+        return YoutubeUtil.is_custom_channel_url(author_url) ||
+               YoutubeUtil.is_handle_channel_url(author_url);
+    }
 
     static is_list_link(link) {
         return link.indexOf("&list=") >= 0 ||
@@ -46,7 +53,12 @@ class YoutubeUtil {
                 return sp_href[inx+1];
             } else
             if (sp_href[inx] == 'c') {
-                return decodeURI(sp_href[inx+1]);
+                return 'c/' + decodeURI(sp_href[inx+1]);
+            }
+        }
+        for (var inx = 1; inx < sp_href.length; inx++) {
+            if (sp_href[inx].startsWith('@')) {
+                return sp_href[inx];
             }
         }
         return null;

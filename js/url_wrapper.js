@@ -87,6 +87,10 @@ class urlWrapper {
     {
         return (this.subdir.length >=1 && this.subdir[0] == 'c');
     }
+    in_youtube_handle_page()
+    {
+        return (this.subdir.length >=1 && this.subdir[0].startsWith('@'));
+    }
     in_youtube_sp_channel_page()
     {
         return this.subdir.length >=1 && 
