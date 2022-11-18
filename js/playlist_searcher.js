@@ -71,14 +71,14 @@ class PlaylistSearcher {
         }
     }
     /*!
-     *  @brief  リストIDにカスタムチャンネル名を紐付ける
+     *  @brief  リストIDに独自チャンネル名を紐付ける
      *  @param  list_id     リストID
-     *  @param  custom_name カスタムチャンネル名
+     *  @param  unique_name カスタムチャンネル名/ハンドル
      */
-    set_custom_name(list_id, custom_name) {
+    set_unique_name(list_id, unique_name) {
         if (list_id in this.search_list_map) {
             var obj = this.search_list_map[list_id];
-            obj.custom_name = custom_name;
+            obj.unique_name = unique_name;
         }
     }    
 
@@ -190,17 +190,17 @@ class PlaylistSearcher {
     }
     /*!
      *  @brief  チャンネルID取得完了通知
-     *  @param  custom_name カスタムチャンネル名
+     *  @param  unique_name カスタムチャンネル名/ハンドル
      *  @param  channel_id  チャンネルID
      *  @return ret_v       受け取った動画ID群
-     *  @note   カスタムチャンネル名をキーに取得された
+     *  @note   カスタムチャンネル名/ハンドルをキーに取得された
      *  @note   チャンネルIDを受け取る
      */
-    tell_get_channel_id_by_custom_channel(custom_name, channel_id) {
+    tell_get_channel_id_by_unique_channel(unique_name, channel_id) {
         let ret_v = [];
         for (const list_id in this.search_list_map) {
             let obj = this.search_list_map[list_id];
-            if (obj.custom_name != null && obj.custom_name == custom_name) {
+            if (obj.unique_name != null && obj.unique_name == unique_name) {
                 obj.channel_id = channel_id;
                 obj.busy = false;
                 ret_v.push(list_id);

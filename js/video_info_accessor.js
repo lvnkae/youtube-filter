@@ -21,7 +21,6 @@ class VideoInfoAccessor {
         }
         return null;
     }
-
     /*!
      *  @brief  動画IDからチャンネルIDを得る
      *  @param  video_id    動画ID
@@ -29,47 +28,6 @@ class VideoInfoAccessor {
     get_channel_id(video_id) {
         if (video_id in this.video_info_map) {
             return this.video_info_map[video_id].channel_id;
-        }
-        return null;
-    }
-
-    /*!
-     *  @brief  カスタムチャンネル名からチャンネルIDを得る
-     *  @param  custom_name カスタムチャンネル名
-     */
-    get_channel_id_by_cunstom_channel(custom_name) {
-        for (const video_id in this.video_info_map) {
-            var obj = this.video_info_map[video_id];
-            if (obj.custom_name != null && obj.custom_name == custom_name) {
-                return obj.channel_id;
-            }
-        }
-        return null;
-    }
-
-    /*!
-     *  @brief  動画IDからチャンネル名を得る
-     *  @param  カスタムチャンネル名
-     */
-    get_channel_name(video_id) {
-        if (video_id in this.video_info_map) {
-            return this.video_info_map[video_id].channel_name;
-        }
-        return null;
-    }
-    
-    /*!
-     *  @brief  チャンネルユーザ名からカスタムチャンネル名を得る
-     *  @param  username    チャンネルユーザ名
-     */
-    get_custom_name_by_username(username) {
-        for (const video_id in this.video_info_map) {
-            var obj = this.video_info_map[video_id];
-            if (obj.username != null && obj.username == username) {
-                if (obj.custom_name != null) {
-                    return obj.custom_name;
-                }
-            }
         }
         return null;
     }
@@ -98,20 +56,20 @@ class VideoInfoAccessor {
         }
     }
     /*!
-     *  @brief  動画IDにカスタムチャンネル名を紐付ける
+     *  @brief  動画IDに独自チャンネル名を紐付ける
      *  @param  video_id    動画ID
-     *  @param  custom_name カスタムチャンネル名
+     *  @param  unique_name カスタムチャンネル名/ハンドル
      */
-    set_custom_name(video_id, custom_name) {
+    set_unique_name(video_id, unique_name) {
         if (video_id in this.video_info_map) {
             var obj = this.video_info_map[video_id];
-            obj.custom_name = custom_name;
+            obj.unique_name = unique_name;
         }
     }
     /*!
-     *  @brief  動画IDにチャンネルIDを紐付ける
+     *  @brief  動画IDにチャンネル名を紐付ける
      *  @param  video_id        動画ID
-     *  @param  channel_name    チャンネルID
+     *  @param  channel_name    チャンネル名
      */
     set_channel_name(video_id, channel_name) {
         if (video_id in this.video_info_map) {
@@ -174,10 +132,10 @@ class VideoInfoAccessor {
                 obj.username = username;
                 post_func(obj);
             } else
-            if (YoutubeUtil.is_custom_channel_url(author_url)) {
-                // jsonのauthor_urlまでカスタムチャンネルURLに侵食されている
-                const custom_name = YoutubeUtil.cut_channel_id(author_url);
-                obj.custom_name = custom_name;
+            if (YoutubeUtil.is_uniquepage_url(author_url)) {
+                // jsonのauthor_urlまでカスタムチャンネルURL/ハンドルに侵食されている
+                const unique_name = YoutubeUtil.cut_channel_id(author_url);
+                obj.unique_name = unique_name;
                 post_func(obj);
             }
         }
@@ -205,17 +163,17 @@ class VideoInfoAccessor {
 
     /*!
      *  @brief  チャンネルID取得完了通知
-     *  @param  custom_name カスタムチャンネル名
+     *  @param  unique_name 独自チャンネル名
      *  @param  channel_id  チャンネルID
      *  @return ret_v       受け取った動画ID群
-     *  @note   カスタムチャンネル名をキーに取得された
+     *  @note   カスタムチャンネル名/ハンドルをキーに取得された
      *  @note   チャンネルIDを受け取る
      */
-    tell_get_channel_id_by_custom_channel(custom_name, channel_id) {
+    tell_get_channel_id_by_unique_channel(unique_name, channel_id) {
         var ret_v = [];
         for (const video_id in this.video_info_map) {
             var obj = this.video_info_map[video_id];
-            if (obj.custom_name != null && obj.custom_name == custom_name) {
+            if (obj.unique_name != null && obj.unique_name == unique_name) {
                 obj.channel_id = channel_id;
                 obj.busy = false;
                 ret_v.push(obj.video_id);

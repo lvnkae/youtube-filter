@@ -33,7 +33,7 @@ class Content {
                         this
                         .filter_instance
                         .tell_get_channel_html(request.result,
-                                               request.custom_name,
+                                               request.unique_name,
                                                request.html);
                     }
                 } else
