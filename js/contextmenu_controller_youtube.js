@@ -138,6 +138,14 @@ class ContextMenuController_Youtube extends ContextMenuController {
             !loc.in_top_page()) {
             return ret;
         }
+        const nd_preview = YoutubeUtil.search_preview_node($(element));
+        if (nd_preview.length > 0) {
+            // previewノードは全動画で共用している
+            // 埋め込んだチャンネル情報も辿れないので無視したい
+            ret.type = ContextMenuController_Youtube.TYPE_IGNORE;
+            ret.base_node = null;
+            return ret;
+        }
         const nd_renderer = this.get_renderer_node(element);
         if (nd_renderer.length > 0) {
             ret.type = ContextMenuController_Youtube.TYPE_CHANNEL;

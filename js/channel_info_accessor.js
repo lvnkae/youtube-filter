@@ -18,6 +18,16 @@ class ChannelInfoAccessor {
         }
         return null;
     }
+    /*!
+     *  @brief  独自チャンネル名からチャンネル名を得る
+     *  @param  unique_name カスタムチャンネル名/ハンドル
+     */
+    get_channel_name(unique_name) {
+        if (unique_name in this.channel_info_map) {
+            return this.channel_info_map[unique_name].channel_name;
+        }
+        return null;
+    }
 
     /*!
      *  @brief  独自チャンネル名登録
@@ -65,25 +75,29 @@ class ChannelInfoAccessor {
         if (elem_meta.length == 0) {
             return;
         }
-        var channel_id = null;
+        let channel_id = null;
+        let channel_name = null;
         $(elem_meta).each((inx, elem)=>{
             const prop = $(elem).attr('itemprop');
             if (prop == null) {
                 return true;
             }
-            if (prop != 'channelId') {
+            if (prop == 'channelId') {
+                channel_id = $(elem).attr('content');
+            } else
+            if (prop == 'name') {
+                channel_name = $(elem).attr('content');
+            }
+            if (channel_id != null && channel_name != null) {
+                return false;
+            } else {
                 return true;
             }
-            const cont = $(elem).attr('content');
-            if (cont == null) {
-                return true;
-            }
-            channel_id = cont;
-            return false;
         });
         if (unique_name in this.channel_info_map) {
             var obj = this.channel_info_map[unique_name];
             obj.channel_id = channel_id;
+            obj.channel_name = channel_name;
             post_func(obj);
         }
     }

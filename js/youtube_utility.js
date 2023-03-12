@@ -517,6 +517,21 @@ class YoutubeUtil {
         return HTMLUtil.search_upper_node(elem, is_root);
     }
 
+    static search_preview_node(elem) {
+        const is_preview = function(e) {
+            if (e.localName == null) {
+                return false;
+            }
+            const ln = e.localName.valueOf();
+            return ln.indexOf('ytd-video-preview') >= 0 ||
+                   ln.indexOf('ytd-inline-preview') >= 0 ||
+                   ln.indexOf('ytd-rounded-inline-preview') >= 0;
+        };
+        if (is_preview(elem)) {
+            return elem;
+        }
+        return HTMLUtil.search_upper_node(elem, is_preview);
+    }
 
     static get_filtered_marker(element) {
         return $(element).attr("marker");

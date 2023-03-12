@@ -392,15 +392,30 @@ class YoutubeFilter extends FilterBase {
             if (e_title.length <= 0 || e_channel.length <= 0) {
                 return;
             }
+            const author_url = $($(e_channel).find("a")[0]).attr("href");
+            if (author_url == null || author_url == "") {
+                return;
+            }
             const title
                 = text_utility.remove_blank_line_and_head_space($(e_title).text());
-            const channel = YoutubeUtil.get_channel_name(e_channel);
+            if (title == "") {
+                return;
+            }
+            let channel = null;
+            const channel_code = YoutubeUtil.cut_channel_id(author_url);
+            const name = this.channel_info_accessor.get_channel_name(channel_code);
+            if (name == null) {
+                channel = YoutubeUtil.get_channel_name(e_channel);                
+            } else {
+                channel = name;
+                YoutubeUtil.set_channel_name(elem, name);
+            }
             const detach_func = HTMLUtil.detach_children_all;
             if (this.storage.channel_and_title_filter(channel, title)) {
                 detach_func(elem);
                 return;
             }
-            const author_url = $($(e_channel).find("a")[0]).attr("href");
+
             const channel_id
                 = this.get_channel_id_from_author_url_or_entry_request(author_url);
             this.filtering_renderer_node_by_channel_id(elem,
@@ -425,8 +440,10 @@ class YoutubeFilter extends FilterBase {
             if (e_title.length <= 0 || e_channel.length <= 0) {
                 return;
             }
-            //
             const author_url = $($(e_channel).find("a")[0]).attr("href");
+            if (author_url == null) {
+                return;
+            }
             if (!chk_func(author_url)) {
                 return;
             }
@@ -438,6 +455,15 @@ class YoutubeFilter extends FilterBase {
             if (this.storage.channel_id_filter(channel_id, title)) {
                 HTMLUtil.detach_children_all(elem);
                 return;
+            }
+            const channel = this.channel_info_accessor.get_channel_name(channel_code);
+            if (channel != null) {
+                if (this.storage.channel_and_title_filter(channel, title)) {
+                    HTMLUtil.detach_children_all(elem);
+                    return;
+                } else {
+                    YoutubeUtil.set_channel_name(elem, channel);
+                }
             }
             YoutubeUtil.set_renderer_node_channel_id(elem, channel_id);
         });
@@ -1364,6 +1390,7 @@ class YoutubeFilter extends FilterBase {
             this.filtering_searched_channel();
             this.filtering_searched_playlists();
             this.filtering_searched_radios();
+            this.filtering_short_slim_videos(".style-scope.ytd-reel-item-renderer");
         } else if (loc.in_youtube_sp_channel_page() ||
                    loc.in_youtube_channel_page() ||
                    loc.in_youtube_user_page() ||
@@ -1679,6 +1706,7 @@ class YoutubeFilter extends FilterBase {
         if (loc.in_youtube_search_page() || loc.in_youtube_trending()) {
             this.clear_searched_video_marker();
             this.clear_horizontal_video_marker();
+            this.clear_short_slim_videos_marker(".style-scope.ytd-reel-item-renderer");
         } else if (loc.in_top_page() ||
                    loc.in_youtube_hashtag() ||
                    loc.in_youtube_sports()) {
