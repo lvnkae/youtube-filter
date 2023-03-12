@@ -57,7 +57,7 @@
    "manifest_version": 2,
    "name": "Youtubeフィルタ",
    "author": "lvnkae",
-   "permissions": [ "tabs", "storage", "contextMenus",
+   "permissions": [ "storage", "contextMenus",
                     "https://www.youtube.com/*"
                   ],
    "short_name": "YoutubeFilter",

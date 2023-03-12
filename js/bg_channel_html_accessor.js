@@ -29,7 +29,7 @@ class BGChannelHTMLAccessor extends BGMessageSender {
                 const q = this.get_reply_queue(unique_name);
                 this.send_reply({command: MessageUtil.command_get_channel_html(),
                                  result: "not_found",
-                                 unique_name: unique_name}, q.tag_ids);
+                                 unique_name: unique_name}, q.tab_ids);
             }
         })
         .then(text => {
@@ -38,7 +38,7 @@ class BGChannelHTMLAccessor extends BGMessageSender {
                 this.send_reply({command: MessageUtil.command_get_channel_html(),
                                  result: "success",
                                  unique_name: unique_name,
-                                 html: text}, q.tag_ids);
+                                 html: text}, q.tab_ids);
             }
             super.update_reply_queue(unique_name,
                                      this.request_channel_html.bind(this));
@@ -48,7 +48,7 @@ class BGChannelHTMLAccessor extends BGMessageSender {
             // [error]fetchエラー
             this.send_reply({command: MessageUtil.command_get_channel_html(),
                              result: "fail",
-                             unique_name: unique_name}, q.tag_ids);
+                             unique_name: unique_name}, q.tab_ids);
             super.update_reply_queue(unique_name,
                                      this.request_channel_html.bind(this));
         });

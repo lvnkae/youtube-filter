@@ -30,13 +30,13 @@ class BGVideoJsonAccessor extends BGMessageSender {
                 const q = this.get_reply_queue(video_id);
                 this.send_reply({command: MessageUtil.command_get_video_json(),
                                  result: "unauthorized",
-                                 video_id: video_id}, q.tag_ids);
+                                 video_id: video_id}, q.tab_ids);
                 return null;
             } else {
                 const q = this.get_reply_queue(video_id);
                 this.send_reply({command: MessageUtil.command_get_video_json(),
                                  result: "not_found",
-                                 video_id: video_id}, q.tag_ids);
+                                 video_id: video_id}, q.tab_ids);
             }
         })
         .then(json => {
@@ -45,7 +45,7 @@ class BGVideoJsonAccessor extends BGMessageSender {
                 this.send_reply({command: MessageUtil.command_get_video_json(),
                                  result: "success",
                                  video_id: video_id,
-                                 json: json}, q.tag_ids);
+                                 json: json}, q.tab_ids);
             }
             super.update_reply_queue(video_id,
                                      this.request_video_json.bind(this));
@@ -55,7 +55,7 @@ class BGVideoJsonAccessor extends BGMessageSender {
             // [error]fetchエラー
             this.send_reply({command: MessageUtil.command_get_video_json(),
                              result: "fail",
-                             video_id: video_id}, q.tag_ids);
+                             video_id: video_id}, q.tab_ids);
             super.update_reply_queue(video_id,
                                      this.request_video_json.bind(this));
         });
