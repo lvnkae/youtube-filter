@@ -3,6 +3,7 @@
  */
 class ContextMenuController {
 
+    static TYPE_IGNORE = -1;
     static TYPE_NONE = 0;
 
     /*!
@@ -85,6 +86,9 @@ class ContextMenuController {
             let ret = { type: ContextMenuController.TYPE_NONE, base_node:{length:0}};
             if (this.filter_active) {
                 ret = this.get_base_node(new urlWrapper(location.href), e.target);
+                if (ret.type == ContextMenuController.TYPE_IGNORE) {
+                    return;
+                }
             }
             if (ret.base_node[0] == this.monitoring_target_base[0]) {
                 return;
