@@ -870,10 +870,9 @@ class Popup {
     send_message_to_relative_tab(message) {
         browser.tabs.query({}, (tabs)=> {
             for (const tab of tabs) {
-                const url = new urlWrapper(tab.url);
-                if (url.in_youtube() || url.in_google()) {
-                    browser.tabs.sendMessage(tab.id, message);
-                }
+                // 当該extentionが動作してるtabにのみmessage送信される
+                // URL等で弾く必要はない
+                browser.tabs.sendMessage(tab.id, message);
             }
         });
     }

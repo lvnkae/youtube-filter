@@ -28,7 +28,7 @@ class BGVideosXmlAccessor extends BGMessageSender {
                 const q = this.get_reply_queue(username);
                 this.send_reply({command: MessageUtil.command_get_videos_xml(),
                                  result: "not_found",
-                                 username: username}, q.tag_ids);
+                                 username: username}, q.tab_ids);
             }
             super.update_reply_queue(username,
                                      this.request_videos_xml.bind(this));
@@ -39,7 +39,7 @@ class BGVideosXmlAccessor extends BGMessageSender {
                 this.send_reply({command: MessageUtil.command_get_videos_xml(),
                                  result: "success",
                                  username: username,
-                                 xml: text}, q.tag_ids);
+                                 xml: text}, q.tab_ids);
             }
             super.update_reply_queue(username,
                                      this.request_videos_xml.bind(this));
@@ -49,7 +49,7 @@ class BGVideosXmlAccessor extends BGMessageSender {
             // [error]fetchエラー
             this.send_reply({command: MessageUtil.command_get_videos_xml(),
                              result: "fail",
-                             username: username}, q.tag_ids);
+                             username: username}, q.tab_ids);
             super.update_reply_queue(username,
                                      this.request_videos_xml.bind(this));
         });

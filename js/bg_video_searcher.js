@@ -29,7 +29,7 @@ class BGVideoSearcher extends BGMessageSender {
                 const q = this.get_reply_queue(video_id);
                 this.send_reply({command: MessageUtil.command_search_video(),
                                  result: "not_found",
-                                 video_id: video_id}, q.tag_ids);
+                                 video_id: video_id}, q.tab_ids);
             }
         })
         .then(text => {
@@ -38,7 +38,7 @@ class BGVideoSearcher extends BGMessageSender {
                 this.send_reply({command: MessageUtil.command_search_video(),
                                  result: "success",
                                  video_id: video_id,
-                                 html: text}, q.tag_ids);
+                                 html: text}, q.tab_ids);
             }
             super.update_reply_queue(video_id,
                                      this.request_search_video.bind(this));
@@ -48,7 +48,7 @@ class BGVideoSearcher extends BGMessageSender {
             // [error]fetchエラー
             this.send_reply({command: MessageUtil.command_search_video(),
                              result: "fail",
-                             video_id: video_id}, q.tag_ids);
+                             video_id: video_id}, q.tab_ids);
             super.update_reply_queue(video_id,
                                      this.request_search_video.bind(this));
         });

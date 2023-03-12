@@ -29,7 +29,7 @@ class BGPlaylistSearcher extends BGMessageSender {
                 const q = this.get_reply_queue(list_id);
                 this.send_reply({command: MessageUtil.command_search_playlist(),
                                  result: "not_found",
-                                 list_id: list_id}, q.tag_ids);
+                                 list_id: list_id}, q.tab_ids);
             }
         })
         .then(text => {
@@ -38,7 +38,7 @@ class BGPlaylistSearcher extends BGMessageSender {
                 this.send_reply({command: MessageUtil.command_search_playlist(),
                                  result: "success",
                                  list_id: list_id,
-                                 html: text}, q.tag_ids);
+                                 html: text}, q.tab_ids);
             }
             super.update_reply_queue(list_id,
                                      this.request_search_list.bind(this));
@@ -48,7 +48,7 @@ class BGPlaylistSearcher extends BGMessageSender {
             // [error]fetchエラー
             this.send_reply({command: MessageUtil.command_search_playlist(),
                              result: "fail",
-                             list_id: list_id}, q.tag_ids);
+                             list_id: list_id}, q.tab_ids);
             super.update_reply_queue(list_id,
                                      this.request_search_list.bind(this));
         });
