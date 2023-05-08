@@ -94,10 +94,33 @@ class ChannelInfoAccessor {
                 return true;
             }
         });
+        if (channel_id == null) {
+            const elem_script = doc_html.getElementsByTagName('script');
+            if (elem_script.length == 0) {
+                return;
+            }
+            const key_script_top = 'var ytInit';
+            const key_channel_id = '"externalId":"'
+            const len_key_url = key_channel_id.length;
+            $(elem_script).each((inx, elem)=>{
+                if (elem.innerText.indexOf(key_script_top) != 0) {
+                    return true;
+                }
+                const cut_top = elem.innerText.indexOf(key_channel_id);
+                if (cut_top < 0) {
+                    return false; // 想定外のhtmlが来た
+                }
+                const cut_end = elem.innerText.indexOf('"', cut_top + len_key_url);
+                channel_id
+                    = elem.innerText.substring(cut_top + len_key_url, cut_end);
+                return false;
+            });
+        }            
         if (unique_name in this.channel_info_map) {
             var obj = this.channel_info_map[unique_name];
             obj.channel_id = channel_id;
             obj.channel_name = channel_name;
+            obj.busy = false;
             post_func(obj);
         }
     }
