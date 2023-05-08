@@ -101,6 +101,9 @@ class YoutubeFilter extends FilterBase {
             this.video_info_accessor.entry(video_id);
             return false;
         }
+        if (channel_info.id == null || channel_info.name == null) {
+            return false;
+        }
         if (this.storage.channel_id_filter(channel_info.id, title) ||
             this.storage.channel_filter(channel_info.name, title)) {
             $(renderer_node).detach();
