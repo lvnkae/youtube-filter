@@ -990,16 +990,13 @@ class YoutubeFilter extends FilterBase {
         if (elem_author.length != 1) {
             return ret;
         }
-        const elem_user = $(elem_author).find("span");
-        if (elem_user.length != 1) {
-            return ret;
-        }
         const elem_comment = $(elem).find(comment_tag)
         if (elem_comment.length != 1) {
             return ret;
         }
         const username
-            = text_utility.remove_blank_line_and_head_space($(elem_user).text())
+            = text_utility.remove_blank_line_and_head_space(
+                $(elem_author).text());
         const author_url = $(elem_author).attr("href");
         if (author_url == null) {
             return ret;
@@ -1831,9 +1828,9 @@ class YoutubeFilter extends FilterBase {
             return;
         }
         let ob_elem = [];
-        const tag_popup = YoutubeUtil.get_popup_container_tag();
-        const tag_dialog = "tp-yt-paper-dialog.style-scope.ytd-popup-container";
-        this.create_comment_observer(tag_popup, tag_dialog);
+        const tag_shorts = "div#shorts-container"
+        const tag_panel = "div#watch-while-engagement-panel";
+        this.create_comment_observer(tag_shorts, tag_panel);
         const tag_primary = "div#primary"
         const tag_item_sec
             = "ytd-item-section-renderer#sections.style-scope.ytd-comments";

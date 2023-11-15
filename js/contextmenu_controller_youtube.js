@@ -75,22 +75,17 @@ class ContextMenuController_Youtube extends ContextMenuController {
         if (nd_channel_id.length == 0) {
             return false;
         }
-        const nd_channel
-            = $(nd_channel_id).find("span.style-scope.ytd-comment-renderer");
-        if (nd_channel.length == 0) {
-            return false;
-        }
         const max_disp_channel = 32;
         const channel
-            = text_utility
-              .remove_line_head_space(text_utility
-                                      .remove_blank_line($(nd_channel).text()));
+            = text_utility.remove_blank_line_and_head_space(
+                $(nd_channel_id).text());
         const channel_st = channel.slice(0, max_disp_channel-1);
         const channel_id = 
             YoutubeUtil.cut_channel_id($(nd_channel_id).attr("href"));
         if (channel_id == null) {
             return false;
         }
+        this.context_menu.channel_id = channel_id;
         const title = channel_st + "をコメントミュート";
         MessageUtil.send_message({
             command: MessageUtil.command_update_contextmenu(),
@@ -146,17 +141,17 @@ class ContextMenuController_Youtube extends ContextMenuController {
             ret.base_node = null;
             return ret;
         }
-        const nd_renderer = this.get_renderer_node(element);
-        if (nd_renderer.length > 0) {
-            ret.type = ContextMenuController_Youtube.TYPE_CHANNEL;
-            ret.base_node = nd_renderer;
-            return ret; 
-        }
         const nd_comment = this.get_comment_node(element);
         if (nd_comment.length > 0) {
             ret.type = ContextMenuController_Youtube.TYPE_COMMENT;
             ret.base_node = nd_comment;
             return ret;
+        }
+        const nd_renderer = this.get_renderer_node(element);
+        if (nd_renderer.length > 0) {
+            ret.type = ContextMenuController_Youtube.TYPE_CHANNEL;
+            ret.base_node = nd_renderer;
+            return ret; 
         }
         return ret;
     }
