@@ -140,7 +140,10 @@ class YoutubeUtil {
         return "yt-formatted-string#text.style-scope.ytd-channel-name";
     }
     static get_channel_topic_tag() {
-        return "yt-formatted-string#title.style-scope.ytd-topic-channel-details-renderer";
+        return "div#title.style-scope.ytd-interactive-tabbed-header-renderer";
+    }
+    static get_channel_sp_tag() {
+        return "div#page-header.style-scope.ytd-tabbed-page-header";
     }
     static get_channel_link_tag() {
         return "a.yt-simple-endpoint.style-scope.yt-formatted-string";
@@ -168,6 +171,12 @@ class YoutubeUtil {
         const e_channel_topic = $(tag_topic_name);
         if (e_channel_topic.length > 0) {
             return $(e_channel_topic).text();
+        }
+        const tag_sp_name = YoutubeUtil.get_channel_sp_tag();
+        const e_channel_sp = $(tag_sp_name);
+        if (e_channel_sp.length > 0) {
+            const txt = $($(tag_sp_name)[0]).text();
+            return text_utility.remove_blank_line_and_head_space(txt);
         }
         return null;
     }

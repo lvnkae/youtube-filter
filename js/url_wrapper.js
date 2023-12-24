@@ -93,11 +93,15 @@ class urlWrapper {
     }
     in_youtube_sp_channel_page()
     {
-        return this.subdir.length >=1 && 
-               (this.subdir[0] == 'gaming' || /* ゲーム */
-                this.subdir[0] == 'newucnews' || /* ニュース*/
-                this.subdir[0] == '360' || /* 360°動画 */
-                this.subdir[0] == 'live') /* ライブ*/
+        if (this.subdir.length >=1 && this.subdir[0] == 'gaming') {
+            return true; /* ゲーム */
+        }
+        if (this.subdir.length >=2 &&
+            this.subdir[0] == 'feed' &&
+            this.subdir[1] == 'news_destination') {
+            return true; /* ニュース */
+        }
+        return false;
     }
     in_youtube_search_page()
     {
