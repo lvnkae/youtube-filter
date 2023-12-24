@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Youtubeフィルタ - dashboard</title>
+        <style type="text/css">
+            .tabButton {
+                border: 0;
+                padding: 0.7em 1.4em;
+                background-color:#FFFFFF;
+            }
+            .tabButton:hover {
+                background-color:#CCCCEE;
+                border-bottom: 3px solid #BBBBDD;
+                cursor:pointer;
+            }
+            .tabButton.selected {
+                background-color:#FFFFFF;
+                border-bottom: 3px solid #CC0000;
+                color: #CC0000;
+            }
+            div.pagetop {
+                position:relative;
+                top:12px;
+            }
+            div.pagetop#option {
+                top:0px;
+                height:80px;
+            }
+            textarea[name=filter_channel], 
+            textarea[name=filter_ex_channel],
+            textarea[name=filter_channel_id],
+            textarea[name=filter_ex_channel_id] {
+                width:49%;
+            }
+            textarea[name=filter_title],
+            textarea[name=filter_comment_by_id],
+            textarea[name=filter_comment_by_word] {
+                width:99%;
+            }
+            textarea[name=filter_comment_by_user],
+            textarea[name=export_storage],
+            textarea[name=import_storage] {
+                width:75%;
+            }
+            .cursor {
+                position:absolute;
+                background-color: rgba(128,128,128,.25);
+            }
+            .subheading, .checkbox, .channelname {
+                position:absolute;
+            }
+        </style>
+
+    </head>
+    <body>
+        <div class="tabButtons">
+            <button class="tabButton selected" name="tab_channel_filter" type="button">非表示チャンネル</button>
+            <button class="tabButton" name="tab_title_filter" type="button">非表示タイトル</button>
+            <button class="tabButton" name="tab_comment_filter" type="button">非表示コメント</button>
+            <button class="tabButton" name="tab_imexport" type="button">設定入出力</button>
+            <button class="tabButton" name="tab_option" type="button">オプション</button>
+        </div>
+        <br>
+        <div class="main">
+            <select name="select_channel_filter">
+                <option value="ng_channel_word">非表示チャンネル(ワード)</option>
+                <option value="ng_channel_id">非表示チャンネル(ID)</option>
+            </select>
+            <select name="select_comment_filter" style="display:none">
+                <option value="ng_comment_user">非表示コメント(ユーザ名)</option>
+                <option value="ng_comment_id">非表示コメント(ID)</option>
+                <option value="ng_comment_word">非表示コメント(ワード)</option>
+            </select>
+            <select name="select_imexport" style="display:none">
+                <option value="export">設定出力(export)</option>
+                <option value="import">設定入力(import)</option>
+            </select>
+
+            <div class="pagetop" id="filter_channel">
+                <div class = "cursor" id="filter_channel"></div>
+                <div class = "subheading" id="filter_ex_channel"></div>
+                <textarea name="filter_channel" rows="60%" cols="1"></textarea>
+                <textarea name="filter_ex_channel" rows="50%" cols="1" style="display:none"></textarea>
+                <div class = "checkbox" id="filter_ex_channel">
+                    <input id="filter_ex_channel_regexp" type="checkbox" style="display:none">
+                    <label id="filter_ex_channel_regexp" style="display:none">正規表現</label>
+                    <input id="filter_ex_channel_perfectmatch" type="checkbox" style="display:none">
+                    <label id="filter_ex_channel_perfectmatch" style="display:none">完全一致</label>
+                    <input id="filter_ex_channel_normalize" type="checkbox" style="display:none">
+                    <label id="filter_ex_channel_normalize" style="display:none">大/小文字区別なし</label>
+                </div>
+                <div class = "cursor" id="filter_channel_id"></div>
+                <div class = "subheading" id="filter_ex_channel_id"></div>
+                <textarea name="filter_channel_id" rows="60%" cols="1" style="display:none"></textarea>
+                <textarea name="filter_ex_channel_id" rows="55%" cols="1" style="display:none"></textarea>
+                <div class = "channelname" id="filter_ex_channel_id">
+                    <label id="channelname" style="display :none">note</label>
+                    <input id="channelname" type="text" size="64" maxlength="32" style="display :none">
+                </div>
+            </div>
+            <div class="pagetop" id="filter_title" style="display:none">
+                <textarea name="filter_title" rows="60%" cols="1" style="display:none;"></textarea>
+            </div>
+            <div class="pagetop" id="filter_comment" style="display:none">
+                <div class = "cursor" id="filter_comment_by_user"></div>
+                <textarea name="filter_comment_by_user" rows="60%" cols="1" style="display:none"></textarea>
+                <textarea name="filter_comment_by_id" rows="60%" cols="1" style="display:none"></textarea>
+                <textarea name="filter_comment_by_word" rows="60%" cols="1" style="display:none"></textarea>
+                <div class = "checkbox" id="filter_ex_comment_by_user">
+                    <input id="com_regexp" type="checkbox" style="display:none">
+                    <label id="com_regexp" style="display:none">正規表現<br></label>
+                    <input id="com_perfectmatch" type="checkbox" style="display:none">
+                    <label id="com_perfectmatch" style="display:none">完全一致<br></label>
+                    <input id="com_normalize" type="checkbox" style="display:none">
+                    <label id="com_normalize" style="display:none">大/小文字区別なし<br></label>
+                    <input id="com_autongid" type="checkbox" style="display:none">
+                    <label id="com_autongid" style="display :none">非表示IDに自動で追加<br></label>
+                </div>
+            </div>
+            <div class ="pagetop" id="imexport" style="display:none">
+                <textarea readonly name="export_storage" rows="60%" cols="1" style="display:none"></textarea>
+                <textarea name="import_storage" rows="60%" cols="1" style="display:none"></textarea>
+            </div>
+            <div class ="pagetop" id="option" style="display:none">
+                <div class = "checkbox" id="option">
+                    <input id="stop_autoplay" type="checkbox" style="display:none">
+                    <label id="stop_autoplay" style="display:none">自動再生を無効にする<br></label>
+                    <input id="disable_annotation" type="checkbox" style="display:none">
+                    <label id="disable_annotation" style="display:none">アノテーションをオフにする<br></label>
+                    <input id="disable_border_radius" type="checkbox" style="display:none">
+                    <label id="disable_border_radius" style="display:none">サムネイルの角丸(border-radius)を無効にする<br></label>
+                </div>
+            </div>
+            <br><button name="req_save" disabled>変更を保存する</button>
+            <button name="req_import" style="display :none" disabled>読み込む</button>        
+        </div>
+        <script src="../js/jquery-3.3.1.min.js"></script>
+        <script src="../js/message_utility.js"></script>
+        <script src="../js/text_utility.js"></script>
+        <script src="../js/html_utility.js"></script>
+        <script src="../js/storage_class.js"></script>
+        <script src="../js/storage_data.js"></script>
+        <script src="../js/storage_porter.js"></script>
+        <script src="../js/dashboard.js"></script>
+  </body>
+</html>

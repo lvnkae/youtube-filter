@@ -20,33 +20,6 @@ class Badge  {
 };
 
 /*!
- */
-class ChannelFilterParam {
-    constructor(regexp, perfect_match, normalize, text) {
-        this.b_regexp = (regexp == null) ?false :regexp;
-        this.b_perfect_match = (perfect_match == null) ?false :perfect_match;
-        this.b_normalize = (normalize == null) ?false :normalize;
-        this.black_titles = text;
-    }
-};
-class ChannelIDFilterParam {
-    constructor(comment, text) {
-        this.comment = comment;
-        this.black_titles = text;
-    }
-};
-class CommentFilterByUserParam {
-    constructor(regexp, perfect_match, normalize, auto_ng_id) {
-        this.b_regexp = (regexp == null) ?false :regexp;
-        this.b_perfect_match = (perfect_match == null) ?false :perfect_match;
-        this.b_normalize = (normalize == null) ?false :normalize;
-        this.b_auto_ng_id = (auto_ng_id == null) ?false : auto_ng_id;
-    }
-};
-
-
-
-/*!
  *  @brief  popup.js本体
  */
 class Popup {
@@ -154,6 +127,10 @@ class Popup {
         this.button_import().click(()=> {
             this.button_import_click();
         });
+        this.button_detail().click(()=> {
+            this.button_detail_click();
+        });
+        //
     }
 
     checkbox_sw_filter() {
@@ -268,6 +245,9 @@ class Popup {
     }
     button_import_disable() {
         this.button_import().prop("disabled", true);
+    }
+    button_detail() {
+        return $("button[name=detail");
     }
 
     hide_textarea_all() {
@@ -754,7 +734,7 @@ class Popup {
         this.storage.json.disable_border_radius
             = this.checkbox_sw_disable_border_radius().prop("checked");
         this.storage.save();
-        this.send_message_to_relative_tab(
+        MessageUtil.send_message_to_relative_tab(
             {command:MessageUtil.command_update_storage()});
         //
         this.button_save_disable();
@@ -773,6 +753,10 @@ class Popup {
         } else {
             this.textarea_import_storage().val("[[ERROR]]");
         }
+    }
+
+    button_detail_click() {
+        chrome.tabs.create({url: './html/dashboard.html'}, tab => {});
     }
 
     updateCheckbox() {
@@ -865,18 +849,6 @@ class Popup {
                                     this.checkbox_com_normalize().prop("checked"),
                                     this.checkbox_com_auto_ng_id().prop("checked"));
     }
-
-
-    send_message_to_relative_tab(message) {
-        chrome.tabs.query({}, (tabs)=> {
-            for (const tab of tabs) {
-                // 当該extentionが動作してるtabにのみmessage送信される
-                // URL等で弾く必要はない
-                chrome.tabs.sendMessage(tab.id, message);
-            }
-        });
-    }
-
 };
 
 var popup = new Popup();

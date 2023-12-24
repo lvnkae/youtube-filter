@@ -91,4 +91,41 @@ class HTMLUtil {
     static cut_url_query_param(url) {
         return url.split("?")[0];
     }
+
+    /*!
+     *  @brief  カーソル(caret)が何行目にあるか？
+     *  @param  elem    textarea
+     */
+    static get_caret_row(elem) {
+        let row = 0;
+        if (elem.length < 0) {
+            return row;
+        }
+        let caret_pos = elem[0].selectionStart;
+        let t_len = 0;
+        const split_text = text_utility.split_by_new_line(elem.val());
+        for (const word of split_text) {
+            t_len += word.length + 1; // 1はsplit前改行
+            if (caret_pos < t_len) {
+                return row;
+            } else {
+                row++;
+            }
+        }
+        return row;
+    }
+
+    /*!
+     *  @brief  elemのフォントサイズを得る
+     *  @note   elem固有の指定がなければ根っこのcssを採用
+     */
+    static get_font_size(elem) {
+        const font_size = elem[0].style.fontSize;
+        if (font_size != "") {
+            return parseFloat(font_size);
+        }
+        let font_size_str
+            = window.getComputedStyle(elem[0]).getPropertyValue('font-size');
+        return parseFloat(font_size_str);
+    }
 }
