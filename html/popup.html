@@ -17,9 +17,6 @@
         <div class="main">
           
             <input name="sw_filter" type="checkbox">フィルタを有効にする</input><br>
-            <input name="sw_stop_autoplay" type="checkbox">自動再生を無効にする</input><br>
-            <input name="sw_disable_annotation" type="checkbox">アノテーションをオフにする</input><br>
-            <input name="sw_disable_border_radius" type="checkbox">サムネイルの角丸(border-radius)を無効にする</input><br>
 
             <select name="select_filter">
                 <option value="ng_channel_word">非表示チャンネル(ワード)</option>
@@ -28,25 +25,21 @@
                 <option value="ng_comment_user">非表示コメント(ユーザ)</option>
                 <option value="ng_comment_id">非表示コメント(ID)</option>
                 <option value="ng_comment_word">非表示コメント(ワード)</option>
-                <option value="export">設定出力(export)</option>
-                <option value="import">設定入力(import)</option>
             </select>
-            <p><textarea name="filter_channel" class="form-control" rows="10" cols="48"></textarea></p>
-            <p><textarea name="filter_channel_id" class="form-control" rows="10" cols="48" style="display:none"></textarea></p>
-            <p><textarea name="filter_title" class="form-control" rows="10" cols="48" style="display:none"></textarea></p>
-            <p><textarea name="filter_ex_channel" class="form-control" rows="10" cols="48" style="display:none"></textarea></p>
-            <p><textarea name="filter_ex_channel_id" class="form-control" rows="10" cols="48" style="display:none"></textarea></p>
-            <p><textarea name="filter_comment_by_user" class="form-control" rows="10" cols="48" style="display:none"></textarea></p>
-            <p><textarea name="filter_comment_by_id" class="form-control" rows="10" cols="48" style="display:none"></textarea></p>
-            <p><textarea name="filter_comment_by_word" class="form-control" rows="10" cols="48" style="display:none"></textarea></p>
-            <p><textarea readonly name="export_storage" class="from-control" rows="10" cols="48" style="display:none"></textarea></p>
-            <p><textarea name="import_storage" class="from-control" rows="10" cols="48" style="display:none"></textarea></p>
+            <p><textarea name="filter_channel" rows="14" cols="48"></textarea></p>
+            <p><textarea name="filter_channel_id" rows="14" cols="48" style="display:none"></textarea></p>
+            <p><textarea name="filter_title" rows="14" cols="48" style="display:none"></textarea></p>
+            <p><textarea name="filter_ex_channel" rows="13" cols="48" style="display:none"></textarea></p>
+            <p><textarea name="filter_ex_channel_id" rows="12" cols="48" style="display:none"></textarea></p>
+            <p><textarea name="filter_comment_by_user" rows="14" cols="48" style="display:none"></textarea></p>
+            <p><textarea name="filter_comment_by_id" rows="14" cols="48" style="display:none"></textarea></p>
+            <p><textarea name="filter_comment_by_word"rows="14" cols="48" style="display:none"></textarea></p>
             <input id="regexp" type="checkbox" style="display:none">
             <label id="regexp" for="regexp" style="display:none">正規表現</label>
             <input id="perfectmatch" type="checkbox" style="display:none">
             <label id="perfectmatch" for="perfectmatch" style="display:none">完全一致</label>
             <input id="normalize" type="checkbox" style="display:none">
-            <label id="normalize" for="normalize" style="display:none">大/小文字区別なし</label>
+            <label id="normalize" for="normalize" style="display:none">大/小文字区別なし<br></label>
             <input id="com_regexp" type="checkbox" style="display:none">
             <label id="com_regexp" for="com_regexp" style="display:none">正規表現</label>
             <input id="com_perfectmatch" type="checkbox" style="display:none">
@@ -59,7 +52,6 @@
             <input id="ch_username" type="text" size="33" maxlength="32" style="display :none">
             <label id="ch_username_br" for="ch_username" style="display :none"><br><br></label>
             <button name="req_save" disabled>変更を保存する</button>
-            <button name="req_import" style="display :none" disabled>読み込む</button>
             <button class="detail" name="detail" title="詳細設定">
                 <svg version="1.1" x="0px" y="0px" width="512px" height="512px" viewBox="0 0 512 512" style="width: 16px; height: 16px; opacity: 1;" xml:space="preserve">
                     <style type="text/css">.st0{fill:#4B4B4B;}</style>
@@ -100,6 +92,7 @@
         <script src="../js/storage_class.js"></script>
         <script src="../js/storage_data.js"></script>
         <script src="../js/storage_porter.js"></script>
+        <script src="../js/setting_base.js"></script>
         <script src="../js/popup.js"></script>
   </body>
 </html>
