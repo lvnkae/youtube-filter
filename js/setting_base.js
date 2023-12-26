@@ -20,6 +20,7 @@ class SettingBase {
     get_flag_stop_autoplay() { return false; }
     get_flag_disable_annotation() { return false; }
     get_flag_disable_border_radius() { return false; }
+    get_flag_mute_shorts() { return false; }
 
     textarea_filter_channel() {
         return $("textarea[name=filter_channel]");
@@ -279,6 +280,7 @@ class SettingBase {
         this.storage.json.stop_autoplay = this.get_flag_stop_autoplay();
         this.storage.json.disable_annotation = this.get_flag_disable_annotation();
         this.storage.json.disable_border_radius = this.get_flag_disable_border_radius();
+        this.storage.json.mute_shorts = this.get_flag_mute_shorts();
         this.storage.save();
         MessageUtil.send_message_to_relative_tab(
             {command:MessageUtil.command_update_storage()});

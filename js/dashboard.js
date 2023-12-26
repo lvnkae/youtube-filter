@@ -131,6 +131,9 @@ class Dashboard extends SettingBase {
         this.checkbox_disable_border_radius().change(()=> {
             this.button_save_enable();
         });
+        this.checkbox_mute_shorts().change(()=> {
+            this.button_save_enable();
+        });
         //
         this.button_save().click(()=> {
             this.button_save_click();
@@ -199,6 +202,9 @@ class Dashboard extends SettingBase {
     checkbox_disable_border_radius() {
         return $("input#disable_border_radius");
     }
+    checkbox_mute_shorts() {
+        return $("input#mute_shorts");
+    }
     checkbox_label_stop_autoplay() {
         return $("label#stop_autoplay");
     }
@@ -208,6 +214,10 @@ class Dashboard extends SettingBase {
     checkbox_label_disable_border_radius() {
         return $("label#disable_border_radius");
     }
+    checkbox_label_mute_shorts() {
+        return $("label#mute_shorts");
+    }
+
     get_flag_enable_filter() {
         return this.flag_enable_filter;
     }
@@ -219,6 +229,9 @@ class Dashboard extends SettingBase {
     }
     get_flag_disable_border_radius() {
         return this.checkbox_disable_border_radius().prop("checked");
+    }
+    get_flag_mute_shorts() {
+        return this.checkbox_mute_shorts().prop("checked");
     }
     //
     textarea_export_storage() {
@@ -363,17 +376,21 @@ class Dashboard extends SettingBase {
         this.checkbox_stop_autoplay().hide();
         this.checkbox_disable_annotation().hide();
         this.checkbox_disable_border_radius().hide();
+        this.checkbox_mute_shorts().hide();
         this.checkbox_label_stop_autoplay().hide();
         this.checkbox_label_disable_annotation().hide();
         this.checkbox_label_disable_border_radius().hide();
+        this.checkbox_label_mute_shorts().hide();
     }
     show_option_checkbox_all() {
         this.checkbox_stop_autoplay().show();
         this.checkbox_disable_annotation().show();
         this.checkbox_disable_border_radius().show();
+        this.checkbox_mute_shorts().show();
         this.checkbox_label_stop_autoplay().show();
         this.checkbox_label_disable_annotation().show();
         this.checkbox_label_disable_border_radius().show();
+        this.checkbox_label_mute_shorts().show();
     }
     hide_option_all() {
         this.hide_option_checkbox_all();
@@ -645,9 +662,10 @@ class Dashboard extends SettingBase {
         this.checkbox_disable_annotation().prop("checked",
             json.disable_annotation == null ?false
                                             :json.disable_annotation);
-        this.checkbox_disable_border_radius().prop("checked",
-            json.disable_border_radius == null ?false
-                                               :json.disable_border_radius);
+        this.checkbox_disable_border_radius().prop(
+            "checked",
+            this.storage.is_disable_border_radius());
+        this.checkbox_mute_shorts().prop("checked", this.storage.is_mute_shorts());
         this.show_option_checkbox_all();
     }
     //

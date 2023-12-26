@@ -127,6 +127,9 @@ class Popup extends SettingBase {
     get_flag_disable_border_radius() {
         return this.flag_disable_border_radius;
     }
+    get_flag_mute_shorts() {
+        return this.flag_mute_shorts;
+    }
 
     checkbox_regexp() {
         return $("input#regexp");
@@ -546,6 +549,7 @@ class Popup extends SettingBase {
         this.flag_stop_autoplay = json.stop_autoplay;
         this.flag_disable_annotation = json.disable_annotation;
         this.flag_disable_border_radius = json.disable_border_radius;
+        this.flag_mute_shorts = json.mute_shorts;
     }
 
     /*!

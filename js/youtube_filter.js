@@ -153,6 +153,13 @@ class YoutubeFilter extends FilterBase {
         if (author_url == null) {
             return false;
         }
+        if (this.storage.is_mute_shorts()) {
+            const url = $(elem_title).attr("href");
+            if (url != null && YoutubeUtil.is_shorts(url)) {
+                $(renderer_root).detach();
+                return true;
+            }
+        }
         const channel_id
             = this.get_channel_id_from_author_url_or_entry_request(author_url);
         return this.filtering_renderer_node_by_channel_id(renderer_root,
@@ -1382,6 +1389,14 @@ class YoutubeFilter extends FilterBase {
         //
         this.dismissible_tag = YoutubeUtil.get_div_dismissible();
         const loc = this.current_location;
+        if (this.storage.is_mute_shorts()) {
+            if (loc.in_top_page() ||
+                loc.in_youtube_trending() ||
+                loc.in_youtube_search_page() ||
+                loc.in_youtube_sp_channel_page()) {
+                YoutubeUtil.remove_shorts_whole_header();
+            }
+        }
         if (loc.in_youtube_search_page() ||
             loc.in_youtube_trending() ||
             loc.in_youtube_feeds()) {

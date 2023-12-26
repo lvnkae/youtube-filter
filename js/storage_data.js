@@ -37,6 +37,7 @@ class StorageData {
         this.json.stop_autoplay = false;        // 自動再生停止 有効/無効
         this.json.disable_annotation = false;   // アノテーション無効化 有効/無効
         this.json.disable_border_radius = false;// thumbnail角丸無効化 有効/無効
+        this.json.mute_shorts = false;          // shortsミュート 有効/無効
         this.json.ng_channel = [];              // チャンネルフィルタ(ワード)
         this.json.ng_channel_id = [];           // チャンネルフィルタ(ID)
         this.json.ng_title = [];                // タイトルフィルタ
@@ -284,5 +285,12 @@ class StorageData {
     is_disable_border_radius() {
         return this.json.disable_border_radius != null &&
                this.json.disable_border_radius != false;
+    }
+    /*!
+     *  @brief  shortsをミュートすべきか
+     */
+    is_mute_shorts() {
+        return this.json.mute_shorts != null &&
+               this.json.mute_shorts != false;
     }
 }
