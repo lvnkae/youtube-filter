@@ -27,20 +27,23 @@
                 top:0px;
                 height:96px;
             }
+            textarea {
+                line-height:1.2;
+            }
             textarea[name=filter_channel], 
             textarea[name=filter_ex_channel],
             textarea[name=filter_channel_id],
             textarea[name=filter_ex_channel_id] {
-                width:49%;
+                width:48.5%;
             }
             textarea[name=filter_title],
             textarea[name=filter_comment_by_id],
-            textarea[name=filter_comment_by_word] {
-                width:99%;
-            }
-            textarea[name=filter_comment_by_user],
+            textarea[name=filter_comment_by_word],
             textarea[name=export_storage],
             textarea[name=import_storage] {
+                width:99%;
+            }
+            textarea[name=filter_comment_by_user] {
                 width:75%;
             }
             .cursor {
@@ -80,8 +83,8 @@
             <div class="pagetop" id="filter_channel">
                 <div class = "cursor" id="filter_channel"></div>
                 <div class = "subheading" id="filter_ex_channel"></div>
-                <textarea name="filter_channel" rows="60%" cols="1"></textarea>
-                <textarea name="filter_ex_channel" rows="50%" cols="1" style="display:none"></textarea>
+                <textarea name="filter_channel" rows="40%" cols="1"></textarea>
+                <textarea name="filter_ex_channel" rows="35%" cols="1" style="display:none"></textarea>
                 <div class = "checkbox" id="filter_ex_channel">
                     <input id="filter_ex_channel_regexp" type="checkbox" style="display:none">
                     <label id="filter_ex_channel_regexp" style="display:none">正規表現</label>
@@ -92,21 +95,21 @@
                 </div>
                 <div class = "cursor" id="filter_channel_id"></div>
                 <div class = "subheading" id="filter_ex_channel_id"></div>
-                <textarea name="filter_channel_id" rows="60%" cols="1" style="display:none"></textarea>
-                <textarea name="filter_ex_channel_id" rows="55%" cols="1" style="display:none"></textarea>
+                <textarea name="filter_channel_id" rows="40%" cols="1" style="display:none"></textarea>
+                <textarea name="filter_ex_channel_id" rows="35%" cols="1" style="display:none"></textarea>
                 <div class = "channelname" id="filter_ex_channel_id">
                     <label id="channelname" style="display :none">note</label>
                     <input id="channelname" type="text" size="64" maxlength="32" style="display :none">
                 </div>
             </div>
             <div class="pagetop" id="filter_title" style="display:none">
-                <textarea name="filter_title" rows="60%" cols="1" style="display:none;"></textarea>
+                <textarea name="filter_title" rows="42%" cols="1" style="display:none;"></textarea>
             </div>
             <div class="pagetop" id="filter_comment" style="display:none">
                 <div class = "cursor" id="filter_comment_by_user"></div>
-                <textarea name="filter_comment_by_user" rows="60%" cols="1" style="display:none"></textarea>
-                <textarea name="filter_comment_by_id" rows="60%" cols="1" style="display:none"></textarea>
-                <textarea name="filter_comment_by_word" rows="60%" cols="1" style="display:none"></textarea>
+                <textarea name="filter_comment_by_user" rows="40%" cols="1" style="display:none"></textarea>
+                <textarea name="filter_comment_by_id" rows="40%" cols="1" style="display:none"></textarea>
+                <textarea name="filter_comment_by_word" rows="40%" cols="1" style="display:none"></textarea>
                 <div class = "checkbox" id="filter_ex_comment_by_user">
                     <input id="com_regexp" type="checkbox" style="display:none">
                     <label id="com_regexp" style="display:none">正規表現<br></label>
@@ -119,8 +122,8 @@
                 </div>
             </div>
             <div class ="pagetop" id="imexport" style="display:none">
-                <textarea readonly name="export_storage" rows="60%" cols="1" style="display:none"></textarea>
-                <textarea name="import_storage" rows="60%" cols="1" style="display:none"></textarea>
+                <textarea readonly name="export_storage" rows="42%" cols="1" style="display:none"></textarea>
+                <textarea name="import_storage" rows="40%" cols="1" style="display:none"></textarea>
             </div>
             <div class ="pagetop" id="option" style="display:none">
                 <div class = "checkbox" id="option">
