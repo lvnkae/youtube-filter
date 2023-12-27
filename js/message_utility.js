@@ -3,8 +3,11 @@
  */
 class MessageUtil {
     /*!
-     *  @brief  backgroundへのsendMessage
+     *  @brief  extention管轄listenerへのsendMessage
      *  @param  message
+     *  @note   extention→extention,background,dashboard
+     *  @note   dashboard→background
+     *  @note   popup→background,dashboard
      *  @note   環境依存するのでラップしとく
      */
     static send_message(message) {
@@ -12,7 +15,8 @@ class MessageUtil {
     }
     /*!
      *  @brief  有効tabへsendMessage
-     *  @note   当該extentionが動作してるtabにのみ送信される
+     *  @note   popup→extention、dashboard
+     *  @note   dashboard→extention
      */
     static send_message_to_relative_tab(message) {
         browser.tabs.query({}, (tabs)=> {
@@ -24,6 +28,7 @@ class MessageUtil {
 
     static command_start_content() { return "start_content"; }
     static command_update_storage() { return "update_storage"; }
+    static command_add_mute_id() { return "add_mute_id"}
     static command_get_video_json() { return "get_video_json"; }
     static command_get_videos_xml() { return "get_videos_xml"; }
     static command_get_channel_html() { return "get_channel_html"; }

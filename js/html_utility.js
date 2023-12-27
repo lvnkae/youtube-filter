@@ -128,4 +128,16 @@ class HTMLUtil {
             = window.getComputedStyle(elem[0]).getPropertyValue('font-size');
         return parseFloat(font_size_str);
     }
+
+    static get_selected_element(elements) {
+        let ret_elem = null;
+        $(elements).each((inx, elem)=>{
+            if (elem.className.indexOf("selected") >= 0) {
+                ret_elem = elem;
+                return false;
+            }
+            return true;
+        });
+        return ret_elem;
+    }
 }
