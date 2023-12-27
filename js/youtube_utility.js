@@ -20,6 +20,10 @@ class YoutubeUtil {
                YoutubeUtil.is_handle_channel_url(author_url);
     }
 
+    static is_shorts(author_url) {
+        return author_url.indexOf("/shorts/") >= 0;
+    }
+
     static is_list_link(link) {
         return link.indexOf("&list=") >= 0 ||
                link.indexOf("?list=") >= 0;
@@ -313,12 +317,19 @@ class YoutubeUtil {
     static get_section_list_header_tag() {
         return "ytd-item-section-renderer.style-scope.ytd-section-list-renderer";
     }
+    static get_reel_shelf_header_tag() {
+        return "ytd-reel-shelf-renderer.style-scope.ytd-item-section-renderer";
+    }
+    static get_horizontal_list_header_tag() {
+        return "ytd-horizontal-card-list-renderer.style-scope.ytd-item-section-renderer";
+    }
+
     /*!
      *  @brief  水平配置動画群のヘッダクリアリングを許可する
      *  @note   要素未生成段階(準備中)でのヘッダ削除禁止
      */
-    static permit_clearing_section_list_header() {
-        $(YoutubeUtil.get_section_list_header_tag()).each((inx, elem)=> {
+    static permit_clearing_section_list_header_core(tag) {
+        $(tag).each((inx, elem)=> {
             const sc_container = $(elem).find("div#scroll-container");
             if (sc_container.length <= 0) {
                 return;
@@ -332,12 +343,18 @@ class YoutubeUtil {
             }
         });
     }
+    static permit_clearing_section_list_header() {
+        const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
+        YoutubeUtil.permit_clearing_section_list_header_core(t_reel);
+        const t_horizontal = YoutubeUtil.get_horizontal_list_header_tag();
+        YoutubeUtil.permit_clearing_section_list_header_core(t_horizontal);
+    }
     /*!
      *  @brief  動画群のヘッダをクリアリングする
      *  @note   属する動画が(フィルタリングされて)空ならヘッダも削除
      */
-    static clearing_section_list_header() {
-        $(YoutubeUtil.get_section_list_header_tag()).each((inx, elem)=> {
+    static clearing_section_list_header_core(tag) {
+        $(tag).each((inx, elem)=> {
             if ($(elem).attr('ready') == null) {
                 return;
             }
@@ -366,6 +383,43 @@ class YoutubeUtil {
                 $(elem).detach();
             }
         });
+    }    
+    static clearing_section_list_header() {
+        const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
+        YoutubeUtil.clearing_section_list_header_core(t_reel);
+        const t_horizontal = YoutubeUtil.get_horizontal_list_header_tag();
+        YoutubeUtil.clearing_section_list_header_core(t_horizontal);
+    }
+
+    /*!
+     *  @brief  水平配置shortsをヘッダごと消し去る
+     *  @note   属する動画が(フィルタリングされて)空ならヘッダも削除
+     */
+    static remove_shorts_whole_header_core(tag) {
+        $(tag).each((inx, elem)=> {
+            let num_thumb = 0;
+            let num_shorts = 0;
+            $(elem).find("a#thumbnail").each((inx, e_thumb)=> {
+                num_thumb++;
+                const url = $(e_thumb).attr("href");
+                if (url == null) {
+                    return;
+                }
+                if (YoutubeUtil.is_shorts(url)) {
+                    num_shorts++;
+                }
+            });
+            if (num_thumb > 0 && num_thumb == num_shorts) {
+                $(elem).detach();
+            }
+        });
+    }
+    static remove_shorts_whole_header() {
+        const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
+        YoutubeUtil.remove_shorts_whole_header_core(t_reel);
+        const t_shelf
+            = "ytd-rich-shelf-renderer.style-scope.ytd-rich-section-renderer";
+        YoutubeUtil.remove_shorts_whole_header_core(t_shelf);
     }
 
     /*!
