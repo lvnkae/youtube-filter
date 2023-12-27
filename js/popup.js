@@ -548,8 +548,8 @@ class Popup extends SettingBase {
         this.checkbox_sw_filter().prop("checked", json.active);
         this.flag_stop_autoplay = json.stop_autoplay;
         this.flag_disable_annotation = json.disable_annotation;
-        this.flag_disable_border_radius = json.disable_border_radius;
-        this.flag_mute_shorts = json.mute_shorts;
+        this.flag_disable_border_radius = this.storage.is_disable_border_radius();
+        this.flag_mute_shorts = this.storage.is_mute_shorts();
     }
 
     /*!
