@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Youtubeフィルタ - dashboard</title>
+        <title data-i18n="dashboard_title"></title>
         <style type="text/css">
             .tabButton {
                 border: 0;
@@ -55,26 +55,26 @@
     </head>
     <body>
         <div class="tabButtons">
-            <button class="tabButton selected" name="tab_channel_filter" type="button">非表示チャンネル</button>
-            <button class="tabButton" name="tab_title_filter" type="button">非表示タイトル</button>
-            <button class="tabButton" name="tab_comment_filter" type="button">非表示コメント</button>
-            <button class="tabButton" name="tab_imexport" type="button">設定入出力</button>
-            <button class="tabButton" name="tab_option" type="button">オプション</button>
+            <button class="tabButton selected" name="tab_channel_filter" type="button" data-i18n="ng_channel"></button>
+            <button class="tabButton" name="tab_title_filter" type="button" data-i18n="ng_title"></button>
+            <button class="tabButton" name="tab_comment_filter" type="button" data-i18n="ng_comment"></button>
+            <button class="tabButton" name="tab_imexport" type="button" data-i18n="imexport"></button>
+            <button class="tabButton" name="tab_option" type="button" data-i18n="option"></button>
         </div>
         <br>
         <div class="main">
             <select name="select_channel_filter">
-                <option value="ng_channel_word">非表示チャンネル(ワード)</option>
-                <option value="ng_channel_id">非表示チャンネル(ID)</option>
+                <option value="ng_channel_word" data-i18n="ng_channel_word"></option>
+                <option value="ng_channel_id" data-i18n="ng_channel_id"></option>
             </select>
             <select name="select_comment_filter" style="display:none">
-                <option value="ng_comment_user">非表示コメント(ユーザ名)</option>
-                <option value="ng_comment_id">非表示コメント(ID)</option>
-                <option value="ng_comment_word">非表示コメント(ワード)</option>
+                <option value="ng_comment_user" data-i18n="ng_comment_user"></option>
+                <option value="ng_comment_id" data-i18n="ng_comment_id"></option>
+                <option value="ng_comment_word" data-i18n="ng_comment_word"></option>
             </select>
             <select name="select_imexport" style="display:none">
-                <option value="export">設定出力(export)</option>
-                <option value="import">設定入力(import)</option>
+                <option value="export" data-i18n="export"></option>
+                <option value="import" data-i18n="import"></option>
             </select>
 
             <div class="pagetop" id="filter_channel">
@@ -84,11 +84,11 @@
                 <textarea name="filter_ex_channel" rows="50%" cols="1" style="display:none"></textarea>
                 <div class = "checkbox" id="filter_ex_channel">
                     <input id="filter_ex_channel_regexp" type="checkbox" style="display:none">
-                    <label id="filter_ex_channel_regexp" style="display:none">正規表現</label>
+                    <label id="filter_ex_channel_regexp" style="display:none" data-i18n="regexp"></label>
                     <input id="filter_ex_channel_perfectmatch" type="checkbox" style="display:none">
-                    <label id="filter_ex_channel_perfectmatch" style="display:none">完全一致</label>
+                    <label id="filter_ex_channel_perfectmatch" style="display:none" data-i18n="perfectmatch"></label>
                     <input id="filter_ex_channel_normalize" type="checkbox" style="display:none">
-                    <label id="filter_ex_channel_normalize" style="display:none">大/小文字区別なし</label>
+                    <label id="filter_ex_channel_normalize" style="display:none" data-i18n="normalize"></label>
                 </div>
                 <div class = "cursor" id="filter_channel_id"></div>
                 <div class = "subheading" id="filter_ex_channel_id"></div>
@@ -109,13 +109,13 @@
                 <textarea name="filter_comment_by_word" rows="60%" cols="1" style="display:none"></textarea>
                 <div class = "checkbox" id="filter_ex_comment_by_user">
                     <input id="com_regexp" type="checkbox" style="display:none">
-                    <label id="com_regexp" style="display:none">正規表現<br></label>
+                    <label id="com_regexp" style="display:none" data-i18n="[prepend]regexp"><br></label>
                     <input id="com_perfectmatch" type="checkbox" style="display:none">
-                    <label id="com_perfectmatch" style="display:none">完全一致<br></label>
+                    <label id="com_perfectmatch" style="display:none" data-i18n="[prepend]perfectmatch"><br></label>
                     <input id="com_normalize" type="checkbox" style="display:none">
-                    <label id="com_normalize" style="display:none">大/小文字区別なし<br></label>
+                    <label id="com_normalize" style="display:none" data-i18n="[prepend]normalize"><br></label>
                     <input id="com_autongid" type="checkbox" style="display:none">
-                    <label id="com_autongid" style="display :none">非表示IDに自動で追加<br></label>
+                    <label id="com_autongid" style="display :none" data-i18n="[prepend]autongid"><br></label>
                 </div>
             </div>
             <div class ="pagetop" id="imexport" style="display:none">
@@ -125,17 +125,17 @@
             <div class ="pagetop" id="option" style="display:none">
                 <div class = "checkbox" id="option">
                     <input id="stop_autoplay" type="checkbox" style="display:none">
-                    <label id="stop_autoplay" style="display:none">自動再生を無効にする<br></label>
+                    <label id="stop_autoplay" style="display:none" data-i18n="[prepend]stop_autoplay"><br></label>
                     <input id="disable_annotation" type="checkbox" style="display:none">
-                    <label id="disable_annotation" style="display:none">アノテーションをオフにする<br></label>
+                    <label id="disable_annotation" style="display:none" data-i18n="[prepend]disable_annotation"><br></label>
                     <input id="disable_border_radius" type="checkbox" style="display:none">
-                    <label id="disable_border_radius" style="display:none">サムネイルの角丸(border-radius)を無効にする<br></label>
+                    <label id="disable_border_radius" style="display:none" data-i18n="[prepend]disable_border_radius"><br></label>
                     <input id="mute_shorts" type="checkbox" style="display:none">
-                    <label id="mute_shorts" style="display:none">ショート動画(shorts)を表示しない<br></label>
+                    <label id="mute_shorts" style="display:none" data-i18n="[prepend]mute_shorts"><br></label>
                 </div>
             </div>
-            <br><button name="req_save" disabled>変更を保存する</button>
-            <button name="req_import" style="display :none" disabled>読み込む</button>        
+            <br><button name="req_save" data-i18n="req_save" disabled>変更を保存する</button>
+            <button name="req_import" style="display :none" data-i18n="req_import" disabled>読み込む</button>
         </div>
         <script src="../js/jquery-3.3.1.min.js"></script>
         <script src="../js/message_utility.js"></script>
@@ -146,5 +146,9 @@
         <script src="../js/storage_porter.js"></script>
         <script src="../js/setting_base.js"></script>
         <script src="../js/dashboard.js"></script>
+        <script src="../js/i18next.min.js"></script>
+        <script src="../js/jquery-i18next.min.js"></script>
+        <script src="../js/i18nextHttpBackend.min.js"></script>
+        <script src="../js/i18n.js"></script>
   </body>
 </html>
