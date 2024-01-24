@@ -330,7 +330,7 @@ class Popup extends SettingBase {
         {
             const val = this.selectbox_value_ex_channel();
             const max_disp_channel = 32;
-            const text = channel.slice(0, max_disp_channel) + 'の非表示タイトル';
+            const text = i18next.t("ng_title_s",{"s":channel.slice(0, max_disp_channel)});
             this.selectbox_filter().append($("<option>").val(val).text(text));
         }
         // ex_channel用textareaの準備
@@ -383,7 +383,7 @@ class Popup extends SettingBase {
         {
             const val = this.selectbox_value_ex_channel_id();
             const max_disp_channel_id = 24;
-            const text = channel_id.slice(0, max_disp_channel_id) + 'の非表示タイトル';
+            const text = i18next.t("ng_title_s",{"s":channel_id.slice(0, max_disp_channel_id)});
             this.selectbox_filter().append($("<option>").val(val).text(text));
         }
         // ex_channel用textareaの準備
@@ -540,7 +540,7 @@ class Popup extends SettingBase {
     }
 
     button_detail_click() {
-        chrome.tabs.create({url: './html/dashboard.html'}, tab => {});
+        chrome.tabs.create({url: '/html/dashboard.html'}, tab => {});
     }
 
     updateCheckbox() {

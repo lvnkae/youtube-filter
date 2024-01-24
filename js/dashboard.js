@@ -520,7 +520,7 @@ class Dashboard extends SettingBase {
         //
         const subheading_offset_x = t[0].clientWidth + 32;
         let subheading = $("div.subheading#filter_ex_channel");
-        $(subheading).text(word + 'の非表示タイトル');
+        $(subheading).text(i18next.t("ng_title_s",{"s":word}));
         $(subheading).attr("style", "left:" + subheading_offset_x + "px");
         //
         const t_ex_offset_x = t[0].clientWidth + 32;
@@ -577,7 +577,7 @@ class Dashboard extends SettingBase {
         //
         const subheading_offset_x = t[0].clientWidth + 32;
         let subheading = $("div.subheading#filter_ex_channel_id");
-        $(subheading).text(channel_id + 'の非表示タイトル');
+        $(subheading).text(i18next.t("ng_title_s",{"s":channel_id}));
         $(subheading).attr("style", "left:" + subheading_offset_x + "px");
         //
         const t_ex_offset_x = t[0].clientWidth + 32;
