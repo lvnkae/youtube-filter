@@ -39,6 +39,7 @@
               "js/contextmenu_controller_google.js",
               "js/contextmenu_controller_youtube.js",
               "js/google_filter.js",
+              "js/youtube_comment_filter.js",
               "js/youtube_filter.js",
               "js/content.js" ],
       "matches": [ "https://www.youtube.com/*",
@@ -65,5 +66,5 @@
                     "https://www.youtube.com/*"
                   ],
    "short_name": "YoutubeFilter",
-   "version": "1.0.4.0"
+   "version": "1.0.5.0"
 }

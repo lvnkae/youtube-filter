@@ -150,4 +150,9 @@ class FilterBase {
         }
         this.filtering();
     }
+
+    /*!
+     *  @brief  コメントフィルタ
+     */
+    filtering_comments() {}
 }
