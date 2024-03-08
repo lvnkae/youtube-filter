@@ -1495,6 +1495,8 @@ class YoutubeFilter extends FilterBase {
             this.post_filtering_by_playlist_id(list_id, obj.channel_id);
         }        
         this.post_filtering_by_unique_name(obj.unique_name, obj.channel_id);
+        //
+        this.comment_filter.tell_get_channel_id(obj.unique_name, obj.channel_id);
     }
     /*!
      *  @brief  チャンネル情報(html)取得完了通知
@@ -1694,7 +1696,8 @@ class YoutubeFilter extends FilterBase {
     constructor(storage) {
         super(storage);
         super.create_after_domloaded_observer(this.is_valid_records.bind(this));
-        this.comment_filter = new YoutubeCommentFilter(storage);
+        this.comment_filter
+            = new YoutubeCommentFilter(storage, this.channel_info_accessor);
         this.dismissible_tag = null;
     }
 }

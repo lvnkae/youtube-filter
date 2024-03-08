@@ -38,9 +38,28 @@ class YoutubeCommentFilter {
         if (author_url == null) {
             return ret;
         }
-        const userid = YoutubeUtil.cut_channel_id(author_url);
+        let handle = null;
+        let userid = null;
+        if (YoutubeUtil.is_handle_channel_url(author_url)) {
+            handle = YoutubeUtil.cut_channel_id(author_url);
+            userid = this.channel_info_accessor.get_channel_id(handle);
+        } else {
+            userid = YoutubeUtil.cut_channel_id(author_url);
+        }
         const comment = YoutubeUtil.get_comment(elem_comment);
-        return this.storage.comment_filter(username, userid, comment);
+        if (userid != null) {
+            return this.storage.comment_filter(username, userid, handle, comment);
+        } else 
+        if (handle != null) {
+            ret = this.storage.comment_filter_by_handle(username, handle, comment);
+            if (!ret.result) {
+                this.channel_info_accessor.entry(handle);
+                this.inq_comment_list[handle] = null;
+            }
+            return ret;
+        } else {
+            return ret;
+        }
     }
     /*!
      *  @brief  コメント非表示ID登録
@@ -155,6 +174,7 @@ class YoutubeCommentFilter {
                 return;
             }
             this.filtering();
+            this.channel_info_accessor.kick();
         });
         for (const e of ob_elem) {
             observer.observe(e, {
@@ -191,11 +211,20 @@ class YoutubeCommentFilter {
         this.create_observer(tag_primary, tag_item_sec);
     }
 
+    tell_get_channel_id(unique_name, channel_id) {
+        if (unique_name in this.inq_comment_list) {
+            this.filtering();
+        }
+    }
+
     /*!
-     *  @param storage  ストレージインスタンス
+     *  @param storage                  ストレージインスタンス
+     *  @param channel_info_accessor    チャンネル情報
      */
-    constructor(storage) {
+    constructor(storage, channel_info_accessor) {
         this.storage = storage;
         this.renderer_observer = [];
+        this.channel_info_accessor = channel_info_accessor;
+        this.inq_comment_list = [];
     }
 }

@@ -8,7 +8,8 @@ class FilterBase {
         const active = this.storage.json.active;
         const loc = this.current_location;
         if (loc.in_youtube()) {
-            this.contextmenu_controller = new ContextMenuController_Youtube(active);
+            this.contextmenu_controller
+                = new ContextMenuController_Youtube(active, this.channel_info_accessor);
         } else if (loc.in_google()) {
             this.contextmenu_controller = new ContextMenuController_Google(active);
         }

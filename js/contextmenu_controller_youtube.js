@@ -76,15 +76,22 @@ class ContextMenuController_Youtube extends ContextMenuController {
             return false;
         }
         const max_disp_channel = 32;
-        const channel
+        let channel_id = null;
+        let channel
             = text_utility.remove_blank_line_and_head_space(
                 $(nd_channel_id).text());
-        const channel_st = channel.slice(0, max_disp_channel-1);
-        const channel_id = 
-            YoutubeUtil.cut_channel_id($(nd_channel_id).attr("href"));
+        const author_url = $(nd_channel_id).attr("href");
+        const unique_name = YoutubeUtil.cut_channel_id(author_url);
+        if (YoutubeUtil.is_handle_channel_url(author_url)) {
+            channel = this.channel_info_accessor.get_channel_name(unique_name);
+            channel_id = this.channel_info_accessor.get_channel_id(unique_name);
+        } else {
+            channel_id = unique_name;
+        }
         if (channel_id == null) {
             return false;
         }
+        const channel_st = channel.slice(0, max_disp_channel-1);
         this.context_menu.channel_id = channel_id;
         const title = channel_st + "をコメントミュート";
         MessageUtil.send_message({
@@ -158,7 +165,8 @@ class ContextMenuController_Youtube extends ContextMenuController {
 
     /*!
      */
-    constructor(active) {
+    constructor(active, channel_info_accessor) {
         super(active);
+        this.channel_info_accessor = channel_info_accessor;
     }
 }
