@@ -15,6 +15,7 @@ class StoragePorter {
     static CSV_TAG_COMMENT_FLAG = "NG_COMMENT_FLAG=";
     static CSV_TAG_COMMENT_UID = "NG_COMMENT_USER_ID=";
     static CSV_TAG_COMMENT_WORD = "NG_COMMENT_WORD=";
+    static CSV_TAG_COMMENT_HANDLE = "NG_COMMENT_HANDLE=";
 
     static MAX_LEN_COMMENT = 32;
 
@@ -155,6 +156,17 @@ class StoragePorter {
             return this.CSV_TAG_COMMENT_WORD
                    + "," + '"' + this.encord_for_export(word) + '"';
         }
+    }
+    /*!
+     *  @brief  コメントフィルタ(ハンドル)1設定分をcsv形式で出力
+     */
+    static export_ng_comment_handle_unit(handle) {
+        if (handle == "") {
+            return "";
+        } else {
+            return this.CSV_TAG_COMMENT_HANDLE
+                   + "," + '"' + this.encord_for_export(handle) + '"';
+        }
     }    
     /*!
      *  @brief  Storage(json)をcsv形式で出力する
@@ -179,6 +191,9 @@ class StoragePorter {
         }
         for (const word of json.ng_comment_by_word) {
             retcsv += this.export_ng_comment_word_unit(word) + NLC;
+        }
+        for (const handle of json.ng_comment_by_handle) {
+            retcsv += this.export_ng_comment_handle_unit(handle) + NLC;
         }
         return retcsv;
     }
@@ -430,6 +445,15 @@ class StoragePorter {
                 }
             }
             this.json.ng_comment_by_word.push(split_row[SPR_INDEX_WORD]);
+        } else
+        if (split_row[SPR_INDEX_TYPE_TAG] == StoragePorter.CSV_TAG_COMMENT_HANDLE) {
+                const SPR_INDEX_HANDLE = 1;
+                for (const handel of this.json.ng_comment_by_handle) {
+                    if (handel == split_row[SPR_INDEX_HANDLE]) {
+                        return true;
+                    }
+                }
+                this.json.ng_comment_by_handle.push(split_row[SPR_INDEX_HANDLE]);
         } else {
             return false;
         }

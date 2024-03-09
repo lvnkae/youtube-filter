@@ -35,7 +35,8 @@
             }
             textarea[name=filter_title],
             textarea[name=filter_comment_by_id],
-            textarea[name=filter_comment_by_word] {
+            textarea[name=filter_comment_by_word],
+            textarea[name=filter_comment_by_handle] {
                 width:99%;
             }
             textarea[name=filter_comment_by_user],
@@ -71,6 +72,7 @@
                 <option value="ng_comment_user">非表示コメント(ユーザ名)</option>
                 <option value="ng_comment_id">非表示コメント(ID)</option>
                 <option value="ng_comment_word">非表示コメント(ワード)</option>
+                <option value="ng_comment_handle">非表示コメント(ハンドル)</option>
             </select>
             <select name="select_imexport" style="display:none">
                 <option value="export">設定出力(export)</option>
@@ -107,6 +109,7 @@
                 <textarea name="filter_comment_by_user" rows="60%" cols="1" style="display:none"></textarea>
                 <textarea name="filter_comment_by_id" rows="60%" cols="1" style="display:none"></textarea>
                 <textarea name="filter_comment_by_word" rows="60%" cols="1" style="display:none"></textarea>
+                <textarea name="filter_comment_by_handle" rows="60%" cols="1" style="display:none"></textarea>
                 <div class = "checkbox" id="filter_ex_comment_by_user">
                     <input id="com_regexp" type="checkbox" style="display:none">
                     <label id="com_regexp" style="display:none">正規表現<br></label>

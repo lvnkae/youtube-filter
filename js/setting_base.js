@@ -46,6 +46,9 @@ class SettingBase {
     textarea_filter_comment_by_word() {
         return $("textarea[name=filter_comment_by_word]");
     }
+    textarea_filter_comment_by_handle() {
+        return $("textarea[name=filter_comment_by_handle]");
+    }
 
     button_save() {
         return $("button[name=req_save]");
@@ -131,6 +134,8 @@ class SettingBase {
         this.textarea_filter_comment_by_user().val(this.storage.ng_comment_by_user_text);
         this.textarea_filter_comment_by_id().val(this.storage.ng_comment_by_id_text);
         this.textarea_filter_comment_by_word().val(this.storage.ng_comment_by_word_text);
+        this.textarea_filter_comment_by_handle().val(
+                this.storage.ng_comment_by_handle_text);
         {
             const nlc = text_utility.new_line_code_lf();
             {
@@ -272,6 +277,16 @@ class SettingBase {
             for (const word of filter) {
                 if (word != "") {
                     this.storage.json.ng_comment_by_word.push(word);
+                }
+            }
+        }
+        {
+            var filter
+                = text_utility.split_by_new_line(
+                    this.textarea_filter_comment_by_handle().val());
+            for (const handle of filter) {
+                if (handle != "") {
+                    this.storage.json.ng_comment_by_handle.push(handle);
                 }
             }
         }
