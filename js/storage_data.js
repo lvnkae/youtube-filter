@@ -44,6 +44,7 @@ class StorageData {
         this.json.ng_comment_by_user = [];      // コメントフィルタ(ユーザ)
         this.json.ng_comment_by_id = [];        // コメントフィルタ(ID)
         this.json.ng_comment_by_word = [];      // コメントフィルタ(ワード)
+        this.json.ng_comment_by_handle = [];    // コメントフィルタ(ハンドル)
 
         this.clear_text_buffer();
     }
@@ -55,6 +56,7 @@ class StorageData {
         this.ng_comment_by_user_text = "";
         this.ng_comment_by_id_text = "";
         this.ng_comment_by_word_text = "";
+        this.ng_comment_by_handle_text = "";
     }
 
     update_text() {
@@ -70,21 +72,26 @@ class StorageData {
             }
         }
         for (const ngt of this.json.ng_title) {
-            this.ng_title_text += ngt+ NLC;
+            this.ng_title_text += ngt + NLC;
         }
         if (this.json.ng_comment_by_user != null) {
             for (const ngcu of this.json.ng_comment_by_user) {
-                this.ng_comment_by_user_text += ngcu.keyword+ NLC;
+                this.ng_comment_by_user_text += ngcu.keyword + NLC;
             }
         }
         if (this.json.ng_comment_by_id != null) {
             for (const ngci of this.json.ng_comment_by_id) {
-                this.ng_comment_by_id_text += ngci+ NLC;
+                this.ng_comment_by_id_text += ngci + NLC;
             }
         }
         if (this.json.ng_comment_by_word != null) {
             for (const ngcw of this.json.ng_comment_by_word) {
-                this.ng_comment_by_word_text += ngcw+ NLC;
+                this.ng_comment_by_word_text += ngcw + NLC;
+            }
+        }
+        if (this.json.ng_comment_by_handle != null) {
+            for (const ngch of this.json.ng_comment_by_handle) {
+                this.ng_comment_by_handle_text += ngch + NLC;
             }
         }
     }
@@ -205,10 +212,6 @@ class StorageData {
         return false;
     }
 
-    /*!
-     *  @brief  コメントフィルタ(ワード)
-     *  @param  comment コメント本体
-     */
     comment_filter_by_word(comment) {
         if (this.json.ng_comment_by_word != null) {
             for (const ngcw of this.json.ng_comment_by_word) {
@@ -219,24 +222,30 @@ class StorageData {
         }
         return false;
     }
-    /*!
-     *  @brief  コメントフィルタ(ハンドル)
-     *  @param  name    投稿者名
-     *  @param  handle  投稿者ハンドル
-     *  @param  comment コメント本体
-     */
-    comment_filter_by_handle(name, handle, comment) {
-        var ret = {result:true, add_ng_id:false, userid:null};
-        if (this.json.ng_comment_by_user != null) {
-            for (const ngcu of this.json.ng_comment_by_user) {
-                if (this.conditional_filter_single(ngcu, name)) {
-                    // (useridを未取得のため)自動NG登録が有効ならスルー
-                    ret.result = !ngcu.b_auto_ng_id;
-                    return ret;
+    comment_filter_by_handle(handle) {
+        if (this.json.ng_comment_by_handle != null) {
+            for (const ngch of this.json.ng_comment_by_handle) {
+                if (ngch == handle) {
+                    return true;
                 }
             }
         }
-        ret.result = this.comment_filter_by_word(comment);
+        return false;
+    }
+    /*!
+     *  @param  handle  投稿者ハンドル
+     *  @param  comment コメント本体
+     *  @note   userid取得前の簡易フィルタ
+     */
+    comment_filter_without_id(handle, comment) {
+        var ret = {result:true, add_ng_id:false, userid:null};
+        if (this.comment_filter_by_handle(handle)) {
+            return ret;
+        }
+        if (this.comment_filter_by_word(comment)) {
+            return ret;
+        }
+        ret.result = false;
         return ret;
     }    
     /*!
@@ -262,6 +271,9 @@ class StorageData {
                     return ret;
                 }
             }
+        }
+        if (this.comment_filter_by_handle(handle)) {
+            return ret;
         }
         if (this.comment_filter_by_word(comment)) {
             return ret;
@@ -307,7 +319,8 @@ class StorageData {
     have_ng_comment_data() {
         return this.ng_comment_by_user_text != '' ||
                this.ng_comment_by_id_text != '' ||
-               this.ng_comment_by_word_text != '';
+               this.ng_comment_by_word_text != '' ||
+               this.ng_comment_by_handle_text != '';
     }
     /*!
      *  @brief  (thumbnailの)角丸を無効にすべきか

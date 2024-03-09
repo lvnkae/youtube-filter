@@ -96,6 +96,9 @@ class Dashboard extends SettingBase {
         this.textarea_filter_comment_by_word().keyup(()=> {
             this.textarea_filter_comment_by_word_keyup();
         });
+        this.textarea_filter_comment_by_handle().keyup(()=> {
+            this.textarea_filter_comment_by_handle_keyup();
+        });
         //
         this.textarea_import_storage().on('paste',(e)=> {
             this.button_import_enable();
@@ -330,6 +333,7 @@ class Dashboard extends SettingBase {
         this.textarea_filter_comment_by_user().hide();
         this.textarea_filter_comment_by_id().hide();
         this.textarea_filter_comment_by_word().hide();
+        this.textarea_filter_comment_by_handle().hide();
     }
     hide_comment_filter_cursor_all() {
         this.cursor_filter_comment_by_user().hide();
@@ -479,6 +483,12 @@ class Dashboard extends SettingBase {
     textarea_filter_comment_by_word_keyup() {
         if (this.textarea_filter_comment_by_word().val()
             != this.storage.ng_comment_by_word_text) {
+            this.button_save_enable();
+        }
+    }
+    textarea_filter_comment_by_handle_keyup() {
+        if (this.textarea_filter_comment_by_handle().val()
+            != this.storage.ng_comment_by_handle_text) {
             this.button_save_enable();
         }
     }
@@ -741,6 +751,9 @@ class Dashboard extends SettingBase {
     is_selected_ng_comment_by_word() {
         return this.selectbox_comment_filter().val() == "ng_comment_word";
     }
+    is_selected_ng_comment_by_handle() {
+        return this.selectbox_comment_filter().val() == "ng_comment_handle";
+    }
     is_selected_export_storage() {
         return this.selectbox_imexport().val() == "export";
     }
@@ -775,6 +788,9 @@ class Dashboard extends SettingBase {
         } else
         if (this.is_selected_ng_comment_by_word()) {
             Dashboard.kick_textarea(this.textarea_filter_comment_by_word.bind(this));
+        } else
+        if (this.is_selected_ng_comment_by_handle()) {
+            Dashboard.kick_textarea(this.textarea_filter_comment_by_handle.bind(this));
         } else {
             return;
         }
@@ -887,6 +903,7 @@ class Dashboard extends SettingBase {
         SettingBase.reset_textarea_caret(this.textarea_filter_comment_by_user());
         SettingBase.reset_textarea_caret(this.textarea_filter_comment_by_id());
         SettingBase.reset_textarea_caret(this.textarea_filter_comment_by_word());
+        SettingBase.reset_textarea_caret(this.textarea_filter_comment_by_handle());
     }
 
     /*!

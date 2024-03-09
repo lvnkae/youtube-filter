@@ -31,9 +31,6 @@ class YoutubeCommentFilter {
         if (elem_comment.length != 1) {
             return ret;
         }
-        const username
-            = text_utility.remove_blank_line_and_head_space(
-                $(elem_author).text());
         const author_url = $(elem_author).attr("href");
         if (author_url == null) {
             return ret;
@@ -48,18 +45,20 @@ class YoutubeCommentFilter {
         }
         const comment = YoutubeUtil.get_comment(elem_comment);
         if (userid != null) {
-            return this.storage.comment_filter(username, userid, handle, comment);
+            const username = this.channel_info_accessor.get_channel_name(handle);
+            if (username != null) {
+                return this.storage.comment_filter(username, userid, handle, comment);
+            }
         } else 
         if (handle != null) {
-            ret = this.storage.comment_filter_by_handle(username, handle, comment);
+            ret = this.storage.comment_filter_without_id(handle, comment);
             if (!ret.result) {
                 this.channel_info_accessor.entry(handle);
                 this.inq_comment_list[handle] = null;
             }
             return ret;
-        } else {
-            return ret;
         }
+        return ret;
     }
     /*!
      *  @brief  コメント非表示ID登録
