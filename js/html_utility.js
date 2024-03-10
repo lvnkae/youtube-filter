@@ -138,7 +138,7 @@ class HTMLUtil {
         if (line_height != "") {
             return parseFloat(line_height);
         }
-        let line_height_str
+        const line_height_str
             = window.getComputedStyle(elem[0]).getPropertyValue('line-height');
         return parseFloat(line_height_str);
     }    
