@@ -129,6 +129,20 @@ class HTMLUtil {
         return parseFloat(font_size_str);
     }
 
+    /*!
+     *  @brief  elemの行間pxを得る
+     *  @note   elem固有の指定がなければ根っこのcssを採用
+     */
+    static get_line_height(elem, font_size) {
+        const line_height = elem[0].style.fontSize;
+        if (line_height != "") {
+            return parseFloat(line_height);
+        }
+        const line_height_str
+            = window.getComputedStyle(elem[0]).getPropertyValue('line-height');
+        return parseFloat(line_height_str);
+    }        
+
     static get_selected_element(elements) {
         let ret_elem = null;
         $(elements).each((inx, elem)=>{
