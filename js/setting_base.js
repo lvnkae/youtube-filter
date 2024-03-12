@@ -101,7 +101,7 @@ class SettingBase {
         const scroll = t_elem.scrollTop;
         const t_width = t_elem.clientWidth;
         const t_height = t_elem.clientHeight;
-        let margin = (caret_row)*(line_height)-scroll+(line_height-font_size)/2;
+        let margin = (caret_row)*(line_height)-scroll;
         let height = font_size+2;
         // スクロール対応
         // - 上下にはみ出た分縮める
