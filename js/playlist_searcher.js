@@ -148,6 +148,9 @@ class PlaylistSearcher {
                 cut_top = elem.innerText.indexOf(key_url + 'user/', search_top);
                 if (cut_top < 0) {
                     cut_top = elem.innerText.indexOf(key_url + 'c/', search_top);
+                    if (cut_top < 0) {
+                        cut_top = elem.innerText.indexOf(key_url + '@', search_top);
+                    }
                 }
             }
             if (cut_top < 0) {
