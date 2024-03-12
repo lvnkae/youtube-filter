@@ -21,7 +21,11 @@ class StoragePorter {
 
     constructor(json) {
         // deep-copy
-        this.json = JSON.parse(JSON.stringify(json));        
+        this.json = JSON.parse(JSON.stringify(json));
+        //
+        if (this.json.ng_comment_by_handle == null) {
+            this.json.ng_comment_by_handle = [];
+        }
     }
 
     /*!
@@ -192,8 +196,10 @@ class StoragePorter {
         for (const word of json.ng_comment_by_word) {
             retcsv += this.export_ng_comment_word_unit(word) + NLC;
         }
-        for (const handle of json.ng_comment_by_handle) {
-            retcsv += this.export_ng_comment_handle_unit(handle) + NLC;
+        if (json.ng_comment_by_handle != null) {
+            for (const handle of json.ng_comment_by_handle) {
+                retcsv += this.export_ng_comment_handle_unit(handle) + NLC;
+            }
         }
         return retcsv;
     }
