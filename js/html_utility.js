@@ -48,6 +48,16 @@ class HTMLUtil {
         return e_ret;
     }
 
+    static collect_node(elem, key, func) {
+        let e_ret = [];
+        $(elem).find(key).each((inx, elem)=> {
+            if (func(elem)) {
+                e_ret.push(elem);
+            }
+        });
+        return e_ret;
+    }
+
     static search_upper_node(elem, func) {
         while(elem.length > 0) {
             if (func(elem[0])) {

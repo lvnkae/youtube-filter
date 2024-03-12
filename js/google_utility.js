@@ -11,8 +11,10 @@ class GoogleUtil {
      *  @note   ※" - Youtube"を含めて表示文字列上限を超えない場合に限る
      */
     static cut_googled_youtube_title(src) {
-        if (src.search(RegExp(" \- YouTube$", ""))) {
+        if (src.search(RegExp(" \- YouTube$", "")) >= 0) {
             return src.slice(0, src.length - " - Youtube".length);
+        } else {
+            return src;
         }
     }
 
@@ -62,22 +64,20 @@ class GoogleUtil {
         return decodeURIComponent(url);
     }
 
+    static get_search_node(elem) {
+        return  HTMLUtil.search_upper_node($(elem), (e)=> {
+            return e.localName == "div" &&
+                 (($(e).attr("jscontroller") != null && $(e).attr("jsaction") != null) ||
+                 ($(e).attr("jsname") != null && $(e).attr("data-hveid") != null));
+        });
+    }
     /*!
      *  @brief  Google検索ノードを消す
      */
     static detach_search_node(elem) {
-        const c = HTMLUtil.search_node(elem, "div", (e)=> {
-            return true;
-        });
-        if (c == null) {
-            return;
+        const c = GoogleUtil.get_search_node(elem);
+        if (c.length != 0) {
+            $(c).detach();
         }
-        const tgt = HTMLUtil.search_node(c, "div", (e)=> {
-            return true;
-        });
-        if (tgt == null) {
-            return;
-        }
-        $(tgt).detach();
     }
 }
