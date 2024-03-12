@@ -143,8 +143,8 @@ class HTMLUtil {
      *  @brief  elemの行間pxを得る
      *  @note   elem固有の指定がなければ根っこのcssを採用
      */
-    static get_line_height(elem, font_size) {
-        const line_height = elem[0].style.fontSize;
+    static get_line_height(elem) {
+        const line_height = elem[0].style.lineHeight;
         if (line_height != "") {
             return parseFloat(line_height);
         }
