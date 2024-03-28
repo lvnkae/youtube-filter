@@ -313,16 +313,6 @@ class StorageData {
     }
 
     /*!
-     *  @brief  非表示コメント設定を持ってるか
-     *  @retval true    持ってる
-     */
-    have_ng_comment_data() {
-        return this.ng_comment_by_user_text != '' ||
-               this.ng_comment_by_id_text != '' ||
-               this.ng_comment_by_word_text != '' ||
-               this.ng_comment_by_handle_text != '';
-    }
-    /*!
      *  @brief  (thumbnailの)角丸を無効にすべきか
      *  @retval true    無効にすべき
      */

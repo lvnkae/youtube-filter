@@ -14,20 +14,27 @@ class YoutubeCommentFilter {
             fl_func(elem);
         });
     }
+
+    get_content_text_node(elem) {
+        const e = $(elem).find("yt-formatted-string#content-text");
+        if (e.length > 0) {
+            return e;
+        }
+        return $(elem).find("yt-attributed-string#content-text");
+    }
+
     /*!
      *  @brief  コメントフィルタ(1コメント分)
      */
     filtering_unit(elem) {
         const author_tag
-            = "a#author-text.yt-simple-endpoint.style-scope.ytd-comment-renderer";
-        const comment_tag
-            = "yt-formatted-string#content-text.style-scope.ytd-comment-renderer";
+            = "a#author-text.yt-simple-endpoint.style-scope";
         let ret = {};
         const elem_author = $(elem).find(author_tag);
         if (elem_author.length != 1) {
             return ret;
         }
-        const elem_comment = $(elem).find(comment_tag)
+        const elem_comment = this.get_content_text_node(elem);
         if (elem_comment.length != 1) {
             return ret;
         }
@@ -66,6 +73,9 @@ class YoutubeCommentFilter {
      *  @note   "非表示IDに自動で追加"用処理
      */
     add_ng_id_to_storage(candidate_of_additional_ng_id) {
+        if (this.storage.json.ng_comment_by_id == null) {
+            this.storage.json.ng_comment_by_id = [];
+        }
         var additional_ng_id = [];
         for (const ng_id of candidate_of_additional_ng_id) {
             if (!this.storage.json.ng_comment_by_id.includes(ng_id)) {
@@ -77,6 +87,7 @@ class YoutubeCommentFilter {
                 this.storage.json.ng_comment_by_id.push(ng_id);
             }
             this.storage.save();
+            MessageUtil.send_message({command:MessageUtil.command_add_mute_id()});
         }
     }
     /*!
@@ -118,9 +129,6 @@ class YoutubeCommentFilter {
      *  @brief  コメント群フィルタリング
      */
     filtering() {
-        if (!this.storage.have_ng_comment_data()) {
-            return;
-        }
         let candidate_of_additional_ng_id = [];
         const comments_root_grp = $("ytd-comments");
         const tag_comment = "ytd-comment-thread-renderer";
