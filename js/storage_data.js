@@ -206,12 +206,46 @@ class StorageData {
     }
 
     /*!
-     *  @brief  コメントフィルタ
-     *  @param  name    投稿者名
-     *  @param  id      投稿者ID
+     *  @brief  コメントフィルタ(ワード)
      *  @param  comment コメント本体
      */
-    comment_filter(name, id, comment) {
+    comment_filter_by_word(comment) {
+        if (this.json.ng_comment_by_word != null) {
+            for (const ngcw of this.json.ng_comment_by_word) {
+                if (text_utility.regexp_indexOf(ngcw, comment)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    /*!
+     *  @brief  コメントフィルタ(ハンドル)
+     *  @param  name    投稿者名
+     *  @param  handle  投稿者ハンドル
+     *  @param  comment コメント本体
+     */
+    comment_filter_by_handle(name, handle, comment) {
+        var ret = {result:true, add_ng_id:false, userid:null};
+        if (this.json.ng_comment_by_user != null) {
+            for (const ngcu of this.json.ng_comment_by_user) {
+                if (this.conditional_filter_single(ngcu, name)) {
+                    // (useridを未取得のため)自動NG登録が有効ならスルー
+                    ret.result = !ngcu.b_auto_ng_id;
+                    return ret;
+                }
+            }
+        }
+        ret.result = this.comment_filter_by_word(comment);
+        return ret;
+    }    
+    /*!
+     *  @param  name    投稿者名
+     *  @param  id      投稿者ID
+     *  @param  handle  投稿者ハンドル
+     *  @param  comment コメント本体
+     */
+    comment_filter(name, id, handle, comment) {
         var ret = {result:true, add_ng_id:false, userid:id};
         //
         if (this.json.ng_comment_by_user != null) {
@@ -229,16 +263,13 @@ class StorageData {
                 }
             }
         }
-        if (this.json.ng_comment_by_word != null) {
-            for (const ngcw of this.json.ng_comment_by_word) {
-                if (text_utility.regexp_indexOf(ngcw, comment)) {
-                    return ret;
-                }
-            }
+        if (this.comment_filter_by_word(comment)) {
+            return ret;
         }
         ret.result = false;
         return ret;
     }
+
 
     /*!
      *  @brief  条件つきフィルタ(1ワード分)

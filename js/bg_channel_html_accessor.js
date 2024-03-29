@@ -17,7 +17,7 @@ class BGChannelHTMLAccessor extends BGMessageSender {
         const base_url =
             'https://www.youtube.com/';
         this.mark_reply_queue(unique_name);
-        fetch(base_url + unique_name + '/channels', {
+        fetch(base_url + unique_name + '/playlists', {
             method: "GET",
             credentials: "omit",
         })
