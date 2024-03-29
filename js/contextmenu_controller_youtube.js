@@ -62,7 +62,8 @@ class ContextMenuController_Youtube extends ContextMenuController {
      */
     get_comment_node(element) {
         return HTMLUtil.search_upper_node($(element), (e)=> {
-            return e.localName == 'ytd-comment-renderer';
+            return e.localName == 'ytd-comment-renderer' ||
+                   e.localName == 'ytd-comment-view-model';
         });
     }
 
