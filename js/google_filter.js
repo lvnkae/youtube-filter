@@ -200,13 +200,19 @@ class GoogleFilter extends FilterBase {
         if (root.length == 0) {
             return;
         }
-        $(root).find("a").each((inx, a)=>{
-            if ($(a).attr("ping") == null) {
+        $(root).find("div").each((inx, div)=>{
+            const url = $(div).attr("data-surl");
+            if (url == null) {
                 return;
             }
-            const url = $(a).attr("href");
             const urlW = new urlWrapper(url);
             if (!urlW.in_google_searched_youtube()) {
+                return;
+            }
+            const a = HTMLUtil.search_node(div, "a", (e)=> {
+                return $(e).attr("role") == null;
+            });
+            if (a == null) {
                 return;
             }
             let title = "";

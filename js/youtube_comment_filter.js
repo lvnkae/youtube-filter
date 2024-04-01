@@ -15,12 +15,16 @@ class YoutubeCommentFilter {
         });
     }
 
-    get_content_text_node(elem) {
-        const e = $(elem).find("yt-formatted-string#content-text");
+    get_string_node(elem, tag) {
+        const e = $(elem).find("yt-formatted-string" + tag);
         if (e.length > 0) {
             return e;
         }
-        return $(elem).find("yt-attributed-string#content-text");
+        return $(elem).find("yt-attributed-string" + tag);
+    }
+
+    get_content_text_node(elem) {
+        return this.get_string_node(elem, "#content-text");
     }
 
     /*!
@@ -54,7 +58,17 @@ class YoutubeCommentFilter {
         if (userid != null) {
             const username = this.channel_info_accessor.get_channel_name(handle);
             if (username != null) {
-                return this.storage.comment_filter(username, userid, handle, comment);
+                ret = this.storage.comment_filter(username, userid, handle, comment);
+                if (!ret.result) {
+                    // ハンドルをユーザ名にすげ替える
+                    let elem_aname = this.get_string_node(elem_author, "");
+                    if (elem_aname.length == 1) {
+                        if ($(elem_aname).text() != username) {
+                            $(elem_aname).text(username);
+                        }
+                    }
+                 }
+                return ret;
             }
         } else 
         if (handle != null) {
