@@ -1629,6 +1629,10 @@ class YoutubeFilter extends FilterBase {
         if (this.storage.json.disable_annotation) {
             YoutubeUtil.disable_annotation();
         }
+        // 24年2月新UIを無効化する
+        if (this.ui_disabler != null) {
+            this.ui_disabler.disable_element(this.current_location);
+        }
     }
 
     get_observing_node(elem) {
@@ -1687,6 +1691,26 @@ class YoutubeFilter extends FilterBase {
     callback_ready_element_observer() {
         if (this.storage.is_disable_border_radius()) {
             YoutubeUtil.disable_border_radius_of_thumbnail();
+        }
+        if (this.current_location.in_youtube_movie_page()) {
+            const video_id
+                = YoutubeUtil.cut_movie_hash(this.current_location.url);
+            this.ui_disabler
+                = new Youtube24febUIDisabler(this.storage, video_id);
+        }
+    }
+
+    callback_change_url(prev_urlw, to_urlw) {
+        if (prev_urlw.in_youtube_movie_page()) {
+            this.ui_disabler.exit_watch_page();
+        } else
+        if (to_urlw.in_youtube_movie_page()) {
+            if (this.ui_disabler == null) {
+                const video_id
+                    = YoutubeUtil.cut_movie_hash(to_urlw.url);
+                this.ui_disabler
+                    = new Youtube24febUIDisabler(this.storage, video_id);
+            }
         }
     }
 

@@ -40,6 +40,7 @@
               "js/contextmenu_controller_youtube.js",
               "js/google_filter.js",
               "js/youtube_comment_filter.js",
+              "js/youtube_24feb_ui_disabler.js",
               "js/youtube_filter.js",
               "js/content.js" ],
       "matches": [ "https://www.youtube.com/*",
@@ -63,5 +64,5 @@
                   ],
    "short_name": "YoutubeFilter",
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "1.0.8.0"
+   "version": "1.0.8.1"
 }

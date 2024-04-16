@@ -101,7 +101,12 @@ class YoutubeCommentFilter {
         let candidate_of_additional_ng_id = [];
         let remain_reply = 0;
         let have_reply = false;
-        const tag_reply = "ytd-comment-renderer";
+        const tag_reply_old = "ytd-comment-renderer";
+        const tag_reply_new = "ytd-comment-view-model";
+        let tag_reply = tag_reply_old;
+        if ($(nd_ex_contents).find(tag_reply).length == 0) {
+            tag_reply = tag_reply_new;
+        }
         const tag_elem = "div#main";
         this.call_filtering(nd_ex_contents, tag_reply, (reply_root)=> {
             have_reply = true;

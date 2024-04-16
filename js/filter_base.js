@@ -55,6 +55,10 @@ class FilterBase {
      */
     callback_observing_element_change() {}
     /*!
+     *  @brief  URL変化callback
+     */
+    callback_change_url() {}
+    /*!
      *  @brief  高速化用マーカーをクリアする
      */
     clear_marker() {}
@@ -68,6 +72,12 @@ class FilterBase {
         this.after_domloaded_observer = new MutationObserver((records)=> {
             const loc = this.current_location;
             const b_change_url = loc.url != location.href;
+            //
+            if (b_change_url) {
+                const to_loc = new urlWrapper(location.href);
+                this.callback_change_url(loc, to_loc);
+                this.current_location = to_loc;
+            }
             //
             this.callback_domelement_adition();
             //
@@ -88,14 +98,12 @@ class FilterBase {
                     clearTimeout(this.filtering_timer);
                     this.filtering_timer = null;
                 }
-                this.current_location = new urlWrapper(location.href);
                 this.filtering();
                 this.add_iframe_onmouse_monitoring();
             } else {
                 // 短時間の連続追加はまとめて処理したい気持ち
                 if (this.filtering_timer == null) {
                     this.filtering_timer = setTimeout(()=> {
-                        this.current_location = new urlWrapper(location.href);
                         this.filtering();
                         clearTimeout(this.filtering_timer);
                         this.filtering_timer = null;
