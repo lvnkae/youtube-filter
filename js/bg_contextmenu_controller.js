@@ -20,13 +20,10 @@ class BGContextMenuController extends BGMessageSender {
             });
         } else {
             const click_command = request.click_command;
-            if (MessageUtil.command_mute_channel_id() ||
-                MessageUtil.command_mute_comment_id()) {
-                const param = {click_command: click_command,
-                               channel_id: request.channel_id,
-                               channel: request.channel};
-                this.menu_param = param;
-            }
+            const param = {click_command: click_command,
+                            channel_id: request.channel_id,
+                            channel: request.channel};
+            this.menu_param = param;
             //
             chrome.contextMenus.update(this.context_menu_item_id, {
                 "title": request.title,
@@ -75,6 +72,8 @@ class BGContextMenuController extends BGMessageSender {
                 chrome.contextMenus.update(this.context_menu_item_id, {
                     "visible": false
                 });
+                this.send_reply({command: MessageUtil.command_reset_contextmenu()},
+                                null, true);
             }
         });
     }

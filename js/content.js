@@ -81,6 +81,9 @@ class Content {
                         MessageUtil.send_message(
                             {command:MessageUtil.command_add_mute_id()});
                     }
+                } else
+                if (request.command == MessageUtil.command_reset_contextmenu()) {
+                    this.filter_instance.reset_contextmenu();
                 }
                 return true;
             }
