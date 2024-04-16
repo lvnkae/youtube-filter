@@ -82,18 +82,27 @@ class YoutubeUtil {
     }
 
     /*!
+     *  @brief  Youtube動画linkからハッシュを得る
+     *  @param  link    url
+     */
+    static get_video_hash_by_link(link) {
+        if (link.indexOf("watch?v=") >= 0) {
+            return YoutubeUtil.cut_movie_hash(link);
+        } else
+        if (link.indexOf("/shorts/") >= 0) {
+            return YoutubeUtil.cut_short_movie_hash(link);
+        }
+        return "";
+    }
+
+    /*!
      *  @brief  Youtube動画ノードからハッシュを得る
      *  @param  nd_hash ハッシュ取得ノード
      */
     static get_video_hash_by_node(nd_hash) {
         if (nd_hash.length > 0) {
             const link = $(nd_hash).attr("href");
-            if (link.indexOf("watch?v=") >= 0) {
-                return YoutubeUtil.cut_movie_hash(link);
-            } else
-            if (link.indexOf("/shorts/") >= 0) {
-                return YoutubeUtil.cut_short_movie_hash(link);
-            }
+            return YoutubeUtil.get_video_hash_by_link(link);
         }
         return "";
     }
