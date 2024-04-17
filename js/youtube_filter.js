@@ -1776,6 +1776,9 @@ class YoutubeFilter extends FilterBase {
                 this.ui_disabler
                     = new Youtube24febUIDisabler(this.storage, video_id);
             }
+        } 
+        if (this.ui_disabler != null) {
+            this.ui_disabler.update_css(to_urlw);
         }
     }
 

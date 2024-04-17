@@ -137,6 +137,9 @@ class Dashboard extends SettingBase {
         this.checkbox_mute_shorts().change(()=> {
             this.button_save_enable();
         });
+        this.checkbox_disable_24feb_ui().change(()=> {
+            this.button_save_enable();
+        });
         //
         this.button_save().click(()=> {
             this.button_save_click();
@@ -208,6 +211,9 @@ class Dashboard extends SettingBase {
     checkbox_mute_shorts() {
         return $("input#mute_shorts");
     }
+    checkbox_disable_24feb_ui() {
+        return $("input#disable_24feb_ui");
+    }
     checkbox_label_stop_autoplay() {
         return $("label#stop_autoplay");
     }
@@ -219,6 +225,9 @@ class Dashboard extends SettingBase {
     }
     checkbox_label_mute_shorts() {
         return $("label#mute_shorts");
+    }
+    checkbox_label_disable_24feb_ui() {
+        return $("label#disable_24feb_ui");
     }
 
     get_flag_enable_filter() {
@@ -235,6 +244,9 @@ class Dashboard extends SettingBase {
     }
     get_flag_mute_shorts() {
         return this.checkbox_mute_shorts().prop("checked");
+    }
+    get_flag_disable_24feb_ui() {
+        return this.checkbox_disable_24feb_ui().prop("checked");
     }
     //
     textarea_export_storage() {
@@ -381,20 +393,24 @@ class Dashboard extends SettingBase {
         this.checkbox_disable_annotation().hide();
         this.checkbox_disable_border_radius().hide();
         this.checkbox_mute_shorts().hide();
+        this.checkbox_disable_24feb_ui().hide();
         this.checkbox_label_stop_autoplay().hide();
         this.checkbox_label_disable_annotation().hide();
         this.checkbox_label_disable_border_radius().hide();
         this.checkbox_label_mute_shorts().hide();
+        this.checkbox_label_disable_24feb_ui().hide();
     }
     show_option_checkbox_all() {
         this.checkbox_stop_autoplay().show();
         this.checkbox_disable_annotation().show();
         this.checkbox_disable_border_radius().show();
         this.checkbox_mute_shorts().show();
+        this.checkbox_disable_24feb_ui().show();
         this.checkbox_label_stop_autoplay().show();
         this.checkbox_label_disable_annotation().show();
         this.checkbox_label_disable_border_radius().show();
         this.checkbox_label_mute_shorts().show();
+        this.checkbox_label_disable_24feb_ui().show();
     }
     hide_option_all() {
         this.hide_option_checkbox_all();
@@ -676,6 +692,8 @@ class Dashboard extends SettingBase {
             "checked",
             this.storage.is_disable_border_radius());
         this.checkbox_mute_shorts().prop("checked", this.storage.is_mute_shorts());
+        this.checkbox_disable_24feb_ui().prop("checked",
+                                              this.storage.is_disable_24feb_ui());
         this.show_option_checkbox_all();
     }
     //

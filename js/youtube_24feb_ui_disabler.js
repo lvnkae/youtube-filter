@@ -76,6 +76,7 @@ class Youtube24febUIDisabler {
             const comments = primary.find("ytd-comments#comments");
             if (comments.length == 1) {
                 comments[0].className = "style-scope ytd-watch-grid";
+                comments.attr("hidden", "");
                 $(comments).appendTo(secondary);
             }
             //
@@ -91,10 +92,14 @@ class Youtube24febUIDisabler {
     static disable_css() {
         const NLC = text_utility.new_line_code_lf();
         const css_setting =
-            'ytd-comment-view-model[use-small-avatars] #author-thumbnail.ytd-comment-view-model yt-img-shadow.ytd-comment-view-model {' + NLC +
+            'ytd-comment-view-model[use-small-avatars] #author-thumbnail.ytd-comment-view-model yt-img-shadow.ytd-comment-view-model  {' + NLC +
             'width: 40px;' + NLC +
             'height: 40px;' + NLC +
             'margin-right: 16px' + NLC +
+            '}' + NLC +
+            'ytd-comment-view-model[is-reply] #author-thumbnail.ytd-comment-view-model yt-img-shadow.ytd-comment-view-model { ' + NLC +
+            'width: 24px;' + NLC +
+            'height: 24px;' + NLC +
             '}' + NLC +
             'ytd-comment-replies-renderer[is-watch-grid] {' + NLC +
             'margin-left: 56px' + NLC +
@@ -102,7 +107,23 @@ class Youtube24febUIDisabler {
             'ytd-structured-description-content-renderer[engagement-panel] ytd-horizontal-card-list-renderer.ytd-structured-description-content-renderer {' + NLC +
             'margin: 0px;' + NLC +
             '}';
-        $('head').append('<style>' + css_setting + '</style>');
+        $('head').append('<style id="disable_24feb_ui">' + css_setting + '</style>');
+    }
+
+    /*!
+     *  @brief  css更新
+     *  @note   shortsではwatch用のcss設定を消す
+     *  @note   (icon関連がまずい)
+     */
+    update_css(urlw) {
+        if (urlw.in_youtube_movie_page()) {
+            if ($('head').find('style#disable_24feb_ui').length == 0) {
+                Youtube24febUIDisabler.disable_css();
+            }
+        } else
+        if (urlw.in_youtube_short_page()) {
+            $('head').find('style#disable_24feb_ui').detach();
+        }
     }
 
     /*!
@@ -165,7 +186,7 @@ class Youtube24febUIDisabler {
         if (!current_location.in_youtube_movie_page()) {
             return;
         }
-        if (0) {
+        if (!this.storage.is_disable_24feb_ui()) {
             return;
         }
         if (!Youtube24febUIDisabler.is_24feb_ui_enable()) {
@@ -209,13 +230,16 @@ class Youtube24febUIDisabler {
                 if (this.transport_meta != null) {
                     const comments = $(inner_2nd).find("ytd-comments#comments");
                     if (comments.length == 1) {
+                        if (comments.attr("hidden") != null) {
+                            return;
+                        }
                         const button = $(comments).find("div#panel-button");
                         if (button.length != 1) {
                             return;
                         }
+                        $(button).detach();
                         $(comments).insertBefore(bgrid);
                         comments[0].className = "style-scope ytd-watch-flexy";
-                        $(button).hide();
                         this.transport_comments = true;
                     }
                 }
@@ -231,7 +255,7 @@ class Youtube24febUIDisabler {
         this.transport_description = null;
         this.req_reset = false;
         this.no_change_video = false;
-        if (1) {
+        if (storage.is_disable_24feb_ui()) {
             Youtube24febUIDisabler.disable_css();
         }
     }
