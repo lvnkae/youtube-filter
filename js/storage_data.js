@@ -213,6 +213,16 @@ class StorageData {
         return false;
     }
 
+    comment_filter_by_id(id) {
+        if (this.json.ng_comment_by_id != null) {
+            for (const ngci of this.json.ng_comment_by_id) {
+                if (ngci == id) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     comment_filter_by_word(comment) {
         if (this.json.ng_comment_by_word != null) {
             for (const ngcw of this.json.ng_comment_by_word) {
@@ -266,12 +276,8 @@ class StorageData {
                 }
             }
         }
-        if (this.json.ng_comment_by_id != null) {
-            for (const ngci of this.json.ng_comment_by_id) {
-                if (ngci == id) {
-                    return ret;
-                }
-            }
+        if (this.comment_filter_by_id(id)) {
+            return ret;
         }
         if (this.comment_filter_by_handle(handle)) {
             return ret;

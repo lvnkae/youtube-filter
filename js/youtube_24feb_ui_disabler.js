@@ -66,18 +66,26 @@ class Youtube24febUIDisabler {
             // 動画情報が別で差し込まれてたらdetach
             $(primary).find("div#factoids").detach();
             // 移動したストアshelfは戻しておく
-            const shop_shelf = $("ytd-merch-shelf-renderer.style-scope.ytd-watch-flexy");
+            const shop_shelf_tag = "ytd-merch-shelf-renderer.style-scope";
+            const shop_shelf = primary.find(shop_shelf_tag);
             if (shop_shelf.length == 1) {
-                $(shop_shelf).appendTo(secondary);
-                shop_shelf[0].className = "style-scope ytd-watch-grid";
-                $(shop_shelf).attr("item-style", "small-item");
+                if (secondary.find(shop_shelf_tag).length == 0) {
+                    $(shop_shelf).appendTo(secondary);
+                    shop_shelf[0].className = "style-scope ytd-watch-grid";
+                    $(shop_shelf).attr("item-style", "small-item");
+                } else {
+                    $(shop_shelf).detach();
+                }
             }
             // 移動したコメントを戻しておく
             const comments = primary.find("ytd-comments#comments");
             if (comments.length == 1) {
-                comments[0].className = "style-scope ytd-watch-grid";
                 comments.attr("hidden", "");
-                $(comments).appendTo(secondary);
+                if (secondary.find("ytd-comments#comments").length == 0) {
+                    $(comments).appendTo(secondary);
+                } else {
+                    $(comments).detach();
+                }
             }
             //
             this.transport_description = null;
@@ -123,6 +131,18 @@ class Youtube24febUIDisabler {
         } else
         if (urlw.in_youtube_short_page()) {
             $('head').find('style#disable_24feb_ui').detach();
+        }
+    }
+
+    /*!
+     *  @brief  コメントの「展開」ボタンを消す
+     *  @note   disable_element内でもやってるが意図せず復活することが
+     *  @note   あるのでnode追加トリガーで毎回やりたい
+     */
+    detach_comments_panel_button() {
+        const button = $("div#primary-inner").find("div#panel-button");
+        if (button.length == 1) {
+            $(button).detach();
         }
     }
 
@@ -200,6 +220,9 @@ class Youtube24febUIDisabler {
         if (!Youtube24febUIDisabler.is_watch_page_switching(video_id)) {
             return;
         }
+        // 復活対策
+        this.detach_comments_panel_button();
+        //
         if (this.no_change_video) {
             return;
         }
@@ -233,13 +256,10 @@ class Youtube24febUIDisabler {
                         if (comments.attr("hidden") != null) {
                             return;
                         }
-                        const button = $(comments).find("div#panel-button");
-                        if (button.length != 1) {
+                        if (comments.find("ytd-continuation-item-renderer") == 0) {
                             return;
                         }
-                        $(button).detach();
                         $(comments).insertBefore(bgrid);
-                        comments[0].className = "style-scope ytd-watch-flexy";
                         this.transport_comments = true;
                     }
                 }

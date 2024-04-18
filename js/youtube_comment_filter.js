@@ -50,20 +50,29 @@ class YoutubeCommentFilter {
         } else {
             userid = YoutubeUtil.cut_channel_id(author_url);
         }
-        const comment = YoutubeUtil.get_comment(elem_comment);
+        const comment_info = YoutubeUtil.get_comment(elem_comment);
+        if (comment_info.reply_id != null) {
+            if (this.storage.comment_filter_by_id(comment_info.reply_id)) {
+                ret.result = true;
+                ret.add_ng_id = false;
+                return ret;
+            }
+        }
         if (userid != null) {
             const username = this.channel_info_accessor.get_channel_name(handle);
             if (username != null) {
-                return this.storage.comment_filter(username, userid, handle, comment);
+                return this.storage.comment_filter(username,
+                                                   userid,
+                                                   handle,
+                                                   comment_info.comment);
             }
         } else 
         if (handle != null) {
-            ret = this.storage.comment_filter_without_id(handle, comment);
+            ret = this.storage.comment_filter_without_id(handle, comment_info.comment);
             if (!ret.result) {
                 this.channel_info_accessor.entry(handle);
                 this.inq_comment_list[handle] = null;
             }
-            return ret;
         }
         return ret;
     }
@@ -176,6 +185,7 @@ class YoutubeCommentFilter {
         if (ob_elem.length == 0) {
             return;
         }
+        // 要素追加監視
         let observer = new MutationObserver((records)=> {
             const tgt = records[0].target;
             if (tgt.id == "button" ||
@@ -195,6 +205,19 @@ class YoutubeCommentFilter {
             });
         }
         this.renderer_observer[tag] = observer;
+        // 要素変更監視
+        let observer_attr = new MutationObserver((records)=> {
+            this.filtering();
+        });
+        for (const e of ob_elem) {
+            observer_attr.observe(e, {
+                attributes: true,
+                attributeFilter: ['src'],
+                subtree: true,
+            });
+        }
+        const attr_tag = tag + '_attr'
+        this.renderer_observer[attr_tag] = observer_attr;
     }
     /*!
      *  @brief  element追加callback
