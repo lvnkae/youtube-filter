@@ -254,19 +254,67 @@ class YoutubeUtil {
      *  @note   textだけでなく絵文字も切り出す
      */
     static get_comment(elem_comment) {
-        var comment = "";
-        for (const ch of elem_comment[0].childNodes) {
-            if (ch.nodeName == "#text") {
-                comment += ch.nodeValue;
-            } else if (ch.className == 'style-scope yt-formatted-string') {
-                comment += $(ch).text();
-            } else if (ch.className == 'yt-simple-endpoint style-scope yt-formatted-string') {
-                comment += $(ch).text();
-            } else if (ch.className == 'small-emoji emoji style-scope yt-formatted-string') {
-                comment += $(ch).attr("alt");
+        let ret = {};
+        ret.comment = "";
+        ret.reply_id = null;
+        const wrap
+            = "span"
+            + ".yt-core-attributed-string"
+            + ".yt-core-attributed-string--white-space-pre-wrap";
+        const elem_wrap = $(elem_comment).find(wrap);
+        if (elem_wrap.length == 1) {
+            // 新仕様24年2月頃？
+            for (const ch of elem_wrap[0].childNodes) {
+                if (ch.nodeName == "#text") {
+                    ret.comment += ch.nodeValue;
+                } else if (ch.nodeName == "SPAN") {
+                    const attr_dir = $(ch).attr("dir");
+                    if (attr_dir != null && attr_dir == "auto") {
+                        const elem_a = $(ch).find("a");
+                        const link = elem_a.attr("href");
+                        if (link != null) {
+                            if (YoutubeUtil.is_channel_url(link)) {
+                                ret.reply_id = YoutubeUtil.cut_channel_id(link);
+                            }
+                        }
+                    } else if (ch.className.indexOf("string--inline") > 0) {
+                        const elem_img = $(ch).find("img");
+                        const src = elem_img.attr("src");
+                        if (src != null) {
+                            const emoji_key = '/emoji_u';
+                            const emoji_top = src.indexOf(emoji_key);
+                            if (emoji_top > 0) {
+                                const emoji_end = src.indexOf('.', emoji_top);
+                                if (emoji_end > emoji_top) {
+                                    const sbs_top = emoji_top + emoji_key.length;
+                                    const sbs_end = emoji_end;
+                                    const emoji_u
+                                        = src.substring(sbs_top, sbs_end).split('_');
+                                    emoji_u.forEach((emoji_code)=> {
+                                        ret.comment
+                                            += String.fromCodePoint('0x' + emoji_code);
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+         } else {
+            // 旧仕様
+            for (const ch of elem_comment[0].childNodes) {
+                if (ch.nodeName == "#text") {
+                    ret.comment += ch.nodeValue;
+                } else if (ch.className == 'style-scope yt-formatted-string') {
+                    ret.comment += $(ch).text();
+                } else if (ch.className == 'yt-simple-endpoint style-scope yt-formatted-string') {
+                    ret.comment += $(ch).text();
+                } else if (ch.className == 'small-emoji emoji style-scope yt-formatted-string') {
+                    ret.comment += $(ch).attr("alt");
+                }
             }
         }
-        return comment;
+        return ret;
     }
     /*!
      *  @brief  コメントIDを得る
