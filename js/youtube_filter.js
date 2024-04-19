@@ -1747,9 +1747,9 @@ class YoutubeFilter extends FilterBase {
      *  @brief  element追加callback
      *  @note   after_domloaded_observerから呼ばれる
      */
-    callback_observing_element_change(records, b_change_url) {
-        this.comment_filter.callback_observing_element_change(records,
-                                                              b_change_url);
+    callback_observing_element_change(b_change_url) {
+        const urlw = this.current_location;
+        this.comment_filter.callback_observing_element_change(b_change_url, urlw);
     }
     /*!
      */
