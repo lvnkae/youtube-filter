@@ -62,6 +62,14 @@ class FilterBase {
      *  @brief  高速化用マーカーをクリアする
      */
     clear_marker() {}
+    /*!
+     *  @brief  contextMenusがクリアされた
+     */
+    reset_contextmenu() {
+        if (this.contextmenu_controller != null) {
+            this.contextmenu_controller.clear();
+        }
+    }
 
     /*!
      *  @brief  element追加observer生成

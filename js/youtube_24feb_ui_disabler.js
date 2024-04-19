@@ -58,7 +58,7 @@ class Youtube24febUIDisabler {
             this.no_change_video = true;
         } else {
             this.no_change_video = false;
-            //
+            // metaは準備できるまで隠しておく
             $(primary).find("ytd-watch-metadata").attr("hidden", "");
             // 移動した概要をdetachしておく
             const description = primary.find(tag_description);
@@ -98,6 +98,9 @@ class Youtube24febUIDisabler {
             '}' + NLC +
             'ytd-comment-replies-renderer[is-watch-grid] {' + NLC +
             'margin-left: 56px' + NLC +
+            '}' + NLC +
+            'ytd-structured-description-content-renderer[engagement-panel] ytd-horizontal-card-list-renderer.ytd-structured-description-content-renderer {' + NLC +
+            'margin: 0px;' + NLC +
             '}';
         $('head').append('<style>' + css_setting + '</style>');
     }
@@ -118,8 +121,9 @@ class Youtube24febUIDisabler {
                 if (ext_description.length != 1) {
                     return;
                 }
-                $(meta).removeAttr("hidden");
+                $(meta).removeAttr("hidden"); // meta再表示
                 $(meta).find("div#description").hide();
+                // liveやarchiveは旧概要欄を一部利用する
                 const factoids = ext_description.find("div#factoids");
                 const len_factoids = $(factoids).children().length;
                 if (len_factoids == 0) {
@@ -128,10 +132,13 @@ class Youtube24febUIDisabler {
                 }
                 const ext_descript_core = $(ext_description).find("div#description.style-scope.ytd-expandable-video-description-body-renderer");
                 if (ext_descript_core.length == 1) {
-                    $(ext_description).prependTo(bottom_row);
-                    $(ext_description).find("div#shorts-title").detach();
-                    $(ext_description).find("ytd-video-description-transcript-section-renderer").appendTo(ext_descript_core);
-                    $(ext_description).find("ytd-video-description-infocards-section-renderer").appendTo(ext_descript_core);
+                    ext_description.prependTo(bottom_row);
+                    ext_description.find("div#shorts-title").detach();
+                    ext_description.find("ytd-video-description-transcript-section-renderer").appendTo(ext_descript_core);
+                    ext_description.find("ytd-video-description-infocards-section-renderer").appendTo(ext_descript_core);
+                    ext_description.find("ytd-horizontal-card-list-renderer").appendTo(ext_descript_core);
+                    ext_description.find("ytd-reel-shelf-renderer").appendTo(ext_descript_core);
+                    //
                     const shop_shelf = $("ytd-merch-shelf-renderer.style-scope.ytd-watch-grid");
                     if (shop_shelf.length == 1) {
                         $(shop_shelf).insertAfter(meta);
