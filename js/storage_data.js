@@ -38,6 +38,7 @@ class StorageData {
         this.json.disable_annotation = false;   // アノテーション無効化 有効/無効
         this.json.disable_border_radius = false;// thumbnail角丸無効化 有効/無効
         this.json.mute_shorts = false;          // shortsミュート 有効/無効
+        this.json.disable_24feb_ui = false;     // 24年2月新UI無効化 有効/無効
         this.json.ng_channel = [];              // チャンネルフィルタ(ワード)
         this.json.ng_channel_id = [];           // チャンネルフィルタ(ID)
         this.json.ng_title = [];                // タイトルフィルタ
@@ -326,5 +327,12 @@ class StorageData {
     is_mute_shorts() {
         return this.json.mute_shorts != null &&
                this.json.mute_shorts != false;
+    }
+    /*!
+     *  @brief  24年2月新UIを無効化するか
+     */
+    is_disable_24feb_ui() {
+        return this.json.disable_24feb_ui != null &&
+               this.json.disable_24feb_ui != false;
     }
 }

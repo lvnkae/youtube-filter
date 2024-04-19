@@ -546,11 +546,13 @@ class YoutubeUtil {
         const NLC = text_utility.new_line_code_lf();
         const anti_border_radius_head =
             'ytd-thumbnail[size=large] a.ytd-thumbnail,ytd-thumbnail[size=large]:before { border-radius: 0px; }' + NLC +
+            'ytd-thumbnail[size=large][large-margin] a.ytd-thumbnail, ytd-thumbnail[size=large][large-margin]:before { border-radius: 0px; }' + NLC +
             'ytd-thumbnail[size=medium] a.ytd-thumbnail,ytd-thumbnail[size=medium]:before { border-radius: 0px; }' + NLC +
             'ytd-playlist-thumbnail[size=large] a.ytd-playlist-thumbnail,ytd-playlist-thumbnail[size=large]:before { border-radius: 0px; }' + NLC +
             'ytd-playlist-thumbnail[size=medium] a.ytd-playlist-thumbnail,ytd-playlist-thumbnail[size=medium]:before { border-radius: 0px; }' + NLC +
             'ytd-channel-video-player-renderer[rounded] #player.ytd-channel-video-player-renderer { border-radius: 0px; }' + NLC +
-            'ytd-reel-video-renderer[is-watch-while-mode] .player-container.ytd-reel-video-renderer { border-radius: 0px; }' + NLC + /* short */
+            'ytd-reel-video-renderer[is-watch-while-mode]:not([enable-player-metadata-container]) .player-container.ytd-reel-video-renderer { border-radius: 0px; }' + NLC + /* short */
+            'ytd-reel-video-renderer[is-watch-while-mode] .player-container.ytd-reel-video-renderer { border-radius: 0px; }' + NLC + /* short(old) */
             'ytd-watch-flexy[rounded-player-large][default-layout] #ytd-player.ytd-watch-flexy { border-radius: 0px; }' + NLC + /* watch */
             'ytd-watch-grid[rounded-player-large][default-layout] #ytd-player.ytd-watch-grid { border-radius: 0px; }' + NLC + /* watch */
             '.image-wrapper.ytd-hero-playlist-thumbnail-renderer { border-radius: 0px; }' + NLC +
