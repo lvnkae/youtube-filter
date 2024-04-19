@@ -254,12 +254,17 @@ class YoutubeCommentFilter {
         const tag_shorts = "div#shorts-container"
         const tag_panel = "div#watch-while-engagement-panel";
         this.create_observer(tag_shorts, tag_panel);
-        const tag_watch
-            = (Youtube24febUIDisabler.is_24feb_ui_enable()) ?"div#secondary-inner"
-                                                            :"div#primary";
         const tag_item_sec
             = "ytd-item-section-renderer#sections.style-scope.ytd-comments";
-        this.create_observer(tag_watch, tag_item_sec);
+        if (Youtube24febUIDisabler.is_24feb_ui_enable()) {
+            const tag_watch_1st = "div#primary";
+            const tag_watch_2nd = "div#secondary-inner";
+            this.create_observer(tag_watch_1st, tag_item_sec);
+            this.create_observer(tag_watch_2nd, tag_item_sec);
+        } else {
+            const tag_watch = "div#primary";
+            this.create_observer(tag_watch, tag_item_sec);
+        }
     }
 
     tell_get_channel_id(unique_name, channel_id) {
