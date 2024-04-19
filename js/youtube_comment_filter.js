@@ -76,6 +76,14 @@ class YoutubeCommentFilter {
                         if ($(elem_aname).text() != username) {
                             $(elem_aname).text(username);
                         }
+                    } else {
+                        const elem_author_children = elem_author.children();
+                        if (elem_author_children.length == 1 &&
+                            elem_author_children[0].nodeName == 'SPAN') {
+                            if ($(elem_author_children[0]).text() != username) {
+                                $(elem_author_children[0]).text(username);
+                            }
+                        }
                     }
                  }
                 return ret;
