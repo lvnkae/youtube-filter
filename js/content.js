@@ -60,26 +60,28 @@ class Content {
                         = this.storage.add_channel_id_mute_with_check(request.channel_id,
                                                                       request.channel);
                     if (update && request.tab_active) {
-                        this.storage.save();
-                        if (this.storage.json.active) {
-                            this.filter_instance.clear_marker();
-                            this.filter_instance.filtering();
-                        }
-                        MessageUtil.send_message(
-                            {command:MessageUtil.command_add_mute_id()});
+                        this.storage.save().then(()=>{
+                            if (this.storage.json.active) {
+                                this.filter_instance.clear_marker();
+                                this.filter_instance.filtering();
+                            }
+                            MessageUtil.send_message(
+                                {command:MessageUtil.command_add_mute_id()});
+                        });
                     }
                 } else
                 if (request.command == MessageUtil.command_mute_comment_id()) {
                     const update
                         = this.storage.add_comment_id_mute_with_check(request.channel_id);
                     if (update && request.tab_active) {
-                        this.storage.save();
-                        this.storage.update_text();
-                        if (this.storage.json.active) {
-                            this.filter_instance.filtering_comments();
-                        }
-                        MessageUtil.send_message(
-                            {command:MessageUtil.command_add_mute_id()});
+                        this.storage.save().then(()=>{
+                            this.storage.update_text();
+                            if (this.storage.json.active) {
+                                this.filter_instance.filtering_comments();
+                            }
+                            MessageUtil.send_message(
+                                {command:MessageUtil.command_add_mute_id()});
+                        });
                     }
                 } else
                 if (request.command == MessageUtil.command_reset_contextmenu()) {

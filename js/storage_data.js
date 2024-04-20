@@ -28,7 +28,7 @@ class StorageData {
     save() {
         var jobj = {};
         jobj[this.filter_key()] = JSON.stringify(this.json);
-        browser.storage.local.set(jobj);
+        return browser.storage.local.set(jobj);
     }
     
     clear() {
