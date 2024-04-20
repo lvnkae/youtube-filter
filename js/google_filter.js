@@ -199,9 +199,12 @@ class GoogleFilter extends FilterBase {
                     return false;
                 }
             });
-            this.youtube_video_filter($(a).parent(), title, url, (e)=>{
-                $(e).parent().detach();
-            });
+            const detach = (e) => { $(e).parent().detach(); };
+            if (urlW.in_youtube_movie_page()) {
+                this.youtube_video_filter($(a).parent(), title, url, detach);
+            } else if (urlW.in_youtube_short_page()) {
+                this.youtube_shorts_filter($(a).parent(), title, url, detach);
+            }
         });
     }
     filtering_thumb_header(header) {
