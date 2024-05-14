@@ -223,7 +223,7 @@ class YoutubeCommentFilter {
      *  @brief  element追加callback
      *  @note   after_domloaded_observerから呼ばれる
      */
-    callback_observing_element_change(records, b_change_url) {
+    callback_observing_element_change(b_change_url, urlw) {
         // URL変更時処理
         if (b_change_url) {
             for (const key in this.renderer_observer) {
@@ -237,19 +237,23 @@ class YoutubeCommentFilter {
             return;
         }
         let ob_elem = [];
-        const tag_shorts = "div#shorts-container"
-        const tag_panel = "div#watch-while-engagement-panel";
-        this.create_observer(tag_shorts, tag_panel);
-        const tag_item_sec
-            = "ytd-item-section-renderer#sections.style-scope.ytd-comments";
-        if (Youtube24febUIDisabler.is_24feb_ui_enable()) {
-            const tag_watch_1st = "div#primary";
-            const tag_watch_2nd = "div#secondary-inner";
-            this.create_observer(tag_watch_1st, tag_item_sec);
-            this.create_observer(tag_watch_2nd, tag_item_sec);
-        } else {
-            const tag_watch = "div#primary";
-            this.create_observer(tag_watch, tag_item_sec);
+        if (urlw.in_youtube_short_page()) {
+            const tag_shorts = "div#shorts-container"
+            const tag_panel = "div#watch-while-engagement-panel";
+            this.create_observer(tag_shorts, tag_panel);
+        } else
+        if (urlw.in_youtube_movie_page()) {
+            const tag_item_sec
+                = "ytd-item-section-renderer#sections.style-scope.ytd-comments";
+            if (Youtube24febUIDisabler.is_24feb_ui_enable()) {
+                const tag_watch_1st = "div#primary";
+                const tag_watch_2nd = "div#secondary-inner";
+                this.create_observer(tag_watch_1st, tag_item_sec);
+                this.create_observer(tag_watch_2nd, tag_item_sec);
+            } else {
+                const tag_watch = "div#primary";
+                this.create_observer(tag_watch, tag_item_sec);
+            }
         }
     }
 
