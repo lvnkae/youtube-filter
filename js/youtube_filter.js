@@ -206,15 +206,15 @@ class YoutubeFilter extends FilterBase {
     /*!
      *  @brief  コンテンツフィルタ(チャンネルページ)
      *  @param  elem            コンテンツ(動画/playlist)ノード
+     *  @param  renderer_root
      *  @param  tag_title       タイトルタグ
      *  @param  channel_info    チャンネルページ情報
      *  @retval true            要素削除
      *  @note   個人チャンネルページの「チャンネル名省略形式」にも対応
      */
-    filtering_channel_content(elem, tag_title, channel_info) {
-        const renderer_root = YoutubeUtil.search_renderer_root($(elem));
+    filtering_channel_content(elem, renderer_root, tag_title, channel_info) {
         if (renderer_root.length == 0) {
-            return;
+            return false;
         }
         YoutubeUtil.remove_renderer_node_channel_id(renderer_root);
         //
@@ -235,7 +235,7 @@ class YoutubeFilter extends FilterBase {
         if (is_personal) {
             channel_id = channel_info.id;
             if (channel_id == null) {
-                return true;
+                return false;
             }
         } else {
             const author_url = $(elem_channel).attr("href");
@@ -818,7 +818,8 @@ class YoutubeFilter extends FilterBase {
      */
     filtering_channel_videos(channel_info) {
         this.each_channel_videos((elem, tag_title)=> {
-            this.filtering_channel_content(elem, tag_title, channel_info);
+            const renderer_root = YoutubeUtil.search_renderer_root($(elem));
+            this.filtering_channel_content(elem, renderer_root, tag_title, channel_info);
         });
     }
     /*!
@@ -839,19 +840,21 @@ class YoutubeFilter extends FilterBase {
      *  @brief  プレイリスト(チャンネルページ)にdo_funcを実行
      */
     each_channel_playlists(do_func) {
+        const tag_title = YoutubeUtil.get_content_title_tag();
+        const tag_span = YoutubeUtil.get_span_content_title_tag();
         // horizontal-list、ytd-grid-renderer両対応
         $("ytd-grid-playlist-renderer").each((inx, elem)=> {
-            do_func(elem, YoutubeUtil.get_content_title_tag());
+            do_func(elem, tag_title);
         });
         //
         $("ytd-grid-show-renderer").each((inx, elem)=> {
-            do_func(elem, "span#video-title");
+            do_func(elem, tag_span);
         });
         // expanded-shelf-contents-renderer
         const tag_exp
             = "ytd-playlist-renderer.style-scope.ytd-expanded-shelf-contents-renderer";
         $(tag_exp).each((inx, elem)=> {
-            do_func(elem, "span#video-title");
+            do_func(elem, tag_span);
         });
     }
     /*!
@@ -860,7 +863,8 @@ class YoutubeFilter extends FilterBase {
      */
     filtering_channel_playlists(channel_info) {
         this.each_channel_playlists((elem, tag_title)=> {
-            this.filtering_channel_content(elem, tag_title, channel_info);
+            const renderer_root = YoutubeUtil.search_renderer_root($(elem));
+            this.filtering_channel_content(elem, renderer_root, tag_title, channel_info);
         });
     }
     /*!
@@ -974,7 +978,24 @@ class YoutubeFilter extends FilterBase {
         this.filtering_short_slim_videos(".style-scope.ytd-reel-item-renderer");
         this.filtering_channel_videos(channel_info);
         this.filtering_rich_grid_media((elem, tag_title)=> {
-            this.filtering_channel_content(elem, tag_title, channel_info);
+            const renderer_root = YoutubeUtil.search_renderer_root($(elem));
+            if (renderer_root.length > 0) {
+                if (1) {
+                    this.filtering_channel_content(
+                        elem, renderer_root, tag_title, channel_info);
+                } else {
+                    // 削除動画復活対策テスト
+                    const rr_parent = $(renderer_root).parent();
+                    if (this.filtering_channel_content(elem, renderer_root,
+                                                    tag_title, channel_info)) {
+                        $(rr_parent).attr("hidden", "");
+                    } else {
+                        if ($(rr_parent).attr("hidden") != null) {
+                            $(rr_parent).removeAttr("hidden");
+                        }
+                    }
+                }
+            }
         });
         this.filtering_channel_playlists(channel_info);
         this.filtering_channel_channels();

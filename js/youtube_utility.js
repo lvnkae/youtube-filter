@@ -149,6 +149,9 @@ class YoutubeUtil {
     static get_content_title_tag() {
         return "a#video-title";
     }
+    static get_span_content_title_tag() {
+        return "span#video-title";
+    }
     static get_channel_name_tag() {
         return "yt-formatted-string#text.style-scope.ytd-channel-name";
     }
