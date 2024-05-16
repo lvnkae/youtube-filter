@@ -185,11 +185,15 @@ class YoutubeUtil {
         if (e_channel_topic.length > 0) {
             return $(e_channel_topic).text();
         }
-        const tag_sp_name = YoutubeUtil.get_channel_sp_tag();
-        const e_channel_sp = $(tag_sp_name);
-        if (e_channel_sp.length > 0) {
-            const txt = $($(tag_sp_name)[0]).text();
-            return text_utility.remove_blank_line_and_head_space(txt);
+        const e_channel_sp
+            = HTMLUtil.find_first_visible_element($(YoutubeUtil.get_channel_sp_tag()));
+        if (e_channel_sp != null) {
+            const e_h1 = HTMLUtil.search_node(e_channel_sp, "h1", (e)=>{
+                return $(e).attr("aria-label") != null && HTMLUtil.is_visible(e);
+            });
+            if (e_h1 != null) {
+                return $(e_h1).text();
+            }
         }
         return null;
     }
@@ -427,7 +431,7 @@ class YoutubeUtil {
                 return;
             }
             const button_renderer = $(right_arrow).find("ytd-button-renderer");
-            if ($(button_renderer).is(':visible')) {
+            if (HTMLUtil.is_visible(button_renderer)) {
                 // 右矢印ボタンが表示されていたらclick(scroll)してみる
                 // (未取得の要素取得要求)
                 if ($(button_renderer).attr('clicked') == null) {

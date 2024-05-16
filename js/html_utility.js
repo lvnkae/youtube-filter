@@ -35,6 +35,23 @@ class HTMLUtil {
         return null
     }
 
+    static is_visible(e) {
+        return $(e).is(":visible");
+    }
+
+    /*!
+     *  @brief  最初のvisible要素を返す
+     *  @param  elements    要素配列
+     */
+    static find_first_visible_element(elements) {
+        for (var e of elements) {
+            if (HTMLUtil.is_visible(e)) {
+                return e;
+            }
+        }
+        return null
+    }    
+
     static search_node(elem, key, func) {
         let e_ret = null;
         $(elem).find(key).each((inx, elem)=> {
