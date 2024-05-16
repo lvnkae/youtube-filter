@@ -202,7 +202,9 @@ class YoutubeCommentFilter {
         }
         let ob_elem = [];
         $(tag_parent).find(tag).each((inx, e)=> {
-            ob_elem.push(e);
+            if (HTMLUtil.is_visible(e)) {
+                ob_elem.push(e);
+            }
         });
         if (ob_elem.length == 0) {
             return;
