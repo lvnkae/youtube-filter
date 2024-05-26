@@ -27,18 +27,20 @@ class BGPlaylistSearcher extends BGMessageSender {
                 return response.text();
             } else {
                 const q = this.get_reply_queue(list_id);
-                this.send_reply({command: MessageUtil.command_search_playlist(),
-                                 result: "not_found",
-                                 list_id: list_id}, q.tab_ids);
+                BGMessageSender.send_reply(
+                    {command: MessageUtil.command_search_playlist(),
+                     result: "not_found",
+                     list_id: list_id}, q.tab_ids);
             }
         })
         .then(text => {
             if (text != null) {
                 const q = this.get_reply_queue(list_id);
-                this.send_reply({command: MessageUtil.command_search_playlist(),
-                                 result: "success",
-                                 list_id: list_id,
-                                 html: text}, q.tab_ids);
+                BGMessageSender.send_reply(
+                    {command: MessageUtil.command_search_playlist(),
+                     result: "success",
+                     list_id: list_id,
+                     html: text}, q.tab_ids);
             }
             super.update_reply_queue(list_id,
                                      this.request_search_list.bind(this));
@@ -46,9 +48,9 @@ class BGPlaylistSearcher extends BGMessageSender {
         .catch(err => {
             const q = this.get_reply_queue(list_id);
             // [error]fetchエラー
-            this.send_reply({command: MessageUtil.command_search_playlist(),
-                             result: "fail",
-                             list_id: list_id}, q.tab_ids);
+            BGMessageSender.send_reply({command: MessageUtil.command_search_playlist(),
+                                        result: "fail",
+                                        list_id: list_id}, q.tab_ids);
             super.update_reply_queue(list_id,
                                      this.request_search_list.bind(this));
         });

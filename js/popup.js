@@ -12,9 +12,9 @@ class Badge  {
     
     update(storage) {
         if (storage.json.active) {
-            chrome.browserAction.setIcon({ path : "../img/badge_on.png"});
+            chrome.action.setIcon({ path : "../img/badge_on.png"});
         } else {
-            chrome.browserAction.setIcon({ path : "../img/badge_off.png"});
+            chrome.action.setIcon({ path : "../img/badge_off.png"});
         }
     }
 };

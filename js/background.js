@@ -4,33 +4,15 @@
 class Background {
     //
     constructor() {
-        this.extention_id = '';
         this.video_json_accessor = new BGVideoJsonAccessor();
         this.videos_xml_accessor = new BGVideosXmlAccessor();
         this.channel_html_accessor = new BGChannelHTMLAccessor();
         this.video_searcher = new BGVideoSearcher();
         this.playlist_searcher = new BGPlaylistSearcher();
-        this.contextmenu_controller = new BGContextMenuController();
         //
         this.initialize();
     }
 
-    /*!
-     *  @brief  登録
-     *  @param  extention_id    拡張機能ID
-     *  @param  tab_id          タブID
-     */
-    entry(extention_id, tab_id) {
-        this.extention_id = extention_id;
-        this.video_json_accessor.entry(tab_id);
-        this.videos_xml_accessor.entry(tab_id);
-        this.channel_html_accessor.entry(tab_id);
-        this.video_searcher.entry(tab_id);
-        this.playlist_searcher.entry(tab_id);
-        this.contextmenu_controller.entry(tab_id);
-        this.contextmenu_controller.create_menu(extention_id);
-    }
-    
     /*!
      *
      */
@@ -53,15 +35,35 @@ class Background {
                     this.playlist_searcher.on_message(request, sender);
                 } else
                 if (request.command == MessageUtil.command_update_contextmenu()) {
-                    this.contextmenu_controller.on_message(request);
+                    BGContextMenuController.on_message(request);
                 } else
-                if (request.command == MessageUtil.command_start_content()) {
-                    this.entry(sender.id, sender.tab.id);
+                if (request.command == MessageUtil.command_health_check()) {
+                    //console.log("health check:" + performance.now());
                 }
+                this.request_health_check();
                 return true;
             }
         );
+        BGContextMenuController.add_listener();
+    }
+
+    request_health_check() {
+        if (!this.video_json_accessor.is_empty_of_all_queue() ||
+            !this.videos_xml_accessor.is_empty_of_all_queue() ||
+            !this.channel_html_accessor.is_empty_of_all_queue() ||
+            !this.video_searcher.is_empty_of_all_queue() ||
+            !this.playlist_searcher.is_empty_of_all_queue()) {
+            BGMessageSender.send_reply(
+                {command:MessageUtil.command_request_health_check()}
+            );
+        }
     }
 }
 
 var gBackground = new Background();
+chrome.runtime.onInstalled.addListener(()=> {
+    BGContextMenuController.create_menu();
+});
+chrome.runtime.onStartup.addListener(()=> {
+    BGContextMenuController.create_menu();
+});

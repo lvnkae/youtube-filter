@@ -1,18 +1,8 @@
 {
    "background": {
-      "persistent": true,
-      "scripts": [ "js/url_wrapper.js",
-                   "js/message_utility.js",
-                   "js/bg_message_sender.js",
-                   "js/bg_video_json_accessor.js",
-                   "js/bg_videos_xml_accessor.js",
-                   "js/bg_channel_html_accessor.js",
-                   "js/bg_video_searcher.js",
-                   "js/bg_playlist_searcher.js",
-                   "js/bg_contextmenu_controller.js",
-                   "js/background.js" ]
+      "service_worker": "background_root.js"
    },
-   "browser_action": {
+   "action": {
       "default_icon": {
          "19": "img/badge_on.png"
       },
@@ -44,11 +34,8 @@
               "js/youtube_filter.js",
               "js/content.js" ],
       "matches": [ "https://www.youtube.com/*",
-                   "http://www.youtube.com/*",
                    "https://www.google.com/*",
-                   "http://www.google.com/*",
-                   "https://www.google.co.jp/*",
-                   "http://www.google.co.jp/*"],
+                   "https://www.google.co.jp/*"],
       "run_at": "document_start"
    } ],
    "description": "Youtubeとgoogle検索にフィルタ機能を追加するChrome拡張です。「チャンネル及びタイトル指定での動画フィルタ」「コメントフィルタ」「自動再生の無効化」が行えます。",
@@ -56,13 +43,11 @@
       "19": "img/badge_on.png",
       "48": "img/icon_48.png"
    },
-   "manifest_version": 2,
+   "manifest_version": 3,
    "name": "Youtubeフィルタ",
-   "author": "lvnkae",
-   "permissions": [ "storage", "contextMenus",
-                    "https://www.youtube.com/*"
-                  ],
+   "permissions": [ "storage", "contextMenus" ],
+   "host_permissions" : [ "https://www.youtube.com/*" ],
    "short_name": "YoutubeFilter",
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "1.0.8.3"
+   "version": "1.0.9.0"
 }

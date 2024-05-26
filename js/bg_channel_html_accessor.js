@@ -27,18 +27,20 @@ class BGChannelHTMLAccessor extends BGMessageSender {
                 return response.text();
             } else {
                 const q = this.get_reply_queue(unique_name);
-                this.send_reply({command: MessageUtil.command_get_channel_html(),
-                                 result: "not_found",
-                                 unique_name: unique_name}, q.tab_ids);
+                BGMessageSender.send_reply(
+                    {command: MessageUtil.command_get_channel_html(),
+                     result: "not_found",
+                     unique_name: unique_name}, q.tab_ids);
             }
         })
         .then(text => {
             if (text != null) {
                 const q = this.get_reply_queue(unique_name);
-                this.send_reply({command: MessageUtil.command_get_channel_html(),
-                                 result: "success",
-                                 unique_name: unique_name,
-                                 html: text}, q.tab_ids);
+                BGMessageSender.send_reply(
+                    {command: MessageUtil.command_get_channel_html(),
+                     result: "success",
+                     unique_name: unique_name,
+                     html: text}, q.tab_ids);
             }
             super.update_reply_queue(unique_name,
                                      this.request_channel_html.bind(this));
@@ -46,9 +48,9 @@ class BGChannelHTMLAccessor extends BGMessageSender {
         .catch(err => {
             const q = this.get_reply_queue(unique_name);
             // [error]fetchエラー
-            this.send_reply({command: MessageUtil.command_get_channel_html(),
-                             result: "fail",
-                             unique_name: unique_name}, q.tab_ids);
+            BGMessageSender.send_reply({command: MessageUtil.command_get_channel_html(),
+                                        result: "fail",
+                                        unique_name: unique_name}, q.tab_ids);
             super.update_reply_queue(unique_name,
                                      this.request_channel_html.bind(this));
         });

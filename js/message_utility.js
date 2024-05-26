@@ -21,12 +21,12 @@ class MessageUtil {
     static send_message_to_relative_tab(message) {
         chrome.tabs.query({}, (tabs)=> {
             for (const tab of tabs) {
-                chrome.tabs.sendMessage(tab.id, message);
+                chrome.tabs.sendMessage(tab.id, message).catch((error)=>{
+                });
             }
         });
     }
 
-    static command_start_content() { return "start_content"; }
     static command_update_storage() { return "update_storage"; }
     static command_add_mute_id() { return "add_mute_id"}
     static command_get_video_json() { return "get_video_json"; }
@@ -38,4 +38,8 @@ class MessageUtil {
     static command_reset_contextmenu() { return "reset_contextmenu"; }
     static command_mute_channel_id() { return "mute_youtube_channel_id"; }
     static command_mute_comment_id() { return "mute_youtube_comment_id"; }
+    static command_request_health_check() { return "request_health_check"; }
+    static command_health_check() { return "health_check"; }
+    
+    static extention_id() { return chrome.runtime.id; }
 }

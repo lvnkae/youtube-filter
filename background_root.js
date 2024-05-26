@@ -1,0 +1,10 @@
+importScripts("js/url_wrapper.js");
+importScripts("js/message_utility.js");
+importScripts("js/bg_message_sender.js");
+importScripts("js/bg_video_json_accessor.js");
+importScripts("js/bg_videos_xml_accessor.js");
+importScripts("js/bg_channel_html_accessor.js");
+importScripts("js/bg_video_searcher.js");
+importScripts("js/bg_playlist_searcher.js");
+importScripts("js/bg_contextmenu_controller.js");
+importScripts("js/background.js");

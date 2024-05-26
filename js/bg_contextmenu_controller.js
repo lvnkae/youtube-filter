@@ -1,31 +1,58 @@
 /*!
+ *  @brief  click時にfrontへ送り返すミュート対象情報
+ *  @note   v3対応でinstance化できなくなったのでstorageに入れる
+ *  @note   (global-workも併用)
+ */
+class MuteParam {
+    constructor(click_command = '', channel_id = '', channel = '') {
+        this.click_command = click_command;
+        this.channel_id = channel_id;
+        this.channel = channel;
+    }
+}
+
+/*!
  *  @brief  右クリックメニュー制御(background側)
  *  @note   実務者
  *  @note   itemを複数登録すると階層化されてしまう(余計なお世話すぎる)ので
  *  @note   1itemを使い回す、美しくない構成にせざるを得ない
  */
-class BGContextMenuController extends BGMessageSender {
+class BGContextMenuController {
+
+    /*!
+     *  @brief  メニューID
+     *  @note   拡張機能IDを使用する(unique保証されてるので)
+     */
+    static menu_id() {
+        return MessageUtil.extention_id();
+    }
+    static STORAGE_KEY = "MuteParam";
 
     /*!
      *  @brief  onMessageコールバック
      *  @param  request
      */
-    on_message(request) {
-        if (this.context_menu_item_id == null) {
-            return;
-        }
+    static on_message(request) {
+        const menusid = BGContextMenuController.menu_id();
         if (request.title == null) {
-            chrome.contextMenus.update(this.context_menu_item_id, { 
+            chrome.contextMenus.update(menusid, { 
                 "visible": false
             });
         } else {
-            const click_command = request.click_command;
-            const param = {click_command: click_command,
-                            channel_id: request.channel_id,
-                            channel: request.channel};
-            this.menu_param = param;
+            const param = new MuteParam(request.click_command,
+                                        request.channel_id,
+                                        request.channel);
+            if (param.click_command != gMuteParam.click_command ||
+                param.channel_id != gMuteParam.channel_id ||
+                param.channel != gMuteParam.channel)
+            {
+                gMuteParam = param;
+                let mute_obj = {};
+                mute_obj[BGContextMenuController.STORAGE_KEY] = gMuteParam;
+                chrome.storage.local.set(mute_obj);
+            }
             //
-            chrome.contextMenus.update(this.context_menu_item_id, {
+            chrome.contextMenus.update(menusid, {
                 "title": request.title,
                 "visible": true
             });
@@ -34,55 +61,60 @@ class BGContextMenuController extends BGMessageSender {
 
     /*!
      *  @brief  固有右クリックメニュー登録
-     *  @param  extention_id    拡張機能ID
      */
-    create_menu(extention_id) {
-        if (this.context_menu_item_id != null) {
-            return;
-        }
-        // 拡張機能IDをitem_idとする(unique保証されてるので)
-        this.context_menu_item_id = extention_id;
+    static create_menu() {
         chrome.contextMenus.create({
             "title": "<null>",
-            "id": this.context_menu_item_id,
+            "id": BGContextMenuController.menu_id(),
             "type": "normal",
             "contexts" : ["all"],
             "visible" : true,
-            "onclick" : (info)=> {
-                const click_command = this.menu_param.click_command;
-                if (click_command == MessageUtil.command_mute_channel_id() ||
-                    click_command == MessageUtil.command_mute_comment_id()) {
-                    this.send_reply({command: click_command,
-                                     channel_id: this.menu_param.channel_id,
-                                     channel: this.menu_param.channel});
-                }
+        }, ()=>{ /*chrome.untime.lastError;*/ });
+    }
+
+    static add_listener() {
+        chrome.contextMenus.onClicked.addListener((info)=> {
+            if (info.menuItemId != BGContextMenuController.menu_id()) {
+                return;
             }
+            BGMessageSender.send_reply({command: gMuteParam.click_command,
+                                        channel_id: gMuteParam.channel_id,
+                                        channel: gMuteParam.channel});
         });
         chrome.tabs.onActivated.addListener((active_info)=> {
             // tabが切り替わったら追加項目を非表示化する
             // 拡張機能管轄外のtabで追加項目が出しっぱなしになるため
-            chrome.contextMenus.update(this.context_menu_item_id, {
+            const menusid = BGContextMenuController.menu_id();
+            chrome.contextMenus.update(menusid, {
                 "visible": false
             });
-        });
+            BGMessageSender.send_reply(
+                {command: MessageUtil.command_reset_contextmenu()}, null, true);
+        });        
         chrome.tabs.onUpdated.addListener((info)=> {
             // 管轄のtabがupdateされたら追加項目を非表示化する
             // 拡張機能管轄外のURLへ移動した際、出っぱなしになるため
-            if (this.is_connected_tab(info)) {
-                chrome.contextMenus.update(this.context_menu_item_id, {
-                    "visible": false
-                });
-                this.send_reply({command: MessageUtil.command_reset_contextmenu()},
-                                null, true);
-            }
+            const menusid = BGContextMenuController.menu_id();
+            chrome.contextMenus.update(menusid, {
+                "visible": false
+            });
+            BGMessageSender.send_reply(
+                {command: MessageUtil.command_reset_contextmenu()}, null, true);
         });
     }
+}
 
-    /*!
-     */
-    constructor() {
-        super();
-        this.menu_param = {};
-        this.context_menu_item_id = null;
-    }
+var gMuteParam = new MuteParam();
+{
+    const stkey = BGContextMenuController.STORAGE_KEY;
+    chrome.storage.local.get(stkey, (item)=>{
+        if (item != null) {
+            if (gMuteParam.channel_id == '' && gMuteParam.channel == '') {
+                const param = item[stkey];
+                if (param != null) {
+                    gMuteParam = param;
+                }
+            }
+        }
+    });
 }

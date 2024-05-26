@@ -26,9 +26,10 @@ class BGVideosXmlAccessor extends BGMessageSender {
                 return response.text();
             } else {
                 const q = this.get_reply_queue(username);
-                this.send_reply({command: MessageUtil.command_get_videos_xml(),
-                                 result: "not_found",
-                                 username: username}, q.tab_ids);
+                BGMessageSender.send_reply(
+                    {command: MessageUtil.command_get_videos_xml(),
+                     result: "not_found",
+                     username: username}, q.tab_ids);
             }
             super.update_reply_queue(username,
                                      this.request_videos_xml.bind(this));
@@ -36,10 +37,11 @@ class BGVideosXmlAccessor extends BGMessageSender {
         .then(text => {
             if (text != null) {
                 const q = this.get_reply_queue(username);
-                this.send_reply({command: MessageUtil.command_get_videos_xml(),
-                                 result: "success",
-                                 username: username,
-                                 xml: text}, q.tab_ids);
+                BGMessageSender.send_reply(
+                    {command: MessageUtil.command_get_videos_xml(),
+                     result: "success",
+                     username: username,
+                     xml: text}, q.tab_ids);
             }
             super.update_reply_queue(username,
                                      this.request_videos_xml.bind(this));

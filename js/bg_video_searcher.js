@@ -27,18 +27,20 @@ class BGVideoSearcher extends BGMessageSender {
                 return response.text();
             } else {
                 const q = this.get_reply_queue(video_id);
-                this.send_reply({command: MessageUtil.command_search_video(),
-                                 result: "not_found",
-                                 video_id: video_id}, q.tab_ids);
+                BGMessageSender.send_reply(
+                    {command: MessageUtil.command_search_video(),
+                     result: "not_found",
+                     video_id: video_id}, q.tab_ids);
             }
         })
         .then(text => {
             if (text != null) {
                 const q = this.get_reply_queue(video_id);
-                this.send_reply({command: MessageUtil.command_search_video(),
-                                 result: "success",
-                                 video_id: video_id,
-                                 html: text}, q.tab_ids);
+                BGMessageSender.send_reply(
+                    {command: MessageUtil.command_search_video(),
+                     result: "success",
+                     video_id: video_id,
+                     html: text}, q.tab_ids);
             }
             super.update_reply_queue(video_id,
                                      this.request_search_video.bind(this));
@@ -46,9 +48,9 @@ class BGVideoSearcher extends BGMessageSender {
         .catch(err => {
             const q = this.get_reply_queue(video_id);
             // [error]fetchエラー
-            this.send_reply({command: MessageUtil.command_search_video(),
-                             result: "fail",
-                             video_id: video_id}, q.tab_ids);
+            BGMessageSender.send_reply({command: MessageUtil.command_search_video(),
+                                        result: "fail",
+                                        video_id: video_id}, q.tab_ids);
             super.update_reply_queue(video_id,
                                      this.request_search_video.bind(this));
         });

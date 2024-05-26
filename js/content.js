@@ -84,6 +84,16 @@ class Content {
                 } else
                 if (request.command == MessageUtil.command_reset_contextmenu()) {
                     this.filter_instance.reset_contextmenu();
+                } else
+                if (request.command == MessageUtil.command_request_health_check()) {
+                    if (this.health_check_timer == null) {
+                        this.health_check_timer = setTimeout(()=> {
+                            clearTimeout(this.health_check_timer);
+                            this.health_check_timer = null;
+                            MessageUtil.send_message(
+                                {command:MessageUtil.command_health_check()});
+                        }, 10000); /* 10sec */
+                    }
                 }
                 return true;
             }
@@ -114,7 +124,6 @@ class Content {
     }
 
     kick() {
-        MessageUtil.send_message({command:MessageUtil.command_start_content()});
         this.load();
     }
 
@@ -122,6 +131,7 @@ class Content {
         this.filter_instance = null;
         this.storage_loaded = false;
         this.dom_content_loaded = false;
+        this.health_check_timer = null;
         //
         this.initialize();
         this.kick();
