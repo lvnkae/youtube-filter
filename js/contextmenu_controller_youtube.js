@@ -12,6 +12,11 @@ class ContextMenuController_Youtube extends ContextMenuController {
         if (ch_name != "") {
             return ch_name;
         }
+        // shorts(チャンネル名なし)例外
+        const sch_name = $(element).attr("channel_name");
+        if (sch_name != null) {
+            return sch_name;
+        }
         // grid-channel(○水平リスト)例外
         const gr_ch_tag = "span#title.style-scope.ytd-grid-channel-renderer";
         const gr_ch_node = $(element).find(gr_ch_tag);
@@ -48,6 +53,11 @@ class ContextMenuController_Youtube extends ContextMenuController {
         const chid_node = YoutubeUtil.search_renderer_root($(element));
         if (chid_node.length != 0) {
             return chid_node;
+        }
+        // shorts(チャンネル名なし/検索結果画面)例外
+        const shorts_node = YoutubeUtil.search_shorts_renderer_root($(element));
+        if (shorts_node.length != 0) {
+            return shorts_node;
         }
         // endscreen-content(動画終了画面おすすめ動画)例外
         return HTMLUtil.search_upper_node($(element), (e)=> {

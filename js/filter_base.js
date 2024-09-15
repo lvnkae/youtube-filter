@@ -26,6 +26,10 @@ class FilterBase {
         this.video_searcher = new VideoSearcher();
         this.playlist_searcher = new PlaylistSearcher();
         //
+        this.data_counter = new YoutubeDataCounter(this.author_info_accessor,
+                                                   this.channel_info_accessor,
+                                                   this.video_info_accessor);
+        //
         this.current_location = new urlWrapper(location.href);
         this.after_domloaded_observer = null;
         this.observer_timer = null;
