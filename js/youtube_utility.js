@@ -242,7 +242,10 @@ class YoutubeUtil {
     static set_channel_name(elem, channel_name) {
         let ch_node = YoutubeUtil.get_channel_name_element(elem);
         if (ch_node != null) {
-            return $(ch_node).text(channel_name);
+            $(ch_node).text(channel_name);
+            return true;
+        } else {
+            return false;
         }
     }
     /*!
@@ -361,7 +364,7 @@ class YoutubeUtil {
     /*!
      *  @brief  div#dismiss(a|i)bleを得る
      *  @note   youtubeはdismissibleをdismissableとtypoしていた
-     *  @note   21年2月下旬頃修正されたが、youtubeは鍼灸混在がよくあるので
+     *  @note   21年2月下旬頃修正されたが、youtubeは新旧混在がよくあるので
      *  @note   どちらでも対応できるよう細工しておく…いずれ外す
      */
     static get_div_dismissible() {
@@ -383,6 +386,12 @@ class YoutubeUtil {
     }
     static get_reel_shelf_header_tag() {
         return "ytd-reel-shelf-renderer.style-scope.ytd-item-section-renderer";
+    }
+    static get_rich_shelf_header_tag() {
+        return "ytd-rich-shelf-renderer.style-scope.ytd-rich-section-renderer";
+    }
+    static get_rich_grid_header_tag() {
+        return "ytd-rich-grid-renderer.style-scope";
     }
     static get_horizontal_list_header_tag() {
         return "ytd-horizontal-card-list-renderer.style-scope.ytd-item-section-renderer";
@@ -453,37 +462,6 @@ class YoutubeUtil {
         YoutubeUtil.clearing_section_list_header_core(t_reel);
         const t_horizontal = YoutubeUtil.get_horizontal_list_header_tag();
         YoutubeUtil.clearing_section_list_header_core(t_horizontal);
-    }
-
-    /*!
-     *  @brief  水平配置shortsをヘッダごと消し去る
-     *  @note   属する動画が(フィルタリングされて)空ならヘッダも削除
-     */
-    static remove_shorts_whole_header_core(tag) {
-        $(tag).each((inx, elem)=> {
-            let num_thumb = 0;
-            let num_shorts = 0;
-            $(elem).find("a#thumbnail").each((inx, e_thumb)=> {
-                num_thumb++;
-                const url = $(e_thumb).attr("href");
-                if (url == null) {
-                    return;
-                }
-                if (YoutubeUtil.is_shorts(url)) {
-                    num_shorts++;
-                }
-            });
-            if (num_thumb > 0 && num_thumb == num_shorts) {
-                $(elem).detach();
-            }
-        });
-    }
-    static remove_shorts_whole_header() {
-        const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
-        YoutubeUtil.remove_shorts_whole_header_core(t_reel);
-        const t_shelf
-            = "ytd-rich-shelf-renderer.style-scope.ytd-rich-section-renderer";
-        YoutubeUtil.remove_shorts_whole_header_core(t_shelf);
     }
 
     /*!
@@ -608,6 +586,7 @@ class YoutubeUtil {
             'ytd-channel-video-player-renderer[rounded] #player.ytd-channel-video-player-renderer { border-radius: 0px; }' + NLC +
             'ytd-reel-video-renderer[is-watch-while-mode]:not([enable-player-metadata-container]) .player-container.ytd-reel-video-renderer { border-radius: 0px; }' + NLC + /* short */
             'ytd-reel-video-renderer[is-watch-while-mode] .player-container.ytd-reel-video-renderer { border-radius: 0px; }' + NLC + /* short(old) */
+            '.ShortsLockupViewModelHostThumbnailContainerRounded { border-radius: 0px; }' + NLC + /* insert-shorts(V2) */
             'ytd-watch-flexy[rounded-player-large][default-layout] #ytd-player.ytd-watch-flexy { border-radius: 0px; }' + NLC + /* watch */
             'ytd-watch-grid[rounded-player-large][default-layout] #ytd-player.ytd-watch-grid { border-radius: 0px; }' + NLC + /* watch */
             '.image-wrapper.ytd-hero-playlist-thumbnail-renderer { border-radius: 0px; }' + NLC +
@@ -638,6 +617,7 @@ class YoutubeUtil {
                    ln == 'ytd-rich-grid-media' ||
                    ln == 'ytd-rich-grid-slim-media' ||
                    ln == 'ytd-rich-grid-video-renderer' ||
+                   ln == 'ytd-rich-item-renderer' ||
                    ln == 'ytd-grid-video-renderer' ||
                    ln == 'ytd-grid-channel-renderer' ||
                    ln == 'ytd-grid-show-renderer' ||
@@ -645,6 +625,16 @@ class YoutubeUtil {
                    ln == 'ytd-compact-video-renderer' ||
                    ln == 'ytd-compact-radio-renderer' ||
                    ln == 'ytd-compact-playlist-renderer';
+        };
+        return HTMLUtil.search_upper_node(elem, is_root);
+    }
+    static search_shorts_renderer_root(elem) {
+        const is_root = function(e) {
+            if (e.localName == null ) {
+                return false;
+            }
+            const ln = e.localName.valueOf();
+            return ln == 'ytm-shorts-lockup-view-model-v2';
         };
         return HTMLUtil.search_upper_node(elem, is_root);
     }
