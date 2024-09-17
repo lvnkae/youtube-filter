@@ -44,11 +44,11 @@ class YoutubeDataCounter {
                                                              title,
                                                              storage) {
         const channel_info = this.video_info_accessor.get_channel_info(video_id);
-        if (channel_info == null) {
+        if (channel_info == null || channel_info.id == null) {
             this.video_info_accessor.entry(video_id);
             return false;
         }
-        if (channel_info.id == null || channel_info.name == null) {
+        if (channel_info.name == null) {
             return false;
         }
         if (storage.channel_id_filter(channel_info.id, title) ||
