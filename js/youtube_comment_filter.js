@@ -243,6 +243,9 @@ class YoutubeCommentFilter {
             const tag_shorts = "div#shorts-container"
             const tag_panel = "div#watch-while-engagement-panel";
             this.create_observer(tag_shorts, tag_panel);
+            const tag_shorts_panel = "div#shorts-panel-container"
+            const tag_panel_neo = "div#anchored-panel";
+            this.create_observer(tag_shorts_panel, tag_panel_neo);
         } else
         if (urlw.in_youtube_movie_page()) {
             const tag_item_sec

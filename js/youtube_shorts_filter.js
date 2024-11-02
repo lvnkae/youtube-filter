@@ -344,44 +344,43 @@ class YoutubeShortsFilter {
      *  @brief  動画(ショート)にフィルタをかける
      */
     filtering_video() {
+        const title = $("title").text();
         const tag_short = YoutubeShortsFilter.TAG_SHORTS_REEL();
+        const detach_func = HTMLUtil.detach_children_all;
         $(tag_short).each((inx, elem)=> {
+            if ($(elem).attr("is-active") == null) {
+                return true;
+            }
+            if (this.storage.title_filter(title)) {
+                detach_func(elem);
+                return false;
+            }
             const author_url = YoutubeShortsFilter.get_author_url(elem);
-            const title = YoutubeShortsFilter.get_title(elem);
-            if (author_url == null || author_url == "" || title == "") {
-                return;
+            if (author_url == null || author_url == "") {
+                return false;
             }
-            let channel = null;
             const channel_code = YoutubeUtil.cut_channel_id(author_url);
-            const name = this.data_counter.get_channel_name(channel_code);
-            if (name != null) {
-                channel = YoutubeUtil.get_channel_name(elem);
-                if (channel != name) {
-                    YoutubeUtil.set_channel_name(elem, name);
-                }
-                const channel_neo = YoutubeShortsFilter.get_channel_name(elem);
-                if (channel_neo != null && channel_neo != name) {
-                    YoutubeShortsFilter.set_channel_name(elem, name);
-                }
-            }
-            const detach_func = HTMLUtil.detach_children_all;
+            const channel = this.data_counter.get_channel_name(channel_code);
             if (channel != null) {
-                if (this.storage.channel_and_title_filter(channel, title)) {
+                if (this.storage.channel_filter(channel, title)) {
                     detach_func(elem);
-                    return;
+                    return false;
                 }
-            } else {
-                if (this.storage.title_filter(title)) {
-                    detach_func(elem);
-                    return;
+                const channel_work = YoutubeUtil.get_channel_name(elem);
+                if (channel_work != channel) {
+                    YoutubeUtil.set_channel_name(elem, channel);
+                }
+                const channel_work_neo = YoutubeShortsFilter.get_channel_name(elem);
+                if (channel_work_neo != null && channel_work_neo != channel) {
+                    YoutubeShortsFilter.set_channel_name(elem, channel);
                 }
             }
-
             const channel_id
                 = this.data_counter.get_channel_id_from_author_url_or_entry_request(
                     author_url);
             YoutubeFilteringUtil.filtering_renderer_node_by_channel_id(
                 elem, channel_id, title, detach_func, this.storage);
+            return false;
         });
     }
     /*!
