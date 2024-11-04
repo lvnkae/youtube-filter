@@ -394,32 +394,36 @@ class YoutubeShortsFilter {
     filtering_video_by_channel_code(channel_code, channel_id, chk_func) {
         const tag_short = YoutubeShortsFilter.TAG_SHORTS_REEL();
         $(tag_short).each((inx, elem)=> {
+            if ($(elem).attr("is-active") == null) {
+                return true;
+            }
             const author_url = YoutubeShortsFilter.get_author_url(elem);
             const title = YoutubeShortsFilter.get_title(elem);
             if (author_url == null || author_url == "" || title == "") {
-                return;
+                return true;
             }
             if (!chk_func(author_url)) {
-                return;
+                return true;
             }
             if (channel_code != YoutubeUtil.cut_channel_id(author_url)) {
-                return;
+                return true;
             }
             if (this.storage.channel_id_filter(channel_id, title)) {
                 HTMLUtil.detach_children_all(elem);
-                return;
+                return false;
             }
             const channel = this.data_counter.get_channel_name(channel_code);
             if (channel != null) {
                 if (this.storage.channel_and_title_filter(channel, title)) {
                     HTMLUtil.detach_children_all(elem);
-                    return;
+                    return false;
                 } else {
                     YoutubeShortsFilter.set_channel_name(elem, channel);
                     YoutubeUtil.set_channel_name(elem, channel);
                 }
             }
             YoutubeUtil.set_renderer_node_channel_id(elem, channel_id);
+            return false;
         });
     }
 
