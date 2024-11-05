@@ -8,6 +8,7 @@ class YoutubeShortsFilter {
     static TAG_REEL_RENDERER()  { return ".style-scope.ytd-reel-item-renderer"; }
 
     static TAG_SHORTS_V2() { return "ytm-shorts-lockup-view-model-v2"; }
+    static TAG_SHORTS_REEL() { return ".reel-video-in-sequence.style-scope.ytd-shorts"; }
 
     /*!
      *  @note   Ver2/24年8月末頃の構成変更対応版
@@ -286,39 +287,94 @@ class YoutubeShortsFilter {
         });
     }
 
+    static get_title(elem) {
+        let e_title = null;
+        const e_tt_parent = $(elem).find("yt-shorts-video-title-view-model")
+        if (e_tt_parent.length == 1) {
+            e_title = $(e_tt_parent).find("h2");
+        } else {
+            e_title = $(elem).find("h2.title");
+        }
+        if (e_title.length <= 0) {
+            return "";
+        } else {
+            return text_utility.remove_blank_line_and_head_space($(e_title).text());
+        }    
+    }
+    static get_channel_elem(elem) {
+        return $(elem).find("yt-reel-channel-bar-view-model");
+    }
+    static get_author_url(elem) {
+        let e_channel = null;
+        const e_ch_parent = YoutubeShortsFilter.get_channel_elem(elem);
+        if (e_ch_parent.length == 1) {
+            e_channel = e_ch_parent;
+        } else {
+            e_channel = $(elem).find("div#channel-info");
+        }
+        if (e_channel.length <= 0) {
+            return null;
+        } else {
+            return $($(e_channel).find("a")[0]).attr("href");
+        }
+    }
+    static get_channel_name(elem) {
+        const e_channel = YoutubeShortsFilter.get_channel_elem(elem);
+        if (e_channel.length == 1) {
+            const e_a = $(e_channel).find("a");
+            if (e_a.length == 1) {
+                return $(e_a).text();
+            }
+        }
+        return null;
+    }
+    static set_channel_name(elem, name) {
+        const e_channel = YoutubeShortsFilter.get_channel_elem(elem);
+        if (e_channel.length != 1) {
+            return;
+        }
+        const e_a = $(e_channel).find("a");
+        if (e_a.length == 1) {
+            $(e_a).text(name);
+        }
+    }
+
+
     /*!
      *  @brief  動画(ショート)にフィルタをかける
      */
     filtering_video() {
-        const tag_short = ".reel-video-in-sequence.style-scope.ytd-shorts"
+        const tag_short = YoutubeShortsFilter.TAG_SHORTS_REEL();
         $(tag_short).each((inx, elem)=> {
-            const e_title = $(elem).find("h2.title");
-            const e_channel = $(elem).find("div#channel-info");
-            if (e_title.length <= 0 || e_channel.length <= 0) {
-                return;
-            }
-            const author_url = $($(e_channel).find("a")[0]).attr("href");
-            if (author_url == null || author_url == "") {
-                return;
-            }
-            const title
-                = text_utility.remove_blank_line_and_head_space($(e_title).text());
-            if (title == "") {
+            const author_url = YoutubeShortsFilter.get_author_url(elem);
+            const title = YoutubeShortsFilter.get_title(elem);
+            if (author_url == null || author_url == "" || title == "") {
                 return;
             }
             let channel = null;
             const channel_code = YoutubeUtil.cut_channel_id(author_url);
             const name = this.data_counter.get_channel_name(channel_code);
-            if (name == null) {
-                channel = YoutubeUtil.get_channel_name(e_channel);                
-            } else {
-                channel = name;
-                YoutubeUtil.set_channel_name(elem, name);
+            if (name != null) {
+                channel = YoutubeUtil.get_channel_name(elem);
+                if (channel != name) {
+                    YoutubeUtil.set_channel_name(elem, name);
+                }
+                const channel_neo = YoutubeShortsFilter.get_channel_name(elem);
+                if (channel_neo != null && channel_neo != name) {
+                    YoutubeShortsFilter.set_channel_name(elem, name);
+                }
             }
             const detach_func = HTMLUtil.detach_children_all;
-            if (this.storage.channel_and_title_filter(channel, title)) {
-                detach_func(elem);
-                return;
+            if (channel != null) {
+                if (this.storage.channel_and_title_filter(channel, title)) {
+                    detach_func(elem);
+                    return;
+                }
+            } else {
+                if (this.storage.title_filter(title)) {
+                    detach_func(elem);
+                    return;
+                }
             }
 
             const channel_id
@@ -337,15 +393,11 @@ class YoutubeShortsFilter {
      *  @note   取得完了通知後処理から呼ばれる
      */
     filtering_video_by_channel_code(channel_code, channel_id, chk_func) {
-        const tag_short = ".reel-video-in-sequence.style-scope.ytd-shorts"
+        const tag_short = YoutubeShortsFilter.TAG_SHORTS_REEL();
         $(tag_short).each((inx, elem)=> {
-            const e_title = $(elem).find("h2.title");
-            const e_channel = $(elem).find("div#channel-info");
-            if (e_title.length <= 0 || e_channel.length <= 0) {
-                return;
-            }
-            const author_url = $($(e_channel).find("a")[0]).attr("href");
-            if (author_url == null) {
+            const author_url = YoutubeShortsFilter.get_author_url(elem);
+            const title = YoutubeShortsFilter.get_title(elem);
+            if (author_url == null || author_url == "" || title == "") {
                 return;
             }
             if (!chk_func(author_url)) {
@@ -354,8 +406,6 @@ class YoutubeShortsFilter {
             if (channel_code != YoutubeUtil.cut_channel_id(author_url)) {
                 return;
             }
-            const title
-                = text_utility.remove_blank_line_and_head_space($(e_title).text());
             if (this.storage.channel_id_filter(channel_id, title)) {
                 HTMLUtil.detach_children_all(elem);
                 return;
@@ -366,6 +416,7 @@ class YoutubeShortsFilter {
                     HTMLUtil.detach_children_all(elem);
                     return;
                 } else {
+                    YoutubeShortsFilter.set_channel_name(elem, channel);
                     YoutubeUtil.set_channel_name(elem, channel);
                 }
             }
