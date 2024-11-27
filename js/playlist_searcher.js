@@ -80,7 +80,37 @@ class PlaylistSearcher {
             var obj = this.search_list_map[list_id];
             obj.unique_name = unique_name;
         }
-    }    
+    }
+    /*!
+     *  @brief  リストIDにチャンネルコードを紐付ける
+     *  @param  list_id     リストID
+     *  @param  author_url  チャンネルURL
+     */
+    set_channel_code(list_id, author_url) {
+        const channel_code = YoutubeUtil.cut_channel_id(author_url);
+        if (YoutubeUtil.is_channel_url(author_url)) {
+            this.set_channel_id(list_id, channel_code);
+        } else if (YoutubeUtil.is_userpage_url(author_url)) {
+            this.set_username(list_id, channel_code);
+        } else if (YoutubeUtil.is_uniquepage_url(author_url)) {
+            this.set_unique_name(list_id, channel_code);
+        }
+    }
+
+    /*!
+     *  @brief  リストIDだけ登録する
+     *  @note   問い合わせはしない/endscreen用
+     */
+    set_list_id(list_id) {
+        if (list_id in this.search_list_map) {
+            return;
+        } else {
+            // 新規登録
+            var obj = {};
+            obj.busy = true;
+            this.search_list_map[list_id] = obj;
+        }
+    }
 
     /*!
      *  @brief  リストID登録

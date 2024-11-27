@@ -164,6 +164,12 @@ class YoutubeUtil {
     static get_popup_container_tag() {
         return "ytd-popup-container.style-scope.ytd-app";
     }
+    static get_lockup_vm_title_tag() {
+        return "a.yt-lockup-metadata-view-model-wiz__title";
+    }
+    static get_lockup_vm_channel_tag() {
+        return "a.yt-core-attributed-string__link";
+    }
 
     /*!
      *  @brief  ページチャンネルURLを得る
@@ -254,6 +260,36 @@ class YoutubeUtil {
         if (ch_node != null) {
             $(ch_node).text("");
         }
+    }
+
+    /*!
+     *  @brief  プレイ/MIXリストのチャンネル名ノードを得る
+     *  @note   24年11月以降の構成対抗
+     */
+    static get_list_channel_element(elem) {
+        const links =  $(elem).find(YoutubeUtil.get_lockup_vm_channel_tag());
+        if (links.length > 0) {
+            return $(links[0]);
+        } else {
+            // MIXリストならチャンネル名ノードは空
+            return links;
+        }
+    }
+    /*!
+     *  @note   24年11月以降の検索結果用
+     */
+    static get_searched_list_channel_element(elem) {
+        const rows = $(elem).find("div.yt-content-metadata-view-model-wiz__metadata-row");
+        if (rows.length == 0) {
+            return null;
+        }
+        return YoutubeUtil.get_list_channel_element($(rows[0]));
+    }
+    /*!
+     *  @note   24年11月以降のrecommend用
+     */
+    static detach_lower_lockup_vm_node(base_node) {
+        HTMLUtil.detach_lower_node(base_node, "div.yt-lockup-view-model-wiz");
     }
 
     /*!
@@ -621,7 +657,8 @@ class YoutubeUtil {
                    ln == 'ytd-grid-playlist-renderer' ||
                    ln == 'ytd-compact-video-renderer' ||
                    ln == 'ytd-compact-radio-renderer' ||
-                   ln == 'ytd-compact-playlist-renderer';
+                   ln == 'ytd-compact-playlist-renderer' ||
+                   ln == 'yt-lockup-view-model';
         };
         return HTMLUtil.search_upper_node(elem, is_root);
     }

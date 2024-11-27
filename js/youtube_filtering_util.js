@@ -1,5 +1,5 @@
 /*!
- *  @brief  YoutubeShortsフィルタ
+ *  @brief  YoutubeフィルタUtil
  */
 class YoutubeFilteringUtil {
 
