@@ -20,6 +20,12 @@ class YoutubeUtil {
                YoutubeUtil.is_handle_channel_url(author_url);
     }
 
+    static is_channel_link(author_url) {
+        return YoutubeUtil.is_channel_url(author_url) ||
+               YoutubeUtil.is_userpage_url(author_url) ||
+               YoutubeUtil.is_uniquepage_url(author_url);
+    }
+
     static is_shorts(author_url) {
         return author_url.indexOf("/shorts/") >= 0;
     }
@@ -267,29 +273,23 @@ class YoutubeUtil {
      *  @note   24年11月以降の構成対抗
      */
     static get_list_channel_element(elem) {
-        const links =  $(elem).find(YoutubeUtil.get_lockup_vm_channel_tag());
-        if (links.length > 0) {
-            return $(links[0]);
-        } else {
-            // MIXリストならチャンネル名ノードは空
-            return links;
-        }
-    }
-    /*!
-     *  @note   24年11月以降の検索結果用
-     */
-    static get_searched_list_channel_element(elem) {
         const rows = $(elem).find("div.yt-content-metadata-view-model-wiz__metadata-row");
         if (rows.length == 0) {
             return null;
         }
-        return YoutubeUtil.get_list_channel_element($(rows[0]));
-    }
-    /*!
-     *  @note   24年11月以降のrecommend用
-     */
-    static detach_lower_lockup_vm_node(base_node) {
-        HTMLUtil.detach_lower_node(base_node, "div.yt-lockup-view-model-wiz");
+        const elem_channel = $(rows[0]).find(YoutubeUtil.get_lockup_vm_channel_tag());
+        if (elem_channel.length == 0) {
+            // チャンネル名ノードが無いパターン[MIXリスト]
+            return elem_channel;
+        }
+        const author_url = $(elem_channel).attr("href");
+        if (author_url == null || !YoutubeUtil.is_channel_link(author_url)) {
+            // チャンネル名ノードはあるが他の使い方されてるパターン[MIXリスト]
+            let dummy_elem_channel = {};
+            dummy_elem_channel.length = 0;
+            return dummy_elem_channel;
+        }
+        return $(elem_channel[0]);
     }
 
     /*!
