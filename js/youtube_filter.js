@@ -264,9 +264,18 @@ class YoutubeFilter extends FilterBase {
         switch (FL_TYPE) {
         case YoutubeFilter.FL_TYPE_RECOMMEND:
             // endscreen用の空登録(あとからchannel_idを差し込む)
-            const list_id = YoutubeUtil.get_playlist_hash_by_node($(elem_title));
-            this.playlist_searcher.set_list_id(list_id);
-            this.playlist_searcher.set_channel_code(list_id, author_url);
+            const link = $(elem_title).attr("href");
+            if (YoutubeUtil.is_list_link(link)) {
+                const list_id = YoutubeUtil.get_playlist_hash(link);
+                this.playlist_searcher.set_list_id(list_id);
+                this.playlist_searcher.set_channel_code(list_id, author_url);
+            } else {
+                // recommendがすべてlockup-view-modelになった場合の対処
+                // 24/11/30時点では特定の環境にしか来てないので暫定処置
+                const video_id = YoutubeUtil.get_video_hash_by_link(link);
+                this.video_info_accessor.set_video_id(video_id);
+                this.video_info_accessor.set_channel_code(video_id, author_url);
+            }
             // no break
         case YoutubeFilter.FL_TYPE_NORMAL:
             const dc = this.data_counter;
@@ -1555,15 +1564,13 @@ class YoutubeFilter extends FilterBase {
         let obj = { video_id: video_id };
         const channel_code = YoutubeUtil.cut_channel_id(author_url);
         this.video_info_accessor.set_channel_name(video_id, channel_name);
+        this.video_info_accessor.set_channel_code(video_id, author_url);
         if (YoutubeUtil.is_channel_url(author_url)) {
-            this.video_info_accessor.set_channel_id(video_id, channel_code);
             obj.channel_id = channel_code;
         } else if (YoutubeUtil.is_userpage_url(author_url)) {
             obj.username = channel_code;
-            this.video_info_accessor.set_username(video_id, channel_code);
         } else if (YoutubeUtil.is_uniquepage_url(author_url)) {
             obj.unique_name = channel_code;
-            this.video_info_accessor.set_unique_name(video_id, channel_code);
         } else {
             return; // 何らかの不具合
         }
@@ -1724,11 +1731,20 @@ class YoutubeFilter extends FilterBase {
             if (chk_node.className.indexOf('tooltip') >= 0) {
                 return true;
             }
+            if (chk_node.className.indexOf('icon-shape') >= 0) {
+                return true;
+            }
         }
         if (chk_node.localName != null) {
             if (chk_node.localName.indexOf('paper-tab') >= 0) {
                 return true;
             }
+            if (chk_node.localName.indexOf('yt-icon') >= 0) {
+                return true;
+            }
+            if (chk_node.localName.indexOf('yt-thumbnail-view-model') >= 0) {
+                return true;
+            }            
         }
         return false;
     }
