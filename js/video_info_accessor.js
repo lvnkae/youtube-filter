@@ -67,6 +67,21 @@ class VideoInfoAccessor {
         }
     }
     /*!
+     *  @brief  動画IDにチャンネルコードを紐付ける
+     *  @param  video_id    動画ID
+     *  @param  author_url  チャンネルURL
+     */
+    set_channel_code(video_id, author_url) {
+        const channel_code = YoutubeUtil.cut_channel_id(author_url);
+        if (YoutubeUtil.is_channel_url(author_url)) {
+            this.set_channel_id(video_id, channel_code);
+        } else if (YoutubeUtil.is_userpage_url(author_url)) {
+            this.set_username(video_id, channel_code);
+        } else if (YoutubeUtil.is_uniquepage_url(author_url)) {
+            this.set_unique_name(video_id, channel_code);
+        }
+    }
+    /*!
      *  @brief  動画IDにチャンネル名を紐付ける
      *  @param  video_id        動画ID
      *  @param  channel_name    チャンネル名
@@ -75,6 +90,22 @@ class VideoInfoAccessor {
         if (video_id in this.video_info_map) {
             var obj = this.video_info_map[video_id];
             obj.channel_name = channel_name;
+        }
+    }
+
+    /*!
+     *  @brief  動画IDだけ登録する
+     *  @note   問い合わせはしない/endscreen用
+     */
+    set_video_id(video_id) {
+        if (video_id in this.video_info_map) {
+            return;
+        } else {
+            // 新規登録
+            var obj = {};
+            obj.video_id = video_id;
+            obj.busy = true;
+            this.video_info_map[video_id] = obj;
         }
     }
 
