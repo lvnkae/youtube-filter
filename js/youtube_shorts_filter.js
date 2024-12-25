@@ -306,7 +306,7 @@ class YoutubeShortsFilter {
     }
     static get_author_url(elem) {
         let e_channel = null;
-        const e_ch_parent = YoutubeShortsFilter.get_channel_elem(elem);
+        const e_ch_parent = YoutubeUtil.get_short_reel_channel_elem(elem);
         if (e_ch_parent.length == 1) {
             e_channel = e_ch_parent;
         } else {
@@ -318,18 +318,8 @@ class YoutubeShortsFilter {
             return $($(e_channel).find("a")[0]).attr("href");
         }
     }
-    static get_channel_name(elem) {
-        const e_channel = YoutubeShortsFilter.get_channel_elem(elem);
-        if (e_channel.length == 1) {
-            const e_a = $(e_channel).find("a");
-            if (e_a.length == 1) {
-                return $(e_a).text();
-            }
-        }
-        return null;
-    }
     static set_channel_name(elem, name) {
-        const e_channel = YoutubeShortsFilter.get_channel_elem(elem);
+        const e_channel = YoutubeUtil.get_short_reel_channel_elem(elem);
         if (e_channel.length != 1) {
             return;
         }
@@ -339,6 +329,13 @@ class YoutubeShortsFilter {
         }
     }
 
+    static detach_suggestion(elem, storage) {
+        if (1) {
+            $(elem).find("yt-shorts-suggested-action-view-model").each((inx, sgt)=>{
+                $(sgt).detach();
+            });
+        }
+    }
 
     /*!
      *  @brief  動画(ショート)にフィルタをかける
@@ -370,7 +367,7 @@ class YoutubeShortsFilter {
                 if (channel_work != channel) {
                     YoutubeUtil.set_channel_name(elem, channel);
                 }
-                const channel_work_neo = YoutubeShortsFilter.get_channel_name(elem);
+                const channel_work_neo = YoutubeUtil.get_short_reel_channel_elem(elem);
                 if (channel_work_neo != null && channel_work_neo != channel) {
                     YoutubeShortsFilter.set_channel_name(elem, channel);
                 }
@@ -378,8 +375,10 @@ class YoutubeShortsFilter {
             const channel_id
                 = this.data_counter.get_channel_id_from_author_url_or_entry_request(
                     author_url);
-            YoutubeFilteringUtil.filtering_renderer_node_by_channel_id(
-                elem, channel_id, title, detach_func, this.storage);
+            if (!YoutubeFilteringUtil.filtering_renderer_node_by_channel_id(
+                elem, channel_id, title, detach_func, this.storage)) {
+                YoutubeShortsFilter.detach_suggestion(elem, this.storage);
+            }
             return false;
         });
     }

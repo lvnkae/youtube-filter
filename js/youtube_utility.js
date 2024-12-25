@@ -269,8 +269,26 @@ class YoutubeUtil {
     }
 
     /*!
+     *  @brief  ショート動画(reel)のチャンネル名ノードを得る
+     *  @note   24年11月以降の構成対応
+     */
+    static get_short_reel_channel_elem(elem) {
+        return $(elem).find("yt-reel-channel-bar-view-model");
+    }
+    static get_short_reel_channel_name(elem) {
+        const e_channel = YoutubeUtil.get_short_reel_channel_elem(elem);
+        if (e_channel.length == 1) {
+            const e_a = $(e_channel).find("a");
+            if (e_a.length == 1) {
+                return $(e_a).text();
+            }
+        }
+        return null;
+    }
+
+    /*!
      *  @brief  プレイ/MIXリストのチャンネル名ノードを得る
-     *  @note   24年11月以降の構成対抗
+     *  @note   24年11月以降の構成対応
      */
     static get_list_channel_element(elem) {
         const rows = $(elem).find("div.yt-content-metadata-view-model-wiz__metadata-row");
@@ -619,8 +637,10 @@ class YoutubeUtil {
             '.yt-thumbnail-view-model--medium { border-radius: 0px; }' + NLC +
             'ytd-channel-video-player-renderer[rounded] #player.ytd-channel-video-player-renderer { border-radius: 0px; }' + NLC +
             'ytd-reel-video-renderer[is-watch-while-mode]:not([enable-player-metadata-container]) .player-container.ytd-reel-video-renderer { border-radius: 0px; }' + NLC + /* short */
+            'ytd-reel-video-renderer[enable-anchored-panel][is-persistent-panel-active]:not([enable-player-metadata-container]) .player-container.ytd-reel-video-renderer { border-radius: 0px; }' + NLC + /* shortV2 */
             'ytd-reel-video-renderer[is-watch-while-mode] .player-container.ytd-reel-video-renderer { border-radius: 0px; }' + NLC + /* short(old) */
             '.ShortsLockupViewModelHostThumbnailContainerRounded { border-radius: 0px; }' + NLC + /* insert-shorts(V2) */
+            '.shortsLockupViewModelHostThumbnailContainerRounded { border-radius: 0px; }' + NLC + /* insert-shorts(V2-2) */
             'ytd-watch-flexy[rounded-player-large][default-layout] #ytd-player.ytd-watch-flexy { border-radius: 0px; }' + NLC + /* watch */
             'ytd-watch-grid[rounded-player-large][default-layout] #ytd-player.ytd-watch-grid { border-radius: 0px; }' + NLC + /* watch */
             '.image-wrapper.ytd-hero-playlist-thumbnail-renderer { border-radius: 0px; }' + NLC +
