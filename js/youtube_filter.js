@@ -1691,6 +1691,10 @@ class YoutubeFilter extends FilterBase {
         if (this.storage.json.disable_annotation) {
             YoutubeUtil.disable_annotation();
         }
+        // 'スリープタイマー'を消す
+        if (this.storage.json.remove_sleeptimer) {
+            YoutubeUtil.remove_sleeptimer();
+        }
         // 24年2月新UIを無効化する
         if (this.ui_disabler != null) {
             this.ui_disabler.disable_element(this.current_location);

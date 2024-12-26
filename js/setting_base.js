@@ -19,8 +19,10 @@ class SettingBase {
     get_flag_enable_filter() { return true; }
     get_flag_stop_autoplay() { return false; }
     get_flag_disable_annotation() { return false; }
+    get_flag_remove_sleeptimer() { return false; }
     get_flag_disable_border_radius() { return false; }
     get_flag_mute_shorts() { return false; }
+    get_flag_remove_suggestion() { return false; }
     get_flag_disable_24feb_ui() { return false; }
 
     textarea_filter_channel() {
@@ -296,8 +298,10 @@ class SettingBase {
         this.storage.json.active = this.get_flag_enable_filter();
         this.storage.json.stop_autoplay = this.get_flag_stop_autoplay();
         this.storage.json.disable_annotation = this.get_flag_disable_annotation();
+        this.storage.json.remove_sleeptimer = this.get_flag_remove_sleeptimer();
         this.storage.json.disable_border_radius = this.get_flag_disable_border_radius();
         this.storage.json.mute_shorts = this.get_flag_mute_shorts();
+        this.storage.json.remove_suggestion = this.get_flag_remove_suggestion();
         this.storage.json.disable_24feb_ui = this.get_flag_disable_24feb_ui();
         this.storage.save();
         MessageUtil.send_message_to_relative_tab(

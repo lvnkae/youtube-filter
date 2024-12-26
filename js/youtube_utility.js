@@ -579,6 +579,29 @@ class YoutubeUtil {
     }
 
     /*!
+     *  @brief  動画再生設定から指定項目を得る
+     *  @param  func    判定関数
+     */
+    static get_player_setting_elem(func) {
+        let ret_item = null;
+        const menu = $("div.ytp-popup.ytp-settings-menu");
+        if (menu.length > 0) {
+            $(menu[0]).find("div.ytp-menuitem").each((inx, mitm)=> {
+                const label = $(mitm).find("div.ytp-menuitem-label");
+                if (label.length != 0) {
+                    const txt
+                        = text_utility.remove_new_line_and_space($(label[0]).text());
+                    if (func(txt)) {
+                        ret_item = mitm;
+                        return true;
+                    }
+                }
+            });
+        }
+        return ret_item;
+    }
+
+    /*!
      *  @brief  'アノテーション'か？
      *  @param  label   ラベル文字列
      *  @note   同じ構造のトグルスイッチが複数あり"アノテーション"用を
@@ -586,32 +609,24 @@ class YoutubeUtil {
      *  @note   言語依存するのであんまりやりたくないが…
      */
     static is_annotation(label) {
-        const txt = text_utility.remove_new_line_and_space(label);
-        return txt == "アノテーション" ||
-               txt == "Anmerkungen" ||
-               txt == "Annotations" ||
-               txt == "Anotações" ||
-               txt == "註解";
+        return label == "アノテーション" ||
+               label == "Annoteringar" ||   /* 瑞 */
+               label == "Anmerkungen" ||    /* 独 */
+               label == "Annotations" ||
+               label == "Anotações" ||      /* 伯 */
+               label == "註解";             /* 繁 */
     }
     /*!
      *  @brief  'アノテーション'を無効化する
      */
     static disable_annotation() {
-        // ポップアップメニューの'アノテーション'オフ
-        const menu = $("div.ytp-popup.ytp-settings-menu");
-        if (menu.length > 0) {
-            $(menu[0]).find("div.ytp-menuitem").each((inx, mitm)=> {
-                const label = $(mitm).find("div.ytp-menuitem-label");
-                if (label.length == 0 ||
-                    !YoutubeUtil.is_annotation($(label[0]).text())) {
-                    return true;
-                }
-                const press = $(mitm).attr("aria-checked");
-                if (press != null && press == "true") {
-                    mitm.click();
-                }
-                return false;
-            });
+        // 動画再生設定の'アノテーション'オフ
+        let menu_item = YoutubeUtil.get_player_setting_elem(YoutubeUtil.is_annotation);
+        if (menu_item != null) {
+            const press = $(menu_item).attr("aria-checked");
+            if (press != null && press == "true") {
+                menu_item.click();
+            }
         }
         // 'アノテーション'オフにした時の処理を擬似的に行う
         const disp_off_node_name = [
@@ -625,6 +640,29 @@ class YoutubeUtil {
             });
         }
     }
+
+    /*!
+     *  @brief  'スリープタイマー'か？
+     *  @param  label   ラベル文字列
+     */
+    static is_sleeptimer(label) {
+        return label == "Timerdesuspensão" ||   /* 伯 */
+               label == "スリープタイマー" ||
+               label == "Ruhemodus-Timer" ||    /* 独 */
+               label == "Sleeptimer" ||
+               label == "睡眠計時器" ||         /* 繁 */
+               label == "Sovtimer";             /* 瑞 */
+    }
+    /*!
+     *  @brief  動画再生設定から'スリープタイマー'を消す
+     */
+    static remove_sleeptimer() {
+        const menu_item = YoutubeUtil.get_player_setting_elem(YoutubeUtil.is_sleeptimer);
+        if (menu_item != null) {
+            $(menu_item).detach();
+        }
+    }
+
     /*!
      *  @brief  thumbnailのborder-radiusを無効化する
      */
