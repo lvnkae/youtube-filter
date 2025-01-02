@@ -322,6 +322,14 @@ class StorageData {
     }
 
     /*!
+     *  @brief  動画再生設定の'スリープ タイマー'を除去すべきか
+     *  @retval true    除去すべき
+     */
+    is_remove_sleeptimer () {
+        return this.json.remove_sleeptimer != null &&
+               this.json.remove_sleeptimer != false;
+    }
+    /*!
      *  @brief  (thumbnailの)角丸を無効にすべきか
      *  @retval true    無効にすべき
      */

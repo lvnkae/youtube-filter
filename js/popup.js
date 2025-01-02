@@ -124,11 +124,17 @@ class Popup extends SettingBase {
     get_flag_disable_annotation() {
         return this.flag_disable_annotation;
     }
+    get_flag_remove_sleeptimer() {
+        return this.flag_remove_sleeptimer;
+    }
     get_flag_disable_border_radius() {
         return this.flag_disable_border_radius;
     }
     get_flag_mute_shorts() {
         return this.flag_mute_shorts;
+    }
+    get_flag_remove_suggestion() {
+        return this.flag_remove_suggestion;
     }
     get_flag_disable_24feb_ui() {
         return this.flag_disable_24feb_ui;
@@ -551,8 +557,10 @@ class Popup extends SettingBase {
         this.checkbox_sw_filter().prop("checked", json.active);
         this.flag_stop_autoplay = json.stop_autoplay;
         this.flag_disable_annotation = json.disable_annotation;
+        this.flag_remove_sleeptimer = this.storage.is_remove_sleeptimer();
         this.flag_disable_border_radius = this.storage.is_disable_border_radius();
         this.flag_mute_shorts = this.storage.is_mute_shorts();
+        this.flag_remove_suggestion = this.storage.is_remove_suggestion();
         this.flag_disable_24feb_ui = this.storage.is_disable_24feb_ui();
     }
 
