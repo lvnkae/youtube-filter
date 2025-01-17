@@ -53,6 +53,8 @@ class YoutubeShortsFilter {
     static remove_whole_header2() {
         const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
         YoutubeShortsFilter.remove_whole_header2_core(t_reel);
+        const t_reel2 = YoutubeUtil.get_reel_shelf_header2_tag();
+        YoutubeShortsFilter.remove_whole_header2_core(t_reel2);
         const t_rich = YoutubeUtil.get_rich_shelf_header_tag();
         YoutubeShortsFilter.remove_whole_header2_core(t_rich);
     }
@@ -177,6 +179,8 @@ class YoutubeShortsFilter {
         this.filtering_slim_video_by_video_id2_core(t_rich, video_id);
         const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
         this.filtering_slim_video_by_video_id2_core(t_reel, video_id);
+        const t_reel2 = YoutubeUtil.get_reel_shelf_header2_tag();
+        this.filtering_slim_video_by_video_id2_core(t_reel2, video_id);
         const t_grid = YoutubeUtil.get_rich_grid_header_tag();
         this.filtering_slim_video_by_video_id2_core(t_grid, video_id);
     }
