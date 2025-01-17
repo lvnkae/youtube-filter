@@ -23,6 +23,7 @@ class SettingBase {
     get_flag_disable_border_radius() { return false; }
     get_flag_mute_shorts() { return false; }
     get_flag_remove_suggestion() { return false; }
+    get_flag_hidden_start() { return false;}
     get_flag_disable_24feb_ui() { return false; }
 
     textarea_filter_channel() {
@@ -302,6 +303,7 @@ class SettingBase {
         this.storage.json.disable_border_radius = this.get_flag_disable_border_radius();
         this.storage.json.mute_shorts = this.get_flag_mute_shorts();
         this.storage.json.remove_suggestion = this.get_flag_remove_suggestion();
+        this.storage.json.hidden_start = this.get_flag_hidden_start();
         this.storage.json.disable_24feb_ui = this.get_flag_disable_24feb_ui();
         this.storage.save();
         MessageUtil.send_message_to_relative_tab(
