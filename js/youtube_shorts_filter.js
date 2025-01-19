@@ -713,6 +713,9 @@ class YoutubeShortsFilter {
         this.no_disp_mode = YoutubeShortsFilter.NO_DISP_INIT;
         this.no_disp_initialize();
     }
+    player_finalize() {
+        this.no_disp_mode = YoutubeShortsFilter.NO_DISP_NONE;
+    }
 
     get_active_reel() {
         return YoutubeShortsFilter.s_get_active_reel();
