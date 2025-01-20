@@ -1315,7 +1315,11 @@ class YoutubeFilter extends FilterBase {
                    loc.in_youtube_handle_page()) {
             this.filtering_channel_page();
         } else if (loc.in_youtube_short_page()) {
-            this.shorts_filter.filtering_video();
+            // ページ切り替わりタイミングでの誤操作抑制
+            const act_reel = this.shorts_filter.get_active_reel();
+            if (this.active_short_reel == null || act_reel == this.active_short_reel) {
+                this.shorts_filter.filtering_video();
+            }
         } else if (loc.in_youtube_movie_page()) {
             this.filtering_watch_video();
         } else if (loc.in_top_page() ||
@@ -1777,7 +1781,10 @@ class YoutubeFilter extends FilterBase {
             }
         } else
         if (urlw.in_youtube_short_page()) {
-            this.shorts_filter.callback_observing_element_change();
+            const act_reel = this.shorts_filter.get_active_reel();
+            if (this.active_short_reel == null || act_reel == this.active_short_reel) {
+                this.shorts_filter.callback_observing_element_change();
+            }
         }
     }
     /*!
@@ -1795,6 +1802,14 @@ class YoutubeFilter extends FilterBase {
     }
 
     callback_change_url(prev_urlw, to_urlw) {
+        if (this.shorts_filtering_close_timer != null) {
+            clearTimeout(this.shorts_filtering_close_timer);
+            this.shorts_filtering_close_timer = null;
+        }
+        if (this.shorts_filtering_timer != null) {
+            clearInterval(this.shorts_filtering_timer);
+            this.shorts_filtering_timer = null;
+        }
         if (prev_urlw.in_youtube_movie_page()) {
             this.ui_disabler.exit_watch_page();
             this.detach_recommended_contents_all();
@@ -1809,6 +1824,35 @@ class YoutubeFilter extends FilterBase {
             }
         } else
         if (to_urlw.in_youtube_short_page())  {
+            // ※shortsページ
+            // elem監視だけだとすっぽ抜けるのでtimerでサポートする
+            this.active_short_reel = this.shorts_filter.get_active_reel();
+            this.shorts_filtering_close_timer = setTimeout(()=> {
+                // 2.5sec経ったらサポート打ち切ってOK
+                clearTimeout(this.shorts_filtering_close_timer);
+                this.shorts_filtering_close_timer = null;
+            }, 2500);
+            this.shorts_filtering_timer = setInterval(()=> {
+                const act_reel = this.shorts_filter.get_active_reel();
+                if (this.active_short_reel != null &&
+                    act_reel != this.active_short_reel) {
+                    // ページが切り替わってたら打ち切り
+                    clearTimeout(this.shorts_filtering_close_timer);
+                    this.shorts_filtering_close_timer = null;
+                    clearInterval(this.shorts_filtering_timer);
+                    this.shorts_filtering_timer = null;
+                } else {
+                    this.filtering();
+                    if (this.storage.is_hidden_start()) {
+                        this.shorts_filter.no_disp_initialize();
+                    }
+                    if (this.shorts_filter.is_end_filtering() &&
+                        this.shorts_filtering_close_timer == null) {
+                        clearInterval(this.shorts_filtering_timer);
+                        this.shorts_filtering_timer = null;
+                    }
+                }
+            }, 250); /* 1/4sec */
             if (prev_urlw.in_youtube_short_page()) {
                 this.shorts_filter.player_initialize();
             }
@@ -1830,5 +1874,8 @@ class YoutubeFilter extends FilterBase {
             = new YoutubeCommentFilter(storage, this.channel_info_accessor);
         this.dismissible_tag = null;
         this.b_add_chip_eventlistenr = false;
+        this.active_short_reel = null;
+        this.shorts_filtering_close_timer = null;
+        this.shorts_filtering_timer = null;
     }
 }

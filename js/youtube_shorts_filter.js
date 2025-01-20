@@ -354,7 +354,7 @@ class YoutubeShortsFilter {
         }
     }
 
-    static get_active_reel() {
+    static s_get_active_reel() {
         let act_reel = null;
         $(YoutubeShortsFilter.TAG_SHORTS_REEL()).each((inx, elem)=> {
             if ($(elem).attr("is-active") == null) {
@@ -366,7 +366,7 @@ class YoutubeShortsFilter {
         return act_reel;
     }
     static get_active_player_container() {
-        const act_reel = YoutubeShortsFilter.get_active_reel();
+        const act_reel = YoutubeShortsFilter.s_get_active_reel();
         if (act_reel == null) {
             return null;
         }
@@ -379,18 +379,11 @@ class YoutubeShortsFilter {
     }
 
     static get_next_reel() {
-        const pl_container = YoutubeShortsFilter.get_active_player_container();
-        if (pl_container == null) {
+        const act_reel = YoutubeShortsFilter.s_get_active_reel();
+        if (act_reel == null) {
             return null;
         }
-        const tag_short_root = "ytd-reel-video-renderer";
-        const short_root = HTMLUtil.search_upper_node($(pl_container), (e)=>{
-            return e.localName == tag_short_root;
-        });
-        if (short_root.length == 0) {
-            return null;
-        }
-        return $(short_root).next();
+        return $(act_reel).next();
     }
     static get_next_player_container() {
         const next_reel = YoutubeShortsFilter.get_next_reel();
@@ -405,8 +398,27 @@ class YoutubeShortsFilter {
         return next_pl_container;
     }    
 
+    static is_end_video_filtering() {
+        const act_reel = YoutubeShortsFilter.s_get_active_reel();
+        if (act_reel == null) {
+            return false;
+        }
+        return $(act_reel).attr("channel_id") != null ||
+               YoutubeShortsFilter.is_detached(act_reel);
+    }
+    static is_detached(reel) {
+        return reel.children.length == 0;
+    }    
+    static is_active_detached() {
+        const act_reel = YoutubeShortsFilter.s_get_active_reel();
+        if (act_reel == null) {
+            return false;
+        }
+        return YoutubeShortsFilter.is_detached(act_reel);
+    }
+
     static set_active_viewed_mark() {
-        const reel = YoutubeShortsFilter.get_active_reel();
+        const reel = YoutubeShortsFilter.s_get_active_reel();
         if (reel != null) {
             $(reel).attr(YoutubeShortsFilter.TAG_VIEWED_MARKER, "");
         }
@@ -415,7 +427,7 @@ class YoutubeShortsFilter {
         return $(elem).attr(YoutubeShortsFilter.TAG_VIEWED_MARKER) != null;
     }
     static check_active_viewed_mark() {
-        const reel = YoutubeShortsFilter.get_active_reel();
+        const reel = YoutubeShortsFilter.s_get_active_reel();
         if (reel == null) {
             return false;
         }
@@ -427,7 +439,7 @@ class YoutubeShortsFilter {
     filtering_video() {
         const title = $("title").text();
         const detach_func = HTMLUtil.detach_children_all;
-        const act_reel = YoutubeShortsFilter.get_active_reel();
+        const act_reel = YoutubeShortsFilter.s_get_active_reel();
         if (act_reel == null) {
             return;
         }
@@ -476,7 +488,7 @@ class YoutubeShortsFilter {
      *  @note   取得完了通知後処理から呼ばれる
      */
     filtering_video_by_channel_code(channel_code, channel_id, chk_func) {
-        const act_reel = YoutubeShortsFilter.get_active_reel();
+        const act_reel = YoutubeShortsFilter.s_get_active_reel();
         if (act_reel == null) {
             return;
         }
@@ -524,7 +536,9 @@ class YoutubeShortsFilter {
         const video = $(v_cont).find("video");
         if (video.length == 1) {
             $(video).attr("style", this.video_style);
-            $(pl_container).show();
+            if ($(pl_container).is(":hidden")) {
+                $(pl_container).show();
+            }
         }
     }
     hide_next_video() {
@@ -543,15 +557,18 @@ class YoutubeShortsFilter {
         if (pl_container == null) {
             return false;
         }
-        $(pl_container).hide();
+        if ($(pl_container).is(":visible")) {
+            $(pl_container).hide();
+        }
         return true;
     }
     hide_active_video() {
-        const reel = YoutubeShortsFilter.get_active_reel();
+        const reel = YoutubeShortsFilter.s_get_active_reel();
         if (reel == null) {
             return false;
         }
-        if (YoutubeShortsFilter.check_viewed_mark(reel)) {
+        if (YoutubeShortsFilter.is_detached(reel) ||
+            YoutubeShortsFilter.check_viewed_mark(reel)) {
             return true;
         }
         const pl_container = YoutubeShortsFilter.get_active_player_container();
@@ -563,7 +580,7 @@ class YoutubeShortsFilter {
     }
 
     static check_player_mode(mode) {
-        const act_reel = YoutubeShortsFilter.get_active_reel();
+        const act_reel = YoutubeShortsFilter.s_get_active_reel();
         if (act_reel == null) {
             return false;
         }        
@@ -581,7 +598,7 @@ class YoutubeShortsFilter {
         }
     }
     static click_pause_button() {
-        const act_reel = YoutubeShortsFilter.get_active_reel();
+        const act_reel = YoutubeShortsFilter.s_get_active_reel();
         if (act_reel == null) {
             return false;
         }
@@ -601,6 +618,9 @@ class YoutubeShortsFilter {
      *  @brief  ショート動画再生一時停止/再生
      */
     pause_video() {
+        if (YoutubeShortsFilter.is_active_detached()) {
+            return true;
+        }
         if (YoutubeShortsFilter.check_player_mode(YoutubeShortsFilter.PL_PLAYING_MODE)) {
             if (YoutubeShortsFilter.check_active_viewed_mark()) {
                 return true;
@@ -671,6 +691,18 @@ class YoutubeShortsFilter {
                 YoutubeShortsFilter.set_active_viewed_mark();
                 this.no_disp_mode = YoutubeShortsFilter.NO_DISP_WAIT;
             }
+        } else
+        if (this.no_disp_mode == YoutubeShortsFilter.NO_DISP_WAIT) {
+            if (YoutubeShortsFilter.is_active_detached()) {
+                this.no_disp_mode = YoutubeShortsFilter.NO_DISP_COMPLETE;
+            }
+        } else
+        if (this.no_disp_mode == YoutubeShortsFilter.NO_DISP_NONE) {
+            // 最初に開いたshort動画専用処理
+            if (!YoutubeShortsFilter.check_active_viewed_mark() &&
+                YoutubeShortsFilter.is_end_video_filtering()) {
+                YoutubeShortsFilter.set_active_viewed_mark();
+            }
         }
     }
 
@@ -680,6 +712,21 @@ class YoutubeShortsFilter {
         }
         this.no_disp_mode = YoutubeShortsFilter.NO_DISP_INIT;
         this.no_disp_initialize();
+    }
+
+    get_active_reel() {
+        return YoutubeShortsFilter.s_get_active_reel();
+    }
+
+    is_end_filtering() {
+        switch (this.no_disp_mode) {
+        case YoutubeShortsFilter.NO_DISP_NONE:
+            return YoutubeShortsFilter.is_end_video_filtering();
+        case YoutubeShortsFilter.NO_DISP_COMPLETE:
+            return true;
+        default:
+            return false;
+        }
     }
 
     /*!
