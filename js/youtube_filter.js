@@ -1822,7 +1822,7 @@ class YoutubeFilter extends FilterBase {
                 this.ui_disabler
                     = new Youtube24febUIDisabler(this.storage, video_id);
             }
-        } else
+        }
         if (to_urlw.in_youtube_short_page())  {
             // ※shortsページ
             // elem監視だけだとすっぽ抜けるのでtimerでサポートする
@@ -1855,6 +1855,10 @@ class YoutubeFilter extends FilterBase {
             }, 250); /* 1/4sec */
             if (prev_urlw.in_youtube_short_page()) {
                 this.shorts_filter.player_initialize();
+            }
+        } else {
+            if (prev_urlw.in_youtube_short_page()) {
+                this.shorts_filter.player_finalize();
             }
         }
         if (this.ui_disabler != null) {
