@@ -1760,13 +1760,20 @@ class YoutubeFilter extends FilterBase {
         this.comment_filter.callback_observing_element_change(b_change_url, urlw);
         // recommendタブ切り替えボタンのclick監視
         // 再利用に失敗するので一回全部detachしたい
-        if (urlw.in_youtube_movie_page() && !this.b_add_chip_eventlistenr) {
-            $("div#secondary-inner").find("yt-chip-cloud-chip-renderer").each((inx, chip)=> {
-                chip.addEventListener('click', ()=>{
-                    this.detach_recommended_contents_all();
+        if (urlw.in_youtube_movie_page()) {
+            if (!this.b_add_chip_eventlistenr) {
+                const tag_watch_2nd = "div#secondary-inner";
+                const tag_recommend_tab = "yt-chip-cloud-chip-renderer";
+                $(tag_watch_2nd).find(tag_recommend_tab).each((inx, chip)=> {
+                    chip.addEventListener('click', ()=>{
+                        this.detach_recommended_contents_all();
+                    });
+                    this.b_add_chip_eventlistenr = true;
                 });
-                this.b_add_chip_eventlistenr = true;
-            });
+            }
+        } else
+        if (urlw.in_youtube_short_page()) {
+            this.shorts_filter.callback_observing_element_change();
         }
     }
     /*!
@@ -1796,7 +1803,12 @@ class YoutubeFilter extends FilterBase {
                 this.ui_disabler
                     = new Youtube24febUIDisabler(this.storage, video_id);
             }
-        } 
+        } else
+        if (to_urlw.in_youtube_short_page())  {
+            if (prev_urlw.in_youtube_short_page()) {
+                this.shorts_filter.player_initialize();
+            }
+        }
         if (this.ui_disabler != null) {
             this.ui_disabler.update_css(to_urlw);
         }
