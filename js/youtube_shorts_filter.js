@@ -330,7 +330,7 @@ class YoutubeShortsFilter {
     }
 
     static detach_suggestion(elem, storage) {
-        if (1) {
+        if (storage.is_remove_suggestion()) {
             $(elem).find("yt-shorts-suggested-action-view-model").each((inx, sgt)=>{
                 $(sgt).detach();
             });

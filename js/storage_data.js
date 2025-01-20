@@ -36,8 +36,10 @@ class StorageData {
         this.json.active = true;                // フィルタ 有効/無効
         this.json.stop_autoplay = false;        // 自動再生停止 有効/無効
         this.json.disable_annotation = false;   // アノテーション無効化 有効/無効
+        this.json.remove_sleeptimer = false;    // スリープタイマー非表示化 有効/無効
         this.json.disable_border_radius = false;// thumbnail角丸無効化 有効/無効
         this.json.mute_shorts = false;          // shortsミュート 有効/無効
+        this.json.remove_suggestion = false;    // ショート動画のサジェスト削除 有効/無効
         this.json.disable_24feb_ui = false;     // 24年2月新UI無効化 有効/無効
         this.json.ng_channel = [];              // チャンネルフィルタ(ワード)
         this.json.ng_channel_id = [];           // チャンネルフィルタ(ID)
@@ -334,6 +336,13 @@ class StorageData {
         return this.json.mute_shorts != null &&
                this.json.mute_shorts != false;
     }
+    /*!
+     *  @brief  short動画のサジェストを消すべきか
+     */
+    is_remove_suggestion() {
+        return this.json.remove_suggestion != null &&
+               this.json.remove_suggestion != false;
+    }    
     /*!
      *  @brief  24年2月新UIを無効化するか
      */
