@@ -1690,7 +1690,7 @@ class YoutubeFilter extends FilterBase {
             YoutubeUtil.disable_annotation();
         }
         // 'スリープタイマー'を消す
-        if (this.storage.json.remove_sleeptimer) {
+        if (this.storage.is_remove_sleeptimer()) {
             YoutubeUtil.remove_sleeptimer();
         }
         // 24年2月新UIを無効化する
@@ -1758,6 +1758,16 @@ class YoutubeFilter extends FilterBase {
     callback_observing_element_change(b_change_url) {
         const urlw = this.current_location;
         this.comment_filter.callback_observing_element_change(b_change_url, urlw);
+        // recommendタブ切り替えボタンのclick監視
+        // 再利用に失敗するので一回全部detachしたい
+        if (urlw.in_youtube_movie_page() && !this.b_add_chip_eventlistenr) {
+            $("div#secondary-inner").find("yt-chip-cloud-chip-renderer").each((inx, chip)=> {
+                chip.addEventListener('click', ()=>{
+                    this.detach_recommended_contents_all();
+                });
+                this.b_add_chip_eventlistenr = true;
+            });
+        }
     }
     /*!
      */
@@ -1777,6 +1787,7 @@ class YoutubeFilter extends FilterBase {
         if (prev_urlw.in_youtube_movie_page()) {
             this.ui_disabler.exit_watch_page();
             this.detach_recommended_contents_all();
+            this.b_add_chip_eventlistenr = false;
         } else
         if (to_urlw.in_youtube_movie_page()) {
             if (this.ui_disabler == null) {
@@ -1802,5 +1813,6 @@ class YoutubeFilter extends FilterBase {
         this.comment_filter
             = new YoutubeCommentFilter(storage, this.channel_info_accessor);
         this.dismissible_tag = null;
+        this.b_add_chip_eventlistenr = false;
     }
 }
