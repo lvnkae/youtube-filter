@@ -143,6 +143,9 @@ class Dashboard extends SettingBase {
         this.checkbox_remove_suggestion().change(()=> {
             this.button_save_enable();
         });
+        this.checkbox_hidden_start().change(()=> {
+            this.button_save_enable();
+        });
         this.checkbox_disable_24feb_ui().change(()=> {
             this.button_save_enable();
         });
@@ -221,7 +224,10 @@ class Dashboard extends SettingBase {
         return $("input#mute_shorts");
     }
     checkbox_remove_suggestion() {
-        return $("input#remove_suggestion")
+        return $("input#remove_suggestion");
+    }
+    checkbox_hidden_start() {
+        return $("input#hidden_start");
     }
     checkbox_disable_24feb_ui() {
         return $("input#disable_24feb_ui");
@@ -243,6 +249,9 @@ class Dashboard extends SettingBase {
     }
     checkbox_label_remove_suggestion() {
         return $("label#remove_suggestion");
+    }
+    checkbox_label_hidden_start() {
+        return $("label#hidden_start");
     }
     checkbox_label_disable_24feb_ui() {
         return $("label#disable_24feb_ui");
@@ -268,6 +277,9 @@ class Dashboard extends SettingBase {
     }
     get_flag_remove_suggestion() {
         return this.checkbox_remove_suggestion().prop("checked");
+    }
+    get_flag_hidden_start() {
+        return this.checkbox_hidden_start().prop("checked");
     }
     get_flag_disable_24feb_ui() {
         return this.checkbox_disable_24feb_ui().prop("checked");
@@ -419,6 +431,7 @@ class Dashboard extends SettingBase {
         this.checkbox_disable_border_radius().hide();
         this.checkbox_mute_shorts().hide();
         this.checkbox_remove_suggestion().hide();
+        this.checkbox_hidden_start().hide();
         this.checkbox_disable_24feb_ui().hide();
         this.checkbox_label_stop_autoplay().hide();
         this.checkbox_label_disable_annotation().hide();
@@ -426,6 +439,7 @@ class Dashboard extends SettingBase {
         this.checkbox_label_disable_border_radius().hide();
         this.checkbox_label_mute_shorts().hide();
         this.checkbox_label_remove_suggestion().hide();
+        this.checkbox_label_hidden_start().hide();
         this.checkbox_label_disable_24feb_ui().hide();
     }
     show_option_checkbox_all() {
@@ -435,6 +449,7 @@ class Dashboard extends SettingBase {
         this.checkbox_disable_border_radius().show();
         this.checkbox_mute_shorts().show();
         this.checkbox_remove_suggestion().show();
+        this.checkbox_hidden_start().show();
         this.checkbox_disable_24feb_ui().show();
         this.checkbox_label_stop_autoplay().show();
         this.checkbox_label_disable_annotation().show();
@@ -442,6 +457,7 @@ class Dashboard extends SettingBase {
         this.checkbox_label_disable_border_radius().show();
         this.checkbox_label_mute_shorts().show();
         this.checkbox_label_remove_suggestion().show();
+        this.checkbox_label_hidden_start().show();
         this.checkbox_label_disable_24feb_ui().show();
     }
     hide_option_all() {
@@ -729,6 +745,8 @@ class Dashboard extends SettingBase {
         this.checkbox_mute_shorts().prop("checked", this.storage.is_mute_shorts());
         this.checkbox_remove_suggestion().prop("checked",
                                                this.storage.is_remove_suggestion());
+        this.checkbox_hidden_start().prop("checked",
+                                          this.storage.is_hidden_start());
         this.checkbox_disable_24feb_ui().prop("checked",
                                               this.storage.is_disable_24feb_ui());
         this.show_option_checkbox_all();

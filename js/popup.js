@@ -136,6 +136,9 @@ class Popup extends SettingBase {
     get_flag_remove_suggestion() {
         return this.flag_remove_suggestion;
     }
+    get_flag_hidden_start() {
+        return this.flag_hidden_start;
+    }
     get_flag_disable_24feb_ui() {
         return this.flag_disable_24feb_ui;
     }
@@ -561,6 +564,7 @@ class Popup extends SettingBase {
         this.flag_disable_border_radius = this.storage.is_disable_border_radius();
         this.flag_mute_shorts = this.storage.is_mute_shorts();
         this.flag_remove_suggestion = this.storage.is_remove_suggestion();
+        this.flag_hidden_start = this.storage.is_hidden_start();
         this.flag_disable_24feb_ui = this.storage.is_disable_24feb_ui();
     }
 

@@ -40,6 +40,7 @@ class StorageData {
         this.json.disable_border_radius = false;// thumbnail角丸無効化 有効/無効
         this.json.mute_shorts = false;          // shortsミュート 有効/無効
         this.json.remove_suggestion = false;    // ショート動画のサジェスト削除 有効/無効
+        this.json.hidden_start = false;         // ショート動画フィルタ待ち中hide/pause 有効/無効
         this.json.disable_24feb_ui = false;     // 24年2月新UI無効化 有効/無効
         this.json.ng_channel = [];              // チャンネルフィルタ(ワード)
         this.json.ng_channel_id = [];           // チャンネルフィルタ(ID)
@@ -350,7 +351,14 @@ class StorageData {
     is_remove_suggestion() {
         return this.json.remove_suggestion != null &&
                this.json.remove_suggestion != false;
-    }    
+    }
+    /*!
+     *  @brief  short動画フィルタ待ち中hide/pauseするか
+     */
+    is_hidden_start() {
+        return this.json.hidden_start != null &&
+               this.json.hidden_start != false;
+    }
     /*!
      *  @brief  24年2月新UIを無効化するか
      */

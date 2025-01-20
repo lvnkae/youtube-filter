@@ -501,6 +501,7 @@ class YoutubeShortsFilter {
                 YoutubeUtil.set_channel_name(act_reel, channel);
             }
         }
+        YoutubeShortsFilter.detach_suggestion(act_reel, this.storage);
         this.no_disp_finalize();
         this.hide_next_video(); // すっぽ抜け対策
         YoutubeUtil.set_renderer_node_channel_id(act_reel, channel_id);
@@ -523,6 +524,9 @@ class YoutubeShortsFilter {
         }
     }
     hide_next_video() {
+        if (!this.storage.is_hidden_start()) {
+            return;
+        }        
         const reel = YoutubeShortsFilter.get_next_reel();
         if (reel == null) {
             return false;
@@ -667,6 +671,9 @@ class YoutubeShortsFilter {
     }
 
     player_initialize() {
+        if (!this.storage.is_hidden_start()) {
+            return;
+        }
         this.no_disp_mode = YoutubeShortsFilter.NO_DISP_INIT;
         this.no_disp_initialize();
     }
