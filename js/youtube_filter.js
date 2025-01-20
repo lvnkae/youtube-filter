@@ -1218,6 +1218,8 @@ class YoutubeFilter extends FilterBase {
         });
         const TAG_GRID_SLIM_MEDIA = YoutubeShortsFilter.TAG_GRID_SLIM_MEDIA();
         this.shorts_filter.filtering_slim_videos(TAG_GRID_SLIM_MEDIA);
+        const t_reel = YoutubeUtil.get_reel_shelf_header2_tag();
+        this.shorts_filter.filtering_slim_videos2(t_reel);
     }
 
     /*!
@@ -1648,6 +1650,8 @@ class YoutubeFilter extends FilterBase {
             this.shorts_filter.clear_slim_videos_marker(TAG_GRID_SLIM_MEDIA);
             const t_rich = YoutubeUtil.get_rich_shelf_header_tag();
             this.shorts_filter.clear_slim_videos_marker2(t_rich);
+            const t_reel2 = YoutubeUtil.get_reel_shelf_header2_tag();
+            this.shorts_filter.clear_slim_videos_marker2(t_reel2);
         } else if (loc.in_youtube_feeds()) {
             this.clear_home_video_marker();
             this.clear_searched_video_marker();

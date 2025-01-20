@@ -438,6 +438,9 @@ class YoutubeUtil {
     static get_reel_shelf_header_tag() {
         return "ytd-reel-shelf-renderer.style-scope.ytd-item-section-renderer";
     }
+    static get_reel_shelf_header2_tag() {
+        return "ytd-reel-shelf-renderer.style-scope.ytd-watch-next-secondary-results-renderer";
+    }
     static get_rich_shelf_header_tag() {
         return "ytd-rich-shelf-renderer.style-scope.ytd-rich-section-renderer";
     }
