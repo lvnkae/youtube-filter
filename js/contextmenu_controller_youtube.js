@@ -12,6 +12,11 @@ class ContextMenuController_Youtube extends ContextMenuController {
         if (ch_name != "") {
             return ch_name;
         }
+        // 動画/チャンネル/プレイリスト(25年07月以降/lockup-view-model)
+        const lvm_ch_name = YoutubeUtil.get_lockup_vm_channel_name(element);
+        if (lvm_ch_name != "") {
+            return lvm_ch_name;
+        }
         // shorts(reel/24年12月下旬以降)
         const srch_name = YoutubeUtil.get_short_reel_channel_name(element);
         if (srch_name != null) {

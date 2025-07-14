@@ -42,6 +42,7 @@
               "js/youtube_filtering_util.js",
               "js/google_filter.js",
               "js/youtube_24feb_ui_disabler.js",
+              "js/youtube_recommend_filter.js",
               "js/youtube_comment_filter.js",
               "js/youtube_shorts_filter.js",
               "js/youtube_filter.js",

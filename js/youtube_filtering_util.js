@@ -78,6 +78,27 @@ class YoutubeFilteringUtil {
         });
     }
 
+    /*!
+     *  @brief  ytd-rich-grid-mediaに対するeach
+     */
+    static each_rich_grid_media(do_func, dismissible_tag) {
+        const tag_grid = dismissible_tag + ".style-scope.ytd-rich-grid-media";
+        const tag_title = "#video-title-link";
+        $(tag_grid).each((inx, elem)=> {
+            do_func(elem, tag_title);
+        });
+    }
+    /*!
+     *  @brief  ytd-rich-grid-mediaに対するフィルタリング
+     *  @note   home等で使う
+     */
+    static filtering_rich_grid_media(filter_func, dismissible_tag) {
+        YoutubeFilteringUtil.each_rich_grid_media((elem, tag_title)=> {
+            const tag_thumbnail = "a#thumbnail";
+            const tag_channel = ".yt-simple-endpoint.style-scope.yt-formatted-string";
+            filter_func(elem, tag_title, tag_thumbnail, tag_channel, dismissible_tag);
+        }, dismissible_tag);
+    }    
 
     /*!
      *  @brief  <yt-lockup-view-model>ごとの処理
