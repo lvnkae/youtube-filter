@@ -1007,7 +1007,6 @@ class YoutubeFilter extends FilterBase {
             this.shorts_filter.filtering_video_by_channel_code(channel_code, channel_id, chk_func);
         } else if (loc.in_youtube_movie_page()) {
             this.recommend_filter.filtering_grid_videos_by_channel_id(channel_code, channel_id);
-            this.recommend_filter.filtering_lockup_vm_playlists_by_channel_id(channel_code, channel_id);
         } else {
             this.filtering_searched_video_by_channel_id(channel_code, channel_id, fl_func);
             this.filtering_searched_playlist_by_channel_id(channel_code, channel_id, fl_func);
@@ -1498,7 +1497,8 @@ class YoutubeFilter extends FilterBase {
                                          this.data_counter,
                                          this.video_info_accessor,
                                          this.playlist_searcher,
-                                         this.dismissible_tag);
+                                         this.detach_lower_dismissible_node.bind(this),
+                                         this.filtering_rich_grid_media.bind(this));
         this.shorts_filter
             = new YoutubeShortsFilter(storage, this.data_counter);
         this.comment_filter
