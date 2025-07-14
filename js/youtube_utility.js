@@ -34,6 +34,9 @@ class YoutubeUtil {
         return link.indexOf("&list=") >= 0 ||
                link.indexOf("?list=") >= 0;
     }
+    static is_mixlist_link(link) {
+        return link.indexOf("&start_radio") >= 0;
+    }
 
     /*!
      *  @brief  動画主情報からチャンネル名を切り出す
@@ -176,6 +179,9 @@ class YoutubeUtil {
     static get_lockup_vm_title_tag() {
         return "a.yt-lockup-metadata-view-model-wiz__title";
     }
+    static get_lockup_vm_link_tag() {
+        return "a.yt-lockup-view-model-wiz__content-image";
+    }
     static get_lockup_vm_channel_tag() {
         return "a.yt-core-attributed-string__link";
     }
@@ -287,6 +293,27 @@ class YoutubeUtil {
             }
         }
         return null;
+    }
+
+    /*!
+     *  @brief  チャンネル名を得る
+     *  @note   25年07月以降の構成(lockup-view-model)用
+     */
+    static get_lockup_vm_channel_name(elem) {
+        const rows = $(elem).find("div.yt-content-metadata-view-model-wiz__metadata-row");
+        if (rows.length == 0) {
+            return "";
+        }
+        const elem_channel = $(rows[0]).find("span.yt-core-attributed-string");
+        if (elem_channel.length == 0) {
+            return "";
+        }
+        const elem_link = $(elem_channel).find("a.yt-core-attributed-string__link");
+        if (elem_link.length == 0) {
+            return $(elem_channel[0]).text();
+        } else {
+            return $(elem_link[0]).text();
+        }
     }
 
     /*!
