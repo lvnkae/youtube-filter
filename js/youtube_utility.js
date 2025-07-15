@@ -725,7 +725,8 @@ class YoutubeUtil {
             ',ytd-video-preview:not([has-endorsement]) #inline-preview-player.ytp-rounded-inline-preview' +
             ' .html5-main-video { border-radius: 0px; }' + NLC +
             '.ytp-ce-video.ytp-ce-large-round, .ytp-ce-playlist.ytp-ce-large-round, .ytp-ce-large-round' +
-            ' .ytp-ce-expanding-overlay-background { border-radius: 0px }'
+            '.ytp-ce-expanding-overlay-background { border-radius: 0px }' + NLC +
+            '.ytp-videowall-still-round-large .ytp-videowall-still-image { border-radius: 0px }'; /* thumb(endscreen 25/07) */
         $('body').append('<style>' + anti_border_radius_body + '</style>');
     }
 
