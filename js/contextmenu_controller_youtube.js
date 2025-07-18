@@ -19,7 +19,7 @@ class ContextMenuController_Youtube extends ContextMenuController {
         }
         // shorts(reel/24年12月下旬以降)
         const srch_name = YoutubeUtil.get_short_reel_channel_name(element);
-        if (srch_name != null) {
+        if (srch_name != null && srch_name != "") {
             return srch_name;
         }
         // プレイリスト(24年11月以降)
@@ -65,6 +65,15 @@ class ContextMenuController_Youtube extends ContextMenuController {
      *  @param  element 起点ノード
      */
     get_renderer_node(element) {
+        // shorts例外(25/07対応)
+        const short_reel = HTMLUtil.search_upper_node($(element), (e)=> {
+            return e.localName == 'div' &&
+                   e.className != null &&
+                   e.className.indexOf('reel-video-in-sequence-new style-scope ytd-shorts') >= 0;
+        });
+        if (short_reel.length != 0) {
+            return short_reel;
+        }
         const chid_node = YoutubeUtil.search_renderer_root($(element));
         if (chid_node.length != 0) {
             return chid_node;
