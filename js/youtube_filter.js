@@ -1351,6 +1351,7 @@ class YoutubeFilter extends FilterBase {
     }
 
     callback_domloaded() {
+        this.shorts_filter.callback_domloaded();
         super.filtering();
         super.callback_domloaded();
     }

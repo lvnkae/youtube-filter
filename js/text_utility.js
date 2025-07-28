@@ -51,6 +51,15 @@ class TextUtil {
         return string.replace(/[\s|\r\n|\r|\n]+/g, "");
     }
     /*!
+     *  @brief  制御コードを削除
+     */
+    remove_formating_code(string) {
+        const tmp = string.replace(/\u202A+/g, "");
+        const tmp2 = tmp.replace(/\u202C+/g, "");
+        return tmp2.replace(/\uFEFF+/g, "");
+        //return string.replace(/[\u202A|\u202C|\uFEFF]+/g, "");
+    }    
+    /*!
      *  @brief  空行と行頭スペースを削除
      */
     remove_blank_line_and_head_space(string) {
