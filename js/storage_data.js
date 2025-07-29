@@ -237,9 +237,10 @@ class StorageData {
         return false;
     }
     comment_filter_by_handle(handle) {
+        const dec_handle = decodeURIComponent(handle);
         if (this.json.ng_comment_by_handle != null) {
             for (const ngch of this.json.ng_comment_by_handle) {
-                if (ngch == handle) {
+                if (decodeURIComponent(ngch) == dec_handle) {
                     return true;
                 }
             }

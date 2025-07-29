@@ -91,6 +91,14 @@ class urlWrapper {
     {
         return (this.subdir.length >=1 && this.subdir[0].startsWith('@'));
     }
+    /*!
+     *  @brief  チャンネル>投稿>コメント
+     */
+    in_youtube_channel_post()
+    {
+        return this.subdir.length >=1 &&
+               this.subdir[0] == 'post';
+    }
     in_youtube_sp_channel_page()
     {
         if (this.subdir.length >=1 && this.subdir[0] == 'gaming') {
