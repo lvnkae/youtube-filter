@@ -514,6 +514,13 @@ class YoutubeShortsFilter {
         }
         return act_pl_container;
     }
+    static get_active_volume_ctrl() {
+        const act_reel = YoutubeShortsFilter.s_get_active_reel();
+        if (act_reel == null) {
+            return null;
+        }
+        return $(act_reel).find("desktop-shorts-volume-controls");
+    }
 
     static get_next_reel() {
         const act_reel = YoutubeShortsFilter.s_get_active_reel();
@@ -532,7 +539,23 @@ class YoutubeShortsFilter {
             return null;
         }
         return next_pl_container;
-    }    
+    }
+
+    static s_is_reel_detached(reel_id) {
+        if (!YoutubeShortsFilter.B_REEL_NEW) {
+            return false;
+        }
+        let b_detached = false;
+        $(YoutubeShortsFilter.TAG_SHORTS_REEL_NEW()).each((inx, elem)=> {
+            if ($(elem).attr("id") != reel_id) {
+                return true;
+            } else {
+                b_detached = YoutubeShortsFilter.is_detached(elem);
+                return false;
+            }
+        });
+        return b_detached;
+    }
 
     static is_end_video_filtering() {
         const act_reel = YoutubeShortsFilter.s_get_active_reel();
@@ -978,6 +1001,61 @@ class YoutubeShortsFilter {
         }
         return true; // 移動が間に合わなくともtrueを返す
     }
+    static STATE_MUTE_BUTTON_NONE = 0;
+    static STATE_MUTE_BUTTON_MUTED = 1;
+    static STATE_MUTE_BUTTON_COMP = 2;
+    switch_mute_button() {
+        const vol_ctrl = YoutubeShortsFilter.get_active_volume_ctrl();
+        if (vol_ctrl == null || vol_ctrl.length == 0) {
+            return false;
+        }
+        const button = $(vol_ctrl).find("button");
+        const slider = $(vol_ctrl).find("input");
+        if (button.length == 0 || slider.length == 0) {
+            return false;
+        }
+        const value = slider.attr("aria-valuetext");
+        if (value == null) {
+            return;
+        }
+        const b_muted = value.indexOf("muted") > 0;
+        switch (this.state_mute_button) {
+        case YoutubeShortsFilter.STATE_MUTE_BUTTON_NONE:
+            if (b_muted) {
+                return true;
+            }
+            $(button).trigger("click");
+            this.state_mute_button = YoutubeShortsFilter.STATE_MUTE_BUTTON_MUTED;
+            break;
+        case YoutubeShortsFilter.STATE_MUTE_BUTTON_MUTED:
+            this.state_mute_button = YoutubeShortsFilter.STATE_MUTE_BUTTON_COMP;
+            if (b_muted) {
+                $(button).trigger("click");
+            }
+            return true;
+        }
+        return false;
+    }
+    call_switch_mute_button() {
+        if (!YoutubeShortsFilter.s_is_reel_detached(
+                YoutubeShortsFilter.PREV_ACTIVE_REEL_ID)) {
+            if (this.switch_mute_button_timer != null) {
+                clearInterval(this.switch_mute_button_timer);
+                this.switch_mute_button_timer = null;
+            }
+            return;
+        } else {
+            if (this.switch_mute_button_timer != null) {
+                return;
+            }
+        }
+        this.switch_mute_button_timer = setInterval(()=> {
+            if (this.switch_mute_button()) {
+                clearInterval(this.switch_mute_button_timer);
+                this.switch_mute_button_timer = null;
+            }
+        }, 17); /*1/60sec*/
+    }    
 
     callback_domloaded() {
         this.call_fill_in_thumbnail();
@@ -1008,6 +1086,8 @@ class YoutubeShortsFilter {
             }
         }
         this.call_fill_in_thumbnail();
+        this.state_mute_button = YoutubeShortsFilter.STATE_MUTE_BUTTON_NONE;
+        this.call_switch_mute_button();
     }
 
     /*!
@@ -1022,5 +1102,7 @@ class YoutubeShortsFilter {
         this.fill_in_thumb_timer = null;
         this.relocate_timer = null;
         this.reel_info = new ShortReelInfo();
+        this.state_mute_button = YoutubeShortsFilter.STATE_MUTE_BUTTON_NONE;
+        this.switch_mute_button_timer = null;
     }
 }
