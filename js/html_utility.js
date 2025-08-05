@@ -18,6 +18,12 @@ class HTMLUtil {
         return false;
     }
 
+    static hide_element(e) {
+        if ($(e).is(":visible")) {
+            $(e).hide();
+        }
+    }
+
     /*!
      *  @brief  key要素を探す
      *  @param  start_elem  探索起点
