@@ -1431,6 +1431,9 @@ class YoutubeFilter extends FilterBase {
     }
 
     callback_change_url(prev_urlw, to_urlw) {
+        if (!this.storage.json.active) {
+            return;
+        }
         if (this.shorts_filtering_close_timer != null) {
             clearTimeout(this.shorts_filtering_close_timer);
             this.shorts_filtering_close_timer = null;
