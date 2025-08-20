@@ -6,6 +6,7 @@ class ShortScrollInfo {
         this.top = 0;
         this.half = 0;
         this.height = 0;
+        this.b_first = false;
         this.b_added_event_listener = false;
         this.callback = func;
     }
@@ -14,41 +15,43 @@ class ShortScrollInfo {
         return $("div#shorts-container");
     }
 
-    initialize() {
-        if (this.b_added_event_listener) {
-            return;
-        }
+    init_param() {
         const sc = ShortScrollInfo.get_shorts_container();
         if (sc.length != 1) {
-            return;
+            return null;
         }
         this.top = sc[0].scrollTop;
         this.height = sc[0].offsetHeight;
         this.half = this.height * 0.5;
+        this.b_first = true;
+        return sc;
+    }
+    initialize() {
+        if (this.b_added_event_listener) {
+            return;
+        }
+        const sc = this.init_param();
+        if (sc == null) {
+            return;
+        }
         sc[0].addEventListener('scroll', this.callback);
         this.b_added_event_listener = true;
     }
     finalize() {
+        if (!this.b_added_event_listener) {
+            return;
+        }
         const sc = ShortScrollInfo.get_shorts_container();
         sc[0].removeEventListener('scroll', this.callback);
         this.b_added_event_listener = false;
     }
 
-    is_more_than_half() {
-        const sc = ShortScrollInfo.get_shorts_container();
-        if (sc.length != 1) {
-            return false;
-        }
-        const now_top = sc[0].scrollTop;
-        const diff_top = now_top - this.top;
-        return Math.abs(diff_top) > this.half;
-    }
     get_diff() {
         const sc = ShortScrollInfo.get_shorts_container();
-        if (sc.length != 1) {
-            return null;
-        }
         return sc[0].scrollTop - this.top;
+    }
+    is_more_than_half() {
+        return Math.abs(this.get_diff()) > this.half;
     }
 }
 class ShortReelInfo {
@@ -121,6 +124,7 @@ class YoutubeShortsFilter {
     static B_UPPER_LIMIT = false;
     static OVERLAY_DENSITY = null;
     static REEL_WIDTH = null;
+    static SCROLL_TERMINATE_DIFF = 16;
 
     /*!
      *  @note   Ver2/24年8月末頃の構成変更対応版
@@ -631,7 +635,9 @@ class YoutubeShortsFilter {
         if (st_container.length != 1) {
             return false;
         }
-        return st_container[0].scrollTop == reel.offsetTop;
+        const diff = st_container[0].scrollTop - reel.offsetTop;
+        // 完全一致判定だとfullscreen時にすっぽ抜ける
+        return Math.abs(diff) <= 16;
     }
     static is_no_author_reel(reel) {
         const slot = $(reel).find("ytd-ad-slot-renderer");
@@ -1283,13 +1289,16 @@ class YoutubeShortsFilter {
      *  @brief  ショート動画スクロールコールバック
      *  @note   URL変更より早いタイミングでやりたい処理がある
      */
-    callback_scroll_reel_sub() {
-        this.b_upper_limit = false;
-        YoutubeShortsFilter.B_UPPER_LIMIT = false;
-        this.scroll_sub.finalize();
-        this.scroll.initialize();
-    }
     callback_scroll_reel() {
+        if (this.fullscreenchange) {
+            this.fullscreenchange = false;
+            this.scroll.init_param();
+            return;
+        }
+        if (this.scroll.b_first) {
+            this.scroll.b_first = false;
+            return;
+        }
         if ($(YoutubeShortsFilter.TAG_SHORTS_REEL_NEW()).length == 0) {
             // shortsページ内でshortsページへ移動しようとした場合
             // 再度openを呼びたいがturnへ行ってしまう
@@ -1333,9 +1342,32 @@ class YoutubeShortsFilter {
                 const lv_reel = YoutubeShortsFilter.s_get_reel(lv_reel_id);
                 const nx_reel_id = this.next_reel_id;
                 const nx_reel = YoutubeShortsFilter.s_get_reel(nx_reel_id);
-                const b_end_scroll =
-                    (lv_reel != null && YoutubeShortsFilter.is_selected_reel(lv_reel))
-                 || (nx_reel != null && YoutubeShortsFilter.is_selected_reel(nx_reel))
+                const diff = this.scroll.get_diff();
+                const tm = YoutubeShortsFilter.SCROLL_TERMINATE_DIFF;
+                let b_end_scroll = false;
+                if (this.b_upper_limit) {
+                    // 特殊処理A(*1)用1(2動画以上スライド||1動画分だけスライド)
+                    if (diff > this.scroll.height || diff == 0) {
+                        b_end_scroll = true;
+                    } else
+                    if ((Math.abs(diff) - lv_reel.offsetHeight) == tm) {
+                        // 最上段例外(↑ボタンがなかったら最上段)
+                        //  特殊処理A(*1)のスライド前に↑ボタンがない瞬間があるため
+                        //  動画playerがappendされるのを待って判定
+                        const button_up = $("div#navigation-button-up");
+                        const button_up_tip = $(button_up).find("tp-yt-paper-tooltip");
+                        const plc = YoutubeShortsFilter.s_get_player_container(nx_reel);
+                        if (plc.length > 0
+                         && $(button_up_tip).attr("disable-upgrade") != null) {
+                            b_end_scroll = true;
+                        }
+                    }
+                } else {
+                     //  1行目：通常
+                     //  2行目：最上段(余剰scroll)用
+                    b_end_scroll = ((Math.abs(diff) - lv_reel.offsetHeight) == tm)
+                                 ||((nx_reel == null) && diff == 0)
+                }
                 if (b_end_scroll) {
                     clearInterval(this.observing_scroll_timer);
                     this.observing_scroll_timer = null;
@@ -1346,22 +1378,9 @@ class YoutubeShortsFilter {
                     } else {
                     }
                     if (this.b_upper_limit) {
-                        const button_up = $("div#navigation-button-up");
-                        const button_up_tip = $(button_up).find("tp-yt-paper-tooltip");
-                        if ($(button_up_tip).attr("disable-upgrade") != null) {
-                            // "↑ボタン"がない場合、真の上端なので特殊処理Aをcancel
-                            this.b_upper_limit = false;
-                            YoutubeShortsFilter.B_UPPER_LIMIT = false;
-                            this.scroll.initialize();
-                        } else {
-                            const sc = ShortScrollInfo.get_shorts_container();
-                            const diff = sc[0].scrollTop - this.scroll.top;
-                            if (diff > this.scroll.height) {
-                                this.b_upper_limit = false;
-                                YoutubeShortsFilter.B_UPPER_LIMIT = false;
-                            }
-                            this.scroll_sub.initialize();
-                        }
+                        this.b_upper_limit = false;
+                        YoutubeShortsFilter.B_UPPER_LIMIT = false;
+                        this.scroll.initialize();
                     } else if (this.b_prev_upper_limit) {
                     } else {
                         this.scroll.initialize();
@@ -1375,6 +1394,9 @@ class YoutubeShortsFilter {
                 this.process_in_leaving_reel();
             }, 17); /*1/60sec*/
         }
+    }
+    callback_fullscreenchange() {
+        this.fullscreenchange = true;
     }
 
     callback_domloaded() {
@@ -1433,7 +1455,6 @@ class YoutubeShortsFilter {
         this.b_update_reel_info = false;
         this.b_first_init_scr_cb = true;
         this.scroll = new ShortScrollInfo(this.callback_scroll_reel.bind(this));
-        this.scroll_sub = new ShortScrollInfo(this.callback_scroll_reel_sub.bind(this));
         this.leaving_reel_timer = null;
         this.leaving_reel_id = '';
         this.next_reel_id = '';
@@ -1442,6 +1463,7 @@ class YoutubeShortsFilter {
         //
         this.b_force_act_zero = false;
         this.req_overwrite_width = false;
+        this.fullscreenchange = false;
         // 特殊処理A(*1)用
         this.b_upper_limit = false;
         this.b_prev_upper_limit = false;
