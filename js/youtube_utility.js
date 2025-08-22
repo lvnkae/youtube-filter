@@ -707,6 +707,8 @@ class YoutubeUtil {
             'ytd-playlist-thumbnail[size=medium] a.ytd-playlist-thumbnail,ytd-playlist-thumbnail[size=medium]:before { border-radius: 0px; }' + NLC +
             '.yt-thumbnail-view-model--medium { border-radius: 0px; }' + NLC + /* home(24/11) */
             '.yt-thumbnail-view-model--large { border-radius: 0px; }' + NLC + /* home(25/07) */
+            '.ytThumbnailViewModelLarge { border-radius: 0px; }' + NLC + /* home(25/08) */
+            '.ytThumbnailViewModelMedium { border-radius: 0px; }' + NLC + /* recommend(25/08) */
             'ytd-channel-video-player-renderer[rounded] #player.ytd-channel-video-player-renderer { border-radius: 0px; }' + NLC +
             'ytd-reel-video-renderer[is-watch-while-mode]:not([enable-player-metadata-container]) .player-container.ytd-reel-video-renderer { border-radius: 0px; }' + NLC + /* short */
             'ytd-reel-video-renderer[enable-anchored-panel][is-persistent-panel-active]:not([enable-player-metadata-container]) .player-container.ytd-reel-video-renderer { border-radius: 0px; }' + NLC + /* shortV2 */
