@@ -708,6 +708,7 @@ class YoutubeUtil {
             'ytd-reel-video-renderer[is-watch-while-mode]:not([enable-player-metadata-container]) .player-container.ytd-reel-video-renderer { border-radius: 0px; }' + NLC + /* short */
             'ytd-reel-video-renderer[enable-anchored-panel][is-persistent-panel-active]:not([enable-player-metadata-container]) .player-container.ytd-reel-video-renderer { border-radius: 0px; }' + NLC + /* shortV2 */
             'ytd-reel-video-renderer[is-watch-while-mode] .player-container.ytd-reel-video-renderer { border-radius: 0px; }' + NLC + /* short(old) */
+            '.metadata-container.ytd-reel-player-overlay-renderer { border-radius: 0px; }' + NLC + /* short(overlay) */
             '.ShortsLockupViewModelHostThumbnailContainerRounded { border-radius: 0px; }' + NLC + /* insert-shorts(V2) */
             '.shortsLockupViewModelHostThumbnailContainerRounded { border-radius: 0px; }' + NLC + /* insert-shorts(V2-2) */
             'ytd-watch-flexy[rounded-player-large][default-layout] #ytd-player.ytd-watch-flexy { border-radius: 0px; }' + NLC + /* watch */
