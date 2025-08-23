@@ -10,6 +10,7 @@ class YoutubeShortsFilter {
 
     static TAG_SHORTS_V2() { return "ytm-shorts-lockup-view-model-v2"; }
     static TAG_SHORTS_REEL() { return ".reel-video-in-sequence.style-scope.ytd-shorts"; }
+    static TAG_SHORTS_REEL_NEW()  { return ".reel-video-in-sequence-new.style-scope.ytd-shorts"; }
     static TAG_PLAYER_CONTAINER() { return "div#player-container"; }
 
     static TAG_VIEWED_MARKER = "viewed";
@@ -23,6 +24,9 @@ class YoutubeShortsFilter {
     static NO_DISP_PAUSE = 3;       // short動画停止完了
     static NO_DISP_WAIT = 4;        // フィルタ処理完了待ち
     static NO_DISP_COMPLETE = 5;    // 全処理完了
+
+    static PREV_ACTIVE_REEL_ID = null;
+    static ACTIVE_REEL_ID = "0";
 
     /*!
      *  @note   Ver2/24年8月末頃の構成変更対応版
@@ -350,6 +354,9 @@ class YoutubeShortsFilter {
             $(e_a).text(name);
         }
     }
+    static clear_channel_name(elem) {
+        YoutubeShortsFilter.set_channel_name(elem, "");
+    }
 
     static detach_suggestion(elem, storage) {
         if (storage.is_remove_suggestion()) {
@@ -359,6 +366,40 @@ class YoutubeShortsFilter {
         }
     }
 
+    static s_get_video_info_title(elem) {
+        const e = $(elem).find("h2.ytShortsVideoTitleViewModelShortsVideoTitle");
+        if (e.length == 0) {
+            return null;
+        }
+        return text_utility.remove_blank_line_and_head_space($(e).text());
+    }
+    static s_get_video_id_from_thumbnail(elem) {
+        const thumb = $(elem).find("div.reel-video-in-sequence-thumbnail");
+        if (thumb.length == 0) {
+            return null;
+        }
+        const jpg = $(thumb).attr("style");
+        if (jpg == null) {
+            return null;
+        }
+        const work = jpg.split("/");
+        if (work.length < 2) {
+            return null;
+        }
+        return work[work.length-2];
+    }
+    static s_get_video_id_from_title(elem) {
+        const title_link = $(elem).find("a.ytp-title-link");
+        if (title_link.length == 0) {
+            return null;
+        }
+        const link = $(title_link).attr("href");
+        if (link == null) {
+            return null;
+        }
+        return YoutubeUtil.cut_short_movie_hash(link);
+    }
+
     static s_get_active_reel() {
         let act_reel = null;
         $(YoutubeShortsFilter.TAG_SHORTS_REEL()).each((inx, elem)=> {
@@ -366,6 +407,42 @@ class YoutubeShortsFilter {
                 return true;
             }
             act_reel = elem;
+            return false;
+        });
+        if (act_reel != null) {
+            return act_reeel;
+        }
+        const vid = YoutubeUtil.cut_short_movie_hash(location.href);
+        $(YoutubeShortsFilter.TAG_SHORTS_REEL_NEW()).each((inx, elem)=> {
+            // is-activeでのチェックが出来なくなった
+            if (YoutubeShortsFilter.ACTIVE_REEL_ID != null) {
+                if ($(elem).attr("id") != YoutubeShortsFilter.ACTIVE_REEL_ID) {
+                    return true;
+                }
+            } else {
+                if (YoutubeShortsFilter.PREV_ACTIVE_REEL_ID != null) {
+                    if ($(elem).attr("id") == YoutubeShortsFilter.PREV_ACTIVE_REEL_ID) {
+                        return true;
+                    }
+                }
+                // URLから得られる動画IDとサムネから得られる動画IDの一致を見る
+                const thumb_vid
+                    = YoutubeShortsFilter.s_get_video_id_from_thumbnail(elem);
+                if (thumb_vid != null) {
+                    if (thumb_vid != vid) {
+                        return true;
+                    }
+                } else {
+                    // サムネイルがない場合はtitle-linkから動画IDを得る
+                    const title_vid
+                        = YoutubeShortsFilter.s_get_video_id_from_title(elem);
+                    if (title_vid == null || title_vid != vid) {
+                        return true;
+                    }
+                }
+            }
+            act_reel = elem;
+            YoutubeShortsFilter.ACTIVE_REEL_ID = $(elem).attr("id");
             return false;
         });
         return act_reel;
@@ -451,6 +528,12 @@ class YoutubeShortsFilter {
         if (this.storage.title_filter(title)) {
             detach_func(act_reel);
             return;
+        } else {
+            const info_title = YoutubeShortsFilter.s_get_video_info_title(act_reel);
+            if (info_title == null || title.indexOf(info_title) != 0) {
+                YoutubeShortsFilter.clear_channel_name(act_reel);
+                return;
+            }
         }
         const author_url = YoutubeShortsFilter.get_author_url(act_reel);
         if (author_url == null || author_url == "") {
@@ -735,6 +818,21 @@ class YoutubeShortsFilter {
         default:
             return false;
         }
+    }
+
+    /*!
+     *  @param  shortsに入った際に行う処理
+     */
+    open() {
+        YoutubeShortsFilter.PREV_ACTIVE_REEL_ID = null;
+        YoutubeShortsFilter.ACTIVE_REEL_ID = "0";
+    }
+    /*!
+     *  @param  short→short移動時に行う処理
+     */
+    turn() {
+        YoutubeShortsFilter.PREV_ACTIVE_REEL_ID = YoutubeShortsFilter.ACTIVE_REEL_ID;
+        YoutubeShortsFilter.ACTIVE_REEL_ID = null;
     }
 
     /*!

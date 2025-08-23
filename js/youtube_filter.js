@@ -1447,6 +1447,11 @@ class YoutubeFilter extends FilterBase {
         }
         if (to_urlw.in_youtube_short_page())  {
             // ※shortsページ
+            if (!prev_urlw.in_youtube_short_page()) {
+                this.shorts_filter.open();
+            } else {
+                this.shorts_filter.turn();
+            }
             // elem監視だけだとすっぽ抜けるのでtimerでサポートする
             this.active_short_reel = this.shorts_filter.get_active_reel();
             this.shorts_filtering_close_timer = setTimeout(()=> {
