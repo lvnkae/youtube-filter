@@ -1521,5 +1521,11 @@ class YoutubeFilter extends FilterBase {
         this.active_short_reel = null;
         this.shorts_filtering_close_timer = null;
         this.shorts_filtering_timer = null;
+        //
+        document.addEventListener("fullscreenchange", ()=>{
+            if (this.current_location.in_youtube_short_page()) {
+                this.shorts_filter.callback_fullscreenchange();
+            }
+        });
     }
 }
