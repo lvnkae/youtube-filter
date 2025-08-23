@@ -163,6 +163,7 @@ class ContextMenuController_Youtube extends ContextMenuController {
         const ret = { type:ContextMenuController.TYPE_NONE, base_node:{length:0}};
         if (!loc.in_youtube_custom_channel_page() &&
             !loc.in_youtube_sp_channel_page() &&
+            !loc.in_youtube_channel_post() &&
             !loc.in_youtube_channel_page() &&
             !loc.in_youtube_handle_page() &&
             !loc.in_youtube_user_page() &&

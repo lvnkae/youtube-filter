@@ -281,6 +281,12 @@ class YoutubeCommentFilter {
                 const tag_watch = "div#primary";
                 this.create_observer(tag_watch, tag_item_sec);
             }
+        } else
+        if (urlw.in_youtube_channel_post()) {
+            const tag_item_sec
+                = "ytd-item-section-renderer#sections.style-scope.ytd-comments";
+            const tag_watch = "div#primary";
+            this.create_observer(tag_watch, tag_item_sec);
         }
     }
 
