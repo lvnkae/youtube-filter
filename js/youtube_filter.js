@@ -1379,6 +1379,9 @@ class YoutubeFilter extends FilterBase {
             if (chk_node.className.indexOf('icon-shape') >= 0) {
                 return true;
             }
+            if (chk_node.className.indexOf('caption') >= 0) {
+                return true;
+            }
         }
         if (chk_node.localName != null) {
             if (chk_node.localName.indexOf('paper-tab') >= 0) {
