@@ -1493,6 +1493,7 @@ class YoutubeFilter extends FilterBase {
         } else {
             if (prev_urlw.in_youtube_short_page()) {
                 this.shorts_filter.player_finalize();
+                this.shorts_filter.close();
             }
         }
         if (this.ui_disabler != null) {
@@ -1527,5 +1528,10 @@ class YoutubeFilter extends FilterBase {
                 this.shorts_filter.callback_fullscreenchange();
             }
         });
+        window.addEventListener("resize", ()=>{
+            if (this.current_location.in_youtube_short_page()) {
+                this.shorts_filter.callback_resize_window();
+            }
+        });        
     }
 }
