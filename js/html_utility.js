@@ -4,6 +4,14 @@
 class HTMLUtil {
 
     /*!
+     *  @note   firefoxでは
+     *  @note     $(button).trigger("click")
+     *  @note   の動作が怪しいので原始的処理に置き換える
+     */
+    static click_button(button) {
+        $(button)[0].click();
+    }
+    /*!
      *  @brief  要素が非表示であるか
      *  @param  e   調べる要素
      */

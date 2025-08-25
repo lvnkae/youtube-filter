@@ -66,13 +66,26 @@ class ContextMenuController_Youtube extends ContextMenuController {
      */
     get_renderer_node(element) {
         // shorts例外(25/07対応)
-        const short_reel = HTMLUtil.search_upper_node($(element), (e)=> {
-            return e.localName == 'div' &&
-                   e.className != null &&
-                   e.className.indexOf('reel-video-in-sequence-new style-scope ytd-shorts') >= 0;
+        const sub_short_reel = HTMLUtil.search_upper_node($(element), (e)=> {
+                if (e.localName != 'div' || e.className == null  || e.id == null) {
+                    return false;
+                }
+                if (e.id == 'actions' || e.id == 'overlay') {
+                    return e.className.indexOf('ytd-reel-player-overlay-renderer') > 0;
+                } else
+                if (e.id == 'short-video-container') {
+                    return e.className.indexOf('short-video-container') == 0;
+                }
         });
-        if (short_reel.length != 0) {
-            return short_reel;
+        if (sub_short_reel.length != 0) {
+            const short_reel = HTMLUtil.search_upper_node($(element), (e)=> {
+                return e.localName == 'div' &&
+                       e.className != null &&
+                       e.className.indexOf('reel-video-in-sequence-new') == 0;
+            });
+            if (short_reel.length != 0) {
+                return short_reel;
+            }
         }
         const chid_node = YoutubeUtil.search_renderer_root($(element));
         if (chid_node.length != 0) {
