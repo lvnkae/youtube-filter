@@ -87,9 +87,17 @@ class urlWrapper {
     {
         return (this.subdir.length >=1 && this.subdir[0] == 'c');
     }
+    in_youtube_channel_playlists() {
+        // in_youtube_(channel|user|custom_channel)_pageの後に使う(単体NG)
+        return (this.subdir.length == 3 && this.subdir[2] == 'playlists');
+    }    
     in_youtube_handle_page()
     {
         return (this.subdir.length >=1 && this.subdir[0].startsWith('@'));
+    }
+    in_youtube_handle_playlists() {
+        // in_youtube_handle_pageの後に使う(単体NG)
+        return (this.subdir.length == 2 && this.subdir[1] == 'playlists');
     }
     /*!
      *  @brief  チャンネル>投稿>コメント
