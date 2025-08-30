@@ -113,13 +113,18 @@ class YoutubeFilter extends FilterBase {
      *  @note   個人チャンネルページの「チャンネル名省略形式」にも対応
      */
     filtering_channel_content(elem, tag_title, channel_func, channel_info) {
+        return this.filtering_channel_content_dir(elem,
+                                                  $(elem).find(tag_title),
+                                                  channel_func,
+                                                  channel_info);
+    }
+    filtering_channel_content_dir(elem, elem_title, channel_func, channel_info) {
         const renderer_root = YoutubeUtil.search_renderer_root($(elem));
         if (renderer_root.length == 0) {
             return;
         }
         YoutubeUtil.remove_renderer_node_channel_id(renderer_root);
         //
-        const elem_title = $(elem).find(tag_title);
         if (elem_title.length == 0) {
             return false;
         }
@@ -242,7 +247,7 @@ class YoutubeFilter extends FilterBase {
         }
         YoutubeUtil.remove_renderer_node_channel_id(renderer_root);
         //
-        const elem_title = $(elem).find(YoutubeUtil.get_lockup_vm_title_tag());
+        const elem_title = YoutubeUtil.get_lockup_vm_title_elem(elem);
         const elem_channel = YoutubeUtil.get_list_channel_element(elem);
         if (elem_title.length != 1 || elem_channel == null) {
             return false;
@@ -282,10 +287,13 @@ class YoutubeFilter extends FilterBase {
         }, p_parent);
     }
     filtering_channel_lists(p_parent, channel_info) {
-        const tag_title = YoutubeUtil.get_lockup_vm_title_tag();
         const channel_func = YoutubeUtil.get_list_channel_element;
         YoutubeFilteringUtil.each_lockup_view_model((elem)=>{
-            this.filtering_channel_content(elem, tag_title, channel_func, channel_info);
+            const elem_title = YoutubeUtil.get_lockup_vm_title_elem(elem);
+            this.filtering_channel_content_dir(elem,
+                                               elem_title,
+                                               channel_func,
+                                               channel_info);
         }, p_parent);
     }
     filtering_list_by_channel_id(elem, channel_code, channel_id, detach_func) {
@@ -301,7 +309,7 @@ class YoutubeFilter extends FilterBase {
         if (YoutubeUtil.cut_channel_id(author_url) != channel_code) {
             return true;
         }
-        const elem_title = $(elem).find(YoutubeUtil.get_lockup_vm_title_tag());
+        const elem_title = YoutubeUtil.get_lockup_vm_title_elem(elem);
         if (elem_title.length == 0) {
             return true;
         }
@@ -570,22 +578,25 @@ class YoutubeFilter extends FilterBase {
      */
     filtering_channel_private_contents_by_channel_id(channel_id) {
         const fl_func = (elem, tag_title, channel_func)=> {
+            fl_dir_func(elem, $(elem).find(tag_title), channel_func);
+        }
+        const fl_dir_func = (elem, elem_title, channel_func)=> {
             const renderer_root = YoutubeUtil.search_renderer_root($(elem));
             if (renderer_root.length == 0) {
-                return;
+                return false;
             }
             const elem_channel = channel_func(elem);
             const is_personal = (elem_channel == null || elem_channel.length == 0);
             if (!is_personal) {
-                return;
+                return false;
             }
-            const elem_title = $(elem).find(tag_title);
             const ret = YoutubeFilteringUtil.filtering_renderer_node_by_channel_id(
                         renderer_root,
                         channel_id,
                         $(elem_title).text(),
                         null,
                         this.storage);
+            return ret;
         };
         const channel_func = YoutubeUtil.get_channel_link_element;
         this.each_channel_videos((elem, tag_title)=> {
@@ -598,16 +609,17 @@ class YoutubeFilter extends FilterBase {
             fl_func(elem, tag_title, channel_func);
         });
         // 24年11月以降の構成に対応
-        const lvm_tag_title = YoutubeUtil.get_lockup_vm_title_tag();
         const lvm_channel_func = YoutubeUtil.get_list_channel_element;
         YoutubeFilteringUtil.each_grid_renderer((grid)=>{
             YoutubeFilteringUtil.each_lockup_view_model((elem)=> {
-                fl_func(elem, lvm_tag_title, lvm_channel_func);
+                const elem_title = YoutubeUtil.get_lockup_vm_title_elem(elem);
+                fl_dir_func(elem, elem_title, lvm_channel_func);
             }, grid);
         });
         YoutubeFilteringUtil.each_horizontal_list_renderer((horizontal)=>{
             YoutubeFilteringUtil.each_lockup_view_model((elem)=> {
-                fl_func(elem, lvm_tag_title, lvm_channel_func);
+                const elem_title = YoutubeUtil.get_lockup_vm_title_elem(elem);
+                fl_func(elem, elem_title, lvm_channel_func);
             }, horizontal);
         });        
 

@@ -176,9 +176,21 @@ class YoutubeUtil {
     static get_lockup_vm_title_tag() {
         return "a.yt-lockup-metadata-view-model-wiz__title";
     }
+    static get_lockup_vm_title_tag2() { /* 2025/08/28以降 */
+        return "a.yt-lockup-metadata-view-model__title";
+    }
     static get_lockup_vm_link_tag() {
         return "a.yt-lockup-view-model-wiz__content-image";
     }
+    static get_lockup_vm_link_tag2() { /* 2025/08/28以降 */
+        return "a.yt-lockup-view-model__content-image";
+    }    
+    static get_lockup_vm_metadata_tag() {
+        return "div.yt-content-metadata-view-model-wiz__metadata-row";
+    }
+    static get_lockup_vm_metadata_tag2() {/* 2025/08/28以降 */
+        return "div.yt-content-metadata-view-model__metadata-row";
+    }    
     static get_lockup_vm_channel_tag() {
         return "a.yt-core-attributed-string__link";
     }
@@ -293,16 +305,62 @@ class YoutubeUtil {
     }
 
     /*!
+     *  @note   25年07月以降の構成(lockup-view-model)用
+     */
+    static get_lockup_vm_metadata_elem(elem) {
+        const elem_rows = $(elem).find(YoutubeUtil.get_lockup_vm_metadata_tag2());
+        if (elem_rows.length > 0) {
+            return elem_rows;
+        } else {
+            return $(elem).find(YoutubeUtil.get_lockup_vm_metadata_tag());
+        }
+    }
+    /*!
+     *  @brief  動画linkノードを得る
+     *  @note   25年07月以降の構成(lockup-view-model)用
+     */
+    static get_lockup_vm_link_elem(elem) {
+        const elem_link = $(elem).find(YoutubeUtil.get_lockup_vm_link_tag2());
+        if (elem_link.length > 0) {
+            return elem_link;
+        } else {
+            return $(elem).find(YoutubeUtil.get_lockup_vm_link_tag());
+        }        
+    }
+    /*!
+     *  @brief  動画タイトルノードを得る
+     *  @note   25年07月以降の構成(lockup-view-model)用
+     */
+    static get_lockup_vm_title_elem(elem) {
+        const elem_title = $(elem).find(YoutubeUtil.get_lockup_vm_title_tag2());
+        if (elem_title.length > 0) {
+            return elem_title;
+        } else {
+            return $(elem).find(YoutubeUtil.get_lockup_vm_title_tag());
+        }
+    }
+    /*!
+     *  @brief  チャンネルノードを得る
+     *  @note   25年07月以降の構成(lockup-view-model)用
+     */    
+    static get_lockup_vm_channel_element(elem) {
+        const rows = YoutubeUtil.get_lockup_vm_metadata_elem(elem);
+        if (rows.length == 0) {
+            return null;
+        }
+        const elem_channel = $(rows[0]).find("span.yt-core-attributed-string");
+        if (elem_channel.length == 0) {
+            return null;
+        }
+        return $(elem_channel[0]);
+    }    
+    /*!
      *  @brief  チャンネル名を得る
      *  @note   25年07月以降の構成(lockup-view-model)用
      */
     static get_lockup_vm_channel_name(elem) {
-        const rows = $(elem).find("div.yt-content-metadata-view-model-wiz__metadata-row");
-        if (rows.length == 0) {
-            return "";
-        }
-        const elem_channel = $(rows[0]).find("span.yt-core-attributed-string");
-        if (elem_channel.length == 0) {
+        const elem_channel = YoutubeUtil.get_lockup_vm_channel_element(elem);
+        if (elem_channel == null) {
             return "";
         }
         const elem_link = $(elem_channel).find("a.yt-core-attributed-string__link");
@@ -318,7 +376,7 @@ class YoutubeUtil {
      *  @note   24年11月以降の構成対応
      */
     static get_list_channel_element(elem) {
-        const rows = $(elem).find("div.yt-content-metadata-view-model-wiz__metadata-row");
+        const rows = YoutubeUtil.get_lockup_vm_metadata_elem(elem);
         if (rows.length == 0) {
             return null;
         }
