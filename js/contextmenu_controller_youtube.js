@@ -174,12 +174,20 @@ class ContextMenuController_Youtube extends ContextMenuController {
      */
     get_base_node(loc, element) {
         const ret = { type:ContextMenuController.TYPE_NONE, base_node:{length:0}};
-        if (!loc.in_youtube_custom_channel_page() &&
-            !loc.in_youtube_sp_channel_page() &&
+        if (loc.in_youtube_handle_page()) {
+            if (loc.in_youtube_handle_playlists()) {
+                return ret;
+            }
+        } else 
+        if (loc.in_youtube_custom_channel_page() ||
+            loc.in_youtube_channel_page() ||
+            loc.in_youtube_user_page()) {
+            if (loc.in_youtube_channel_playlists()) {
+                return ret;
+            }
+        } else
+        if (!loc.in_youtube_sp_channel_page() &&
             !loc.in_youtube_channel_post() &&
-            !loc.in_youtube_channel_page() &&
-            !loc.in_youtube_handle_page() &&
-            !loc.in_youtube_user_page() &&
             !loc.in_youtube_search_page() &&
             !loc.in_youtube_short_page() &&
             !loc.in_youtube_movie_page() &&
