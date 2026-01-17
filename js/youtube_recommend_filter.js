@@ -400,6 +400,62 @@ class YoutubeRecommendFilter {
     }
 
     /*!
+     *  @brief  おすすめ動画フィルタ(全画面時ホイールスクロールで出てくる奴)
+     *  @nbote  26/01/17時点では動画終了時に出るおすすめも同形式
+     */
+    filtering_fullscreen_videowall() {
+        const root = $("div.ytp-fullscreen-grid-stills-container");
+        $(root).each((inx, rt)=> {
+            const tag = "a.ytp-modern-videowall-still";
+            $(rt).find(tag).each((inx, a_tag)=> {
+                const title = $(a_tag).attr("aria-label");
+                if (title == null) {
+                    return
+                }
+                if (this.storage.title_filter(title)) {
+                    $(a_tag).detach();
+                    return;
+                }
+                const link = $(a_tag).attr("href");
+                if (YoutubeUtil.is_list_link(link)) {
+                    const list_id = YoutubeUtil.get_playlist_hash_by_node($(a_tag));
+                    const channel_id = this.playlist_searcher.get_channel_id(list_id);
+                    if (this.storage.channel_id_filter(channel_id, title)) {
+                        $(a_tag).detach();
+                    }
+                } else {
+                    if (this.storage.is_mute_shorts() && YoutubeUtil.is_shorts(link)) {
+                        $(a_tag).detach();
+                        return;
+                    }
+                    const channel_tag = "span.ytp-modern-videowall-still-info-author";
+                    const elem_channel = $(a_tag).find(channel_tag);
+                    if (elem_channel.length == 0) {
+                        return;
+                    }
+                    const channel = $(elem_channel).text();
+                    if (this.storage.channel_filter(channel, title)) {
+                        $(a_tag).detach();
+                        return;
+                    }
+                    const video_id = YoutubeUtil.get_video_hash_by_link(link);
+                    const channel_id = this.video_info_accessor.get_channel_id(video_id);
+                    if (channel_id != null) {
+                        if (this.storage.channel_id_filter(channel_id, title)) {
+                            $(a_tag).detach();
+                        } else {
+                            YoutubeUtil.set_renderer_node_channel_id(a_tag, channel_id);
+                        }
+                    }
+                }
+                // note
+                // 動画終了時のおすすめ動画(a)は再生画面右に出るおすすめ動画(b)と
+                // 共通(a∋b)であるため、(b)フィルタ処理でchannel_id取得済み。
+                // (a)独自に取得要求を出す必要はない。                
+            });
+        });
+    }
+    /*!
      *  @brief  おすすめ動画フィルタ(動画終了時のやつ)
      */
     filtering_endscreen_video() {
