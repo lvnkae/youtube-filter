@@ -256,8 +256,10 @@ class YoutubeCommentFilter {
                 this.create_observer(tag_watch_1st, tag_item_sec);
                 this.create_observer(tag_watch_2nd, tag_item_sec);
             } else {
-                const tag_watch = "div#primary";
-                this.create_observer(tag_watch, tag_item_sec);
+                const tag_primary = "div#primary";
+                this.create_observer(tag_primary, tag_item_sec);
+                const tag_panels = "div#panels";
+                this.create_observer(tag_panels, tag_item_sec);
             }
         } else
         if (urlw.in_youtube_channel_post()) {

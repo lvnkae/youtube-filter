@@ -125,13 +125,6 @@ class urlWrapper {
                this.subdir[0].indexOf('results?') >= 0 &
                this.subdir[0].indexOf('search_query=') >= 0;
     }
-    in_youtube_trending()
-    {
-        return this.subdir.length >= 2 &&
-               this.subdir[0] == 'feed' &&
-               (this.subdir[1].slice(0, 8) == 'trending' ||
-                this.subdir[1] == 'explore');
-    }
     in_youtube_sports()
     {
         // 専用URLにしてほしい…

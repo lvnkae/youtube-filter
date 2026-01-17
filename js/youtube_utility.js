@@ -89,6 +89,9 @@ class YoutubeUtil {
         const sp_href = link.split("/");
         return sp_href[sp_href.length-1];
     }
+    static is_multi_channel(link) {
+        return link.indexOf("&pp=") > 0;
+    }
 
     /*!
      *  @brief  Youtube動画linkからハッシュを得る
@@ -286,6 +289,35 @@ class YoutubeUtil {
         let ch_node = YoutubeUtil.get_channel_name_element(elem);
         if (ch_node != null) {
             $(ch_node).text("");
+        }
+    }
+
+    static cut_channnel_moveword(text) {
+        const key_jp = /」に移動します$/u;
+        const key_us = /^Go to channel /;
+        const key_sw = /^Besök kanalen /;   /* 瑞 */
+        const key_br = /^Acessar o canal /; /* 伯 */
+        const key_tw = /^前往頻道：/u;      /* 繁 */
+        const key_de = /^Zu Kanal „/;       /* 独 */
+        if (text.search(key_jp) > 0) {
+            return text.replace(/^チャンネル「/u, '').replace(key_jp, '');
+        } else
+        if (text.search(key_us) == 0) {
+            return text.replace(key_us, '');
+        } else 
+        if (text.search(key_sw) == 0) {
+            return text.replace(key_sw, '');
+        } else 
+        if (text.search(key_br) == 0) {
+            return text.replace(key_br, '');
+        } else 
+        if (text.search(key_tw) == 0) {
+            return text.replace(key_tw, '');
+        } else 
+        if (text.search(key_de) == 0) {
+            return text.replace(key_de, '').replace(/“$/, '');
+        } else {
+            return "";
         }
     }
 
@@ -720,7 +752,8 @@ class YoutubeUtil {
         const disp_off_node_name = [
             "button.ytp-button.ytp-cards-button", // お知らせマーク
             "div.ytp-cards-teaser", // おすすめ動画表示
-            "div.ytp-player-content.ytp-iv-player-content" // チャンネル登録ボタン等
+            "div.ytp-player-content.ytp-iv-player-content", // チャンネル登録ボタン等
+            "div.annotation.annotation-type-custom.iv-branding", // 右下チャンネルアイコン
         ];
         for (const tag of disp_off_node_name) {
             $(tag).each((inx, an_node)=> {
@@ -781,14 +814,15 @@ class YoutubeUtil {
             '.image-wrapper.ytd-hero-playlist-thumbnail-renderer { border-radius: 0px; }' + NLC +
             '.player-container.ytd-reel-video-renderer { border-radius: 0px; }';
         $('head').append('<style>' + anti_border_radius_head + '</style>');
-        // www.player.cssの置き換え(headだと負ける)
+        // www-player.cssの置き換え(headだと負ける)
         const anti_border_radius_body =
             'ytd-video-preview:not([has-endorsement]) #inline-preview-player.ytp-rounded-inline-preview' +
             ',ytd-video-preview:not([has-endorsement]) #inline-preview-player.ytp-rounded-inline-preview' +
             ' .html5-main-video { border-radius: 0px; }' + NLC +
             '.ytp-ce-video.ytp-ce-large-round, .ytp-ce-playlist.ytp-ce-large-round, .ytp-ce-large-round' +
             '.ytp-ce-expanding-overlay-background { border-radius: 0px }' + NLC +
-            '.ytp-videowall-still-round-large .ytp-videowall-still-image { border-radius: 0px }'; /* thumb(endscreen 25/07) */
+            '.ytp-videowall-still-round-large .ytp-videowall-still-image { border-radius: 0px }' + NLC + /* thumb(endscreen 25/07) */
+            '.ytp-modern-videowall-still-image { border-radius: 0px }';
         $('body').append('<style>' + anti_border_radius_body + '</style>');
     }
 

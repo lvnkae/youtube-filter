@@ -38,6 +38,12 @@ class ContextMenuController_Youtube extends ContextMenuController {
         if (gr_ch_node.length != 0) {
             return $(gr_ch_node).text();
         }
+        // fullscreen-reccomend(26/01時点では動画終了画面おすすめ含む)例外
+        const fullscr_ch_tag = "span.ytp-modern-videowall-still-info-author";
+        const fullscr_ch_node = $(element).find(fullscr_ch_tag);
+        if (fullscr_ch_node.length != 0) {
+            return $(fullscr_ch_node).text();
+        }
         // endscreen-content(動画終了画面おすすめ動画)例外
         const edscr_ch_tag = "span.ytp-videowall-still-info-author";
         const edscr_ch_node = $(element).find(edscr_ch_tag);
@@ -96,6 +102,12 @@ class ContextMenuController_Youtube extends ContextMenuController {
         if (shorts_node.length != 0) {
             return shorts_node;
         }
+        // fullscreen-reccomend(26/01時点では動画終了画面おすすめ含む)例外
+        return HTMLUtil.search_upper_node($(element), (e)=> {
+            return e.localName == 'a' &&
+                   e.className != null &&
+                   e.className.indexOf('ytp-modern-videowall-still') >= 0;
+        });        
         // endscreen-content(動画終了画面おすすめ動画)例外
         return HTMLUtil.search_upper_node($(element), (e)=> {
             return e.localName == 'a' &&
@@ -191,7 +203,6 @@ class ContextMenuController_Youtube extends ContextMenuController {
             !loc.in_youtube_search_page() &&
             !loc.in_youtube_short_page() &&
             !loc.in_youtube_movie_page() &&
-            !loc.in_youtube_trending() &&
             !loc.in_youtube_hashtag() &&
             !loc.in_youtube_sports() &&
             !loc.in_top_page()) {
