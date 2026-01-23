@@ -37,6 +37,7 @@ class Background {
     initialize() {
         chrome.runtime.onMessage.addListener(
             (request, sender, sendResponse)=> {
+                sendResponse();
                 if (request.command == MessageUtil.command_get_video_json()) {
                     this.video_json_accessor.on_message(request, sender);
                 } else

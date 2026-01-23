@@ -7,6 +7,7 @@ class Content {
         // background用Listener
         chrome.runtime.onMessage.addListener(
             (request, sender, sendResponce)=> {
+                sendResponce();
                 if (request.command == MessageUtil.command_update_storage()) {
                     this.storage.load().then();
                 } else
@@ -87,7 +88,7 @@ class Content {
                 if (request.command == MessageUtil.command_reset_contextmenu()) {
                     this.filter_instance.reset_contextmenu();
                 }
-                return true;
+                return false;
             }
         );
     }
