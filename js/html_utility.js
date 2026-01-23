@@ -149,6 +149,32 @@ class HTMLUtil {
     }
 
     /*!
+     *  @brief  カーソル(caret)のrowとそこまでのtextを得る
+     *  @param  elem    textarea
+     */
+    static get_text_before_caret_and_row(elem) {
+        let ret = { row:0, text:""};
+        if (elem.length < 0) {
+            return ret;
+        }
+        let caret_pos = elem[0].selectionStart;
+        let t_len = 0;
+        const NLC = text_utility.new_line_code_lf();
+        const split_text = text_utility.split_by_new_line(elem.val());
+        for (const word of split_text) {
+            t_len += word.length + 1; // 1はsplit前改行
+            if (caret_pos < t_len) {
+                ret.text += word;
+                return ret;
+            } else {
+                ret.text += word + NLC;
+                ret.row++;
+            }
+        }
+        return ret;
+    }    
+
+    /*!
      *  @brief  elemのフォントサイズを得る
      *  @note   elem固有の指定がなければ根っこのcssを採用
      */
@@ -161,20 +187,6 @@ class HTMLUtil {
             = window.getComputedStyle(elem[0]).getPropertyValue('font-size');
         return parseFloat(font_size_str);
     }
-
-    /*!
-     *  @brief  elemの行間pxを得る
-     *  @note   elem固有の指定がなければ根っこのcssを採用
-     */
-    static get_line_height(elem) {
-        const line_height = elem[0].style.lineHeight;
-        if (line_height != "") {
-            return parseFloat(line_height);
-        }
-        const line_height_str
-            = window.getComputedStyle(elem[0]).getPropertyValue('line-height');
-        return parseFloat(line_height_str);
-    }        
 
     static get_selected_element(elements) {
         let ret_elem = null;

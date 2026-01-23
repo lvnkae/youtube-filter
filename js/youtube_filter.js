@@ -868,10 +868,10 @@ class YoutubeFilter extends FilterBase {
         this.recommend_filter.filtering_contents();
         this.recommend_filter.filtering_endscreen_video();
         this.recommend_filter.filtering_fullscreen_videowall();
-        const TAG_GRID_SLIM_MEDIA = YoutubeShortsFilter.TAG_GRID_SLIM_MEDIA();
-        this.shorts_filter.filtering_slim_videos(TAG_GRID_SLIM_MEDIA);
         const t_reel = YoutubeUtil.get_reel_shelf_header2_tag();
         this.shorts_filter.filtering_slim_videos2(t_reel);
+        const t_reel_login = YoutubeUtil.get_reel_shelf_header_tag();
+        this.shorts_filter.filtering_slim_videos2(t_reel_login);
     }
 
     /*!

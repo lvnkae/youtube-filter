@@ -14,6 +14,9 @@ class SettingBase {
         this.ex_channel_id_last = '';       // 最後に「非表示チャンネル詳細設定」画面を開いたチャンネル名
         this.ex_comment_user_buffer = [];   // 非表示コメント(ユーザ)詳細設定バッファ(各種フラグ)
         this.ex_comment_user_last = '';     // 最後に「非表示コメント(ユーザ)詳細設定」画面を開いたユーザ名
+        //
+        this.prev_textarea_name = null;     // 最後に疑似(div)カーソルを表示したtextareaの名前
+        this.prev_textarea_caret_row = -1;  // 最後に取得した擬似(div)カーソルの位置(row)
     }
 
     get_flag_enable_filter() { return true; }
@@ -99,13 +102,57 @@ class SettingBase {
             cursor().hide();
             return;
         }
+        // textareaと同じstyleのdivを用意し、実際にtextを流し込み
+        // ブラウザにrenderingさせることで正確なY座標を得る
+        // ※line-height*rowではズレる(丸め誤差)
+        let mirror = $("div#tbox_mirror");
+        if (mirror.length != 1) {
+            cursor().hide();
+            return;
+        } else
+        if (this.prev_textarea_name != t_elem.name) {
+            this.prev_textarea_name = t_elem.name
+            const style = window.getComputedStyle(t_elem);
+            const stylesToCopy = [
+                'fontFamily', 'fontSize', 'fontWeight', 'fontStyle',
+                'lineHeight', 'padding', 'border', 'boxSizing',
+                'whiteSpace', 'wordBreak', 'width'
+            ];
+            let mirror_div = mirror[0];
+            mirror_div.style.fontFamily = style.fontFamily;
+            mirror_div.style.fontSize = style.fontSize;
+            mirror_div.style.fontWeight = style.fontWeight;
+            mirror_div.style.fontStyle = style.fontStyle;
+            mirror_div.style.lineHeight = style.lineHeight;
+            mirror_div.style.padding = style.padding;
+            mirror_div.style.border = style.border;
+            mirror_div.style.boxSizing = style.boxSizing;
+            mirror_div.style.whiteSpace = style.whiteSpace;
+            mirror_div.style.wordBreak = style.wordBreak;
+            mirror_div.style.width = style.width;
+            mirror_div.style.position = 'absolute';
+            mirror_div.style.visibility = 'hidden';
+            mirror_div.style.overflow = 'hidden';
+            mirror_div.style.height = 'auto';            
+        }
+        let margin = -t_elem.scrollTop;
+        {
+            const r = HTMLUtil.get_text_before_caret_and_row(t);
+            if (r.row != this.prev_textarea_caret_row) {
+                this.prev_textarea_caret_row = r.row;
+                mirror.text(r.text);
+                const span = document.createElement('span');
+                span.textContent = '|';
+                mirror.append(span);
+                margin += span.offsetTop;
+            } else {
+                margin += $(mirror).find("span")[0].offsetTop;
+            }
+        }
+        //
         const font_size = parseInt(HTMLUtil.get_font_size(t));
-        const line_height = HTMLUtil.get_line_height(t);
-        const caret_row = HTMLUtil.get_caret_row(t);
-        const scroll = t_elem.scrollTop;
         const t_width = t_elem.clientWidth;
         const t_height = t_elem.clientHeight;
-        let margin = (caret_row)*(line_height)-scroll;
         let height = font_size+2;
         // スクロール対応
         // - 上下にはみ出た分縮める

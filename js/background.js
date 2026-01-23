@@ -19,6 +19,7 @@ class Background {
     initialize() {
         chrome.runtime.onMessage.addListener(
             (request, sender, sendResponse)=> {
+                sendResponse();
                 if (request.command == MessageUtil.command_get_video_json()) {
                     this.video_json_accessor.on_message(request, sender);
                 } else
@@ -41,7 +42,7 @@ class Background {
                     //console.log("health check:" + performance.now());
                 }
                 this.request_health_check();
-                return true;
+                return false;
             }
         );
         BGContextMenuController.add_listener();
