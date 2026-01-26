@@ -631,36 +631,10 @@ class YoutubeShortsFilter {
         if (st_container.length != 1) {
             return false;
         }
-        const sc_top = st_container[0].scrollTop;
-        const near = sc_top - reel.offsetTop;
-        if (near == 0) {
-            return true;
-        }
-        // すっぽ抜け対策
-        // 前後のreelよりscroll位置に近ければselectedとみなす
-        // ※念の為大幅(reel高以上)に離れてたら弾く
-        const near_abs = Math.abs(near);
-        if (near_abs > reel.offsetHeight) {
-            return false;
-        }
-        const id = $(reel).attr("id");
-        const prev_id = String(parseInt(id)-1);
-        const prev_reel = YoutubeShortsFilter.s_get_reel(prev_id);
-        if (prev_reel != null) {
-            const prev_near_abs = Math.abs(sc_top - prev_reel.offsetTop);
-            if (near_abs > prev_near_abs) {
-                return false;
-            }
-        }
-        const next_id = String(parseInt(id)+1);
-        const next_reel = YoutubeShortsFilter.s_get_reel(next_id);
-        if (next_reel != null) {
-            const next_near_abs = Math.abs(sc_top - next_reel.offsetTop);
-            if (near_abs > next_near_abs) {
-                return false;
-            }
-        }
-        return true;
+        const stc = st_container[0];
+        const diff = stc.scrollTop - (reel.offsetTop-stc.offsetTop);
+        // 完全一致判定だとfullscreen時にすっぽ抜ける
+        return Math.abs(diff) <= 16;
     }
     static is_no_author_reel(reel) {
         const slot = $(reel).find("ytd-ad-slot-renderer");
