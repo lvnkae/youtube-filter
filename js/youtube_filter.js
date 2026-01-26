@@ -37,8 +37,6 @@ class YoutubeFilter extends FilterBase {
             $(renderer_root).detach();
             return true;
         }
-        let channel = ''
-        let author_url = ''
         const url = $(elem_title).attr("href");
         if (url == null) {
             return false;
@@ -53,21 +51,17 @@ class YoutubeFilter extends FilterBase {
         if (elem_channel == null) {
             return false;
         }        
-        author_url = $(elem_channel).attr("href");
-        if (YoutubeUtil.is_multi_channel(url)) {
+        let channel = ''
+        let author_url = $(elem_channel).attr("href");
+        if (author_url == null) {
+            // urlがなかったらcollabo-chnnnel → thumbnailから取得
             const elem_thumb = $(elem).find("a#channel-thumbnail")
             channel = YoutubeUtil.cut_channnel_moveword($(elem_thumb).attr("aria-label"));
-            if (author_url == null) {
-                author_url = $(elem_thumb).attr("href");
-                $(elem_channel).text(channel);
-                $(elem_channel).attr("href", author_url);
-            }
+            author_url = $(elem_thumb).attr("href");
+            $(elem_channel).text(channel);
+            $(elem_channel).attr("href", author_url);
         } else {
             channel = $(elem_channel).text();
-            author_url = $(elem_channel).attr("href");
-        }
-        if (author_url == null) {
-            return false;
         }
         if (this.storage.channel_filter(channel, title)) {
             $(renderer_root).detach();

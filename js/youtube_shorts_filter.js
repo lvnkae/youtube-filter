@@ -469,6 +469,9 @@ class YoutubeShortsFilter {
             }
         }
     }
+    static is_collaboration_channel(author_url) {
+        return author_url.indexOf("javascript:void(0)") == 0;
+    }
 
     static detach_suggestion(elem, storage) {
         if (storage.is_remove_suggestion()) {
@@ -776,8 +779,21 @@ class YoutubeShortsFilter {
         }
 
         //
-        const channel_code = YoutubeUtil.cut_channel_id(author_url);
-        const channel = this.data_counter.get_channel_name(channel_code);
+        const b_collabo = YoutubeShortsFilter.is_collaboration_channel(author_url);
+        let channel = null;
+        let channel_id = null;
+        let video_id = null;
+        if (!b_collabo) {
+            const channel_code = YoutubeUtil.cut_channel_id(author_url);
+            channel = this.data_counter.get_channel_name(channel_code);
+        } else {
+            video_id = YoutubeShortsFilter.s_get_video_id_from_title(act_reel);
+            const channel_info = this.data_counter.get_channel_info(video_id);
+            if (channel_info != null) {
+                channel_id = channel_info.id;
+                channel = channel_info.name;
+            }
+        }
         if (channel != null) {
             if (this.storage.channel_filter(channel, title)) {
                 detach_func(act_reel);
@@ -792,9 +808,13 @@ class YoutubeShortsFilter {
                 YoutubeShortsFilter.set_channel_name(act_reel, channel);
             }
         }
-        const channel_id
-            = this.data_counter.get_channel_id_from_author_url_or_entry_request(
-                author_url);
+        if (!b_collabo) {
+            channel_id
+                = this.data_counter.get_channel_id_from_author_url_or_entry_request(
+                    author_url);
+        } else if (channel_id == null) {
+            channel_id = this.data_counter.entry_channel_id_request(video_id);
+        }
         if (!YoutubeFilteringUtil.filtering_renderer_node_by_channel_id(
             act_reel, channel_id, title, detach_func, this.storage)) {
             if (channel_id != null) {
@@ -1081,7 +1101,7 @@ class YoutubeShortsFilter {
     static STATE_MUTE_BUTTON_MUTED = 2;
     static STATE_MUTE_BUTTON_COMP = 3;
     static get_volume_button(reel) {
-        const vol_ctrl = $(reel).find("desktop-shorts-volume-controls");
+        const vol_ctrl = $(reel).find("volume-controls.ytdVolumeControlsHost");
         if (vol_ctrl.length == 0) {
             return null;
         }

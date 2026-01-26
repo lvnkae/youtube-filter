@@ -85,12 +85,14 @@ class YoutubeUtil {
         const sp_href_no_opt = sp_href[sp_href.length-1].split("&");
         return sp_href_no_opt[0];
     }
+    static cut_live_hash(link) {
+        const sp_href = link.split("/");
+        const sp_href_no_opt = sp_href[sp_href.length-1].split("?");
+        return sp_href_no_opt[0];
+    }
     static cut_short_movie_hash(link) {
         const sp_href = link.split("/");
         return sp_href[sp_href.length-1];
-    }
-    static is_multi_channel(link) {
-        return link.indexOf("&pp=") > 0;
     }
 
     /*!
@@ -100,6 +102,9 @@ class YoutubeUtil {
     static get_video_hash_by_link(link) {
         if (link.indexOf("watch?v=") >= 0) {
             return YoutubeUtil.cut_movie_hash(link);
+        } else
+        if (link.indexOf("/live/") >= 0) {
+            return YoutubeUtil.cut_live_hash(link);
         } else
         if (link.indexOf("/shorts/") >= 0) {
             return YoutubeUtil.cut_short_movie_hash(link);

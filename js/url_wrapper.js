@@ -65,7 +65,8 @@ class urlWrapper {
     in_youtube_movie_page()
     {
         return this.subdir.length >=1 &&
-               this.subdir[0].indexOf('watch?') >= 0;
+               (this.subdir[0].indexOf('watch?') >= 0 ||
+                this.subdir[0] == 'live');
     }
     in_youtube_playlist_page()
     {
