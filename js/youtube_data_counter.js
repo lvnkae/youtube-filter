@@ -66,6 +66,12 @@ class YoutubeDataCounter {
         }
     }
 
+    entry_channel_id_request(video_id) {
+        this.video_info_accessor.entry(video_id);
+    }
+    get_channel_info(video_id) {
+        return this.video_info_accessor.get_channel_info(video_id);
+    }    
     get_channel_name(channel_code) {
         return this.channel_info_accessor.get_channel_name(channel_code);
     }
