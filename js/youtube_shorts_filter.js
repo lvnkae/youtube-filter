@@ -654,7 +654,8 @@ class YoutubeShortsFilter {
         if (st_container.length != 1) {
             return false;
         }
-        const diff = st_container[0].scrollTop - reel.offsetTop;
+        const stc = st_container[0];
+        const diff = stc.scrollTop - (reel.offsetTop-stc.offsetTop);
         // 完全一致判定だとfullscreen時にすっぽ抜ける
         return Math.abs(diff) <= 16;
     }
@@ -664,11 +665,13 @@ class YoutubeShortsFilter {
     }
 
     static overwrite_width_of_active_reel_by_style() {
+        let ret = {ret:false, overwrite:false};
         const prev_reel_id = YoutubeShortsFilter.PREV_ACTIVE_REEL_ID;
         const prev_reel = YoutubeShortsFilter.s_get_reel(prev_reel_id);
         if (prev_reel == null) {
-            return false;
+            return ret;
         }
+        ret.ret = true;
         if (YoutubeShortsFilter.is_detached(prev_reel)) {
             const act_reel = YoutubeShortsFilter.s_get_active_reel();
             const add_style = "width:" + YoutubeShortsFilter.REEL_WIDTH + "px;";
@@ -676,8 +679,9 @@ class YoutubeShortsFilter {
             at_style = (at_style == null) ?add_style
                                           :at_style + ";" + add_style;
             $(act_reel).attr("style", at_style);
+            ret.overwrite = true;
         }
-        return true;
+        return ret;
     }
 
     static set_active_viewed_mark() {
@@ -735,8 +739,24 @@ class YoutubeShortsFilter {
                 this.req_overwrite_width = false;
                 YoutubeShortsFilter.clear_style_width(act_reel);
             } else if (this.req_overwrite_width) {
-                if (YoutubeShortsFilter.overwrite_width_of_active_reel_by_style()) {
+                const ret
+                    = YoutubeShortsFilter.overwrite_width_of_active_reel_by_style();
+                if (ret.ret) {
                     this.req_overwrite_width = false;
+                    if (ret.overwrite) {
+                        this.req_overwrite_bgimg = true;
+                    }
+                }
+            } else  if (this.req_overwrite_bgimg) {
+                const ovlc = $(act_reel).find("div#video-filtering-overlay-container");
+                if (ovlc.length > 0 && ovlc[0].offsetLeft > 0) {
+                    // bgがact_reelのwidth変更に影響されてしまうので
+                    // 変更反映後に書き戻す(video-thumbnailが正しい値を持ってる)
+                    const bgimg
+                        = $(act_reel).find("div.reel-video-in-sequence-thumbnail");
+                    $(bgimg).width($(ovlc).width());
+                    $(bgimg).offset({left:$(ovlc).offset().left});
+                    this.req_overwrite_bgimg = false;
                 }
             }
         }
@@ -1594,6 +1614,7 @@ class YoutubeShortsFilter {
         //
         this.b_force_act_zero = false;
         this.req_overwrite_width = false;
+        this.req_overwrite_bgimg = false;
         this.fullscreenchange = false;
         this.resize_window = false;
         // 特殊処理A(*1)用
