@@ -91,8 +91,8 @@ class TextUtil {
      */
     regexp_indexOf(src, dst) {
         if (src.length > 2) {
-            if (src.substring(0, 2) == "<>") {            
-                return this.regexp(src.slice(2), dst, false);
+            if (src.startsWith("<>")) {            
+                return this.regexp(src, dst, false, 2);
             }
         }
         return dst.indexOf(src) >= 0;
@@ -103,14 +103,27 @@ class TextUtil {
      *  @param  src         キー文字列(正規表現)
      *  @param  dst         調べる文字列
      *  @param  normalize   正規化(大/小文字区別なし)の有無
+     *  @param  src_start  src開始位置
      */
-    regexp(src, dst, normalize) {
+    regexp(src, dst, normalize, src_start=0) {
         // 絵文字対応のため
         // uオプション(サロゲートペアを1文字として扱う)
         // を有効にしておく
-        var flag = (normalize) ?"iu" :"u";
-        var ret = dst.search(RegExp(src, flag));
-        return ret >= 0;
+        const flag = (normalize) ?"iu" :"u";
+        let regex = this.regex.get(src);
+        if (regex == null) {
+            if (src_start > 0) {
+                regex = new RegExp(src.slice(src_start), flag);
+            } else {
+                regex = new RegExp(src, flag);
+            }
+            this.regex.set(src, regex);
+        }
+        return regex.test(dst);
+    }
+
+    constructor(){
+        this.regex = new Map();
     }
 }
 
