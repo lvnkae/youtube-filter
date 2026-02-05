@@ -16,6 +16,7 @@ class StorageData {
             chrome.storage.local.get((items) => {
                 if (this.filter_key() in items) {
                     this.json = JSON.parse(items[this.filter_key()]);
+                    this.ng_comment_by_id = new Set(this.json.ng_comment_by_id);
                     this.update_text();
                 } else {
                     this.clear();
@@ -50,6 +51,7 @@ class StorageData {
         this.json.ng_comment_by_word = [];      // コメントフィルタ(ワード)
         this.json.ng_comment_by_handle = [];    // コメントフィルタ(ハンドル)
 
+        this.ng_comment_by_id = new Set();
         this.clear_text_buffer();
     }
 
@@ -131,13 +133,11 @@ class StorageData {
     add_comment_id_mute_with_check(channel_id) {
         if (this.json.ng_comment_by_id == null) {
             this.json.ng_comment_by_id = [];
-        }
-        for (const ngci of this.json.ng_comment_by_id) {
-            if (ngci == channel_id) {
-                return false;
-            }
+        } else if (this.ng_comment_by_id.has(channel_id)) {
+            return false;
         }
         this.json.ng_comment_by_id.push(channel_id);
+        this.ng_comment_by_id.add(channel_id);
         return true;
     }
 
@@ -217,12 +217,8 @@ class StorageData {
     }
 
     comment_filter_by_id(id) {
-        if (this.json.ng_comment_by_id != null) {
-            for (const ngci of this.json.ng_comment_by_id) {
-                if (ngci == id) {
-                    return true;
-                }
-            }
+        if (this.ng_comment_by_id != null) {
+            return this.ng_comment_by_id.has(id);
         }
         return false;
     }

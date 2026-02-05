@@ -32,7 +32,7 @@ class HTMLUtil {
      *  @note   非表示(hidden, display none)は除外する
      */
     static find_first_appearing_element(start_elem, key) {
-        const elements = $(start_elem).find(key)
+        const elements = start_elem.querySelectorAll(key)
         for (var e of elements) {
             if (!HTMLUtil.in_disappearing(e)) {
                 return e;
@@ -40,6 +40,19 @@ class HTMLUtil {
         }
         return null
     }
+    /*!
+     *  @note   非表示判定をoffsetParentで行う高速版
+     *  @note   home/検索のchannel名ノード取得には使えない
+     */
+    static find_first_appearing_element_fast(start_elem, key) {
+        const elements = start_elem.querySelectorAll(key)
+        for (var e of elements) {
+            if (e.offsetParent != null) {
+                return e;
+            }
+        }
+        return null
+    }    
 
     static is_visible(e) {
         return $(e).is(":visible");
@@ -90,6 +103,15 @@ class HTMLUtil {
         }
         return {length:0};
     }
+    static search_upper_node2(elem, func) {
+        while(elem != null) {
+            if (func(elem)) {
+                return elem;
+            }
+            elem = elem.parentNode;
+        }
+        return null;
+    }    
 
     static detach_upper_node(elem, tag) {
         const check_tag = function(e) {
@@ -109,6 +131,13 @@ class HTMLUtil {
         }
         $(dt_node).detach();
     }
+    static detach_lower_node2(elem, tag) {
+        const dt_node = elem.querySelector(tag);
+        if (dt_node == null) {
+            return;
+        }
+        dt_node.remove();
+    }    
 
     static detach_children_all(elem) {
         const len = elem.children.length;

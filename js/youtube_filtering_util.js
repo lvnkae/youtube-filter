@@ -60,10 +60,11 @@ class YoutubeFilteringUtil {
     }
     /*!
      *  @brief  おすすめ>動画ごとの処理
+     *  @note   25年07月までの構成用
      */
     static each_recommend_videos(e_parent, func) {
         const tag_link = "a.yt-simple-endpoint.style-scope.ytd-compact-video-renderer";
-        $(e_parent).find(tag_link).each((inx, elem)=> {
+        e_parent.querySelectorAll(tag_link).forEach((elem)=> {
             func(elem);
         });
     }
@@ -74,7 +75,7 @@ class YoutubeFilteringUtil {
     static each_recommend_playlists(e_parent, func) {
         const tag_link
             = "a.yt-simple-endpoint.style-scope.ytd-compact-playlist-renderer";
-        $(e_parent).find(tag_link).each((inx, elem)=> {
+        e_parent.querySelectorAll(tag_link).forEach((elem)=> {
             func(elem);
         });
     }
@@ -107,11 +108,11 @@ class YoutubeFilteringUtil {
      */
     static each_lockup_view_model(func, p_parent) {
         if (p_parent != null) {
-            $(p_parent).find("yt-lockup-view-model").each((inx, elem)=> {
+            p_parent.querySelectorAll("yt-lockup-view-model").forEach((elem)=> {
                 return func(elem);
             });
         } else {
-            $("yt-lockup-view-model").each((inx, elem)=> {
+            document.querySelectorAll("yt-lockup-view-model").forEach((elem)=> {
                 return func(elem);
             });
         }

@@ -132,12 +132,12 @@ class YoutubeShortsFilter {
     /*!
      *  @note   Ver2/24年8月末頃の構成変更対応版
      */
-    static search_renderer_root2(elem) {
-        const renderer_root = YoutubeUtil.search_renderer_root($(elem));
-        if (renderer_root.length > 0) {
+    static search_renderer_root(elem) {
+        const renderer_root = YoutubeUtil.search_renderer_root(elem);
+        if (renderer_root != null) {
             return renderer_root;
         }
-        return YoutubeUtil.search_shorts_renderer_root($(elem));
+        return YoutubeUtil.search_shorts_renderer_root(elem);
     }
 
     /*!
@@ -225,8 +225,8 @@ class YoutubeShortsFilter {
             }
             YoutubeUtil.remove_filtered_marker(elem);
             //    
-            const renderer_root = YoutubeShortsFilter.search_renderer_root2(elem);
-            if (renderer_root.length == 0) {
+            const renderer_root = YoutubeShortsFilter.search_renderer_root(elem);
+            if (renderer_root == null) {
                 return;
             }
             YoutubeUtil.remove_channel_name(renderer_root);
@@ -269,8 +269,8 @@ class YoutubeShortsFilter {
             if (hash != video_id) {
                 return true;
             }
-            const renderer_root = YoutubeShortsFilter.search_renderer_root2(elem);
-            if (renderer_root.length > 0) {
+            const renderer_root = YoutubeShortsFilter.search_renderer_root(elem);
+            if (renderer_root != null) {
                 const title = $(elem_title).text();
                 const dc = this.data_counter;
                 dc.filtering_renderer_node_by_channel_info_or_entry_request(

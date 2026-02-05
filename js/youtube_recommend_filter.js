@@ -16,8 +16,8 @@ class YoutubeRecommendFilter {
     }
 
     call_contents_filter(fl_func) {
-        const e_parent = $("div#related.style-scope.ytd-watch-flexy");
-        if (e_parent.length > 0) {
+        const e_parent = document.querySelector("div#related.style-scope.ytd-watch-flexy");
+        if (e_parent != null) {
             fl_func(e_parent);
         }
         YoutubeUtil.remove_spiner_renderer(e_parent);
@@ -29,24 +29,24 @@ class YoutubeRecommendFilter {
      */
     filtering_video(elem) {
         const detach_func = this.func_detach_lower_node;
-        const renderer_root = YoutubeUtil.search_renderer_root($(elem));
-        if (renderer_root.length == 0) {
+        const renderer_root = YoutubeUtil.search_renderer_root(elem);
+        if (renderer_root == null) {
             return;
         }
         YoutubeUtil.remove_renderer_node_channel_id(renderer_root);
         //
-        const elem_title = $(elem).find("span#video-title");
-        if (elem_title.length == 0) {
+        const elem_title = elem.querySelector("span#video-title");
+        if (elem_title == null) {
             return;
         }
         const title
-            = text_utility.remove_blank_line_and_head_space($(elem_title).text());
+            = text_utility.remove_blank_line_and_head_space(elem_title.textContent);
         const channel = YoutubeUtil.get_channel_name(elem);
         if (this.storage.channel_and_title_filter(channel, title)) {
             detach_func(renderer_root);
             return;
         }
-        const url = $(elem).attr("href");
+        const url = elem.href;
         if (this.storage.is_mute_shorts() && YoutubeUtil.is_shorts(url)) {
             detach_func(renderer_root);
             return;
@@ -69,8 +69,8 @@ class YoutubeRecommendFilter {
      */
     filtering_playlist(elem) {
         const detach_func = this.func_detach_lower_node;
-        const renderer_root = YoutubeUtil.search_renderer_root($(elem));
-        if (renderer_root.length == 0) {
+        const renderer_root = YoutubeUtil.search_renderer_root(elem);
+        if (renderer_root == null) {
             return;
         }
         YoutubeUtil.remove_renderer_node_channel_id(renderer_root);
@@ -105,9 +105,9 @@ class YoutubeRecommendFilter {
     filtering_radios(e_parent) {
         const tag_link
             = "a.yt-simple-endpoint.style-scope.ytd-compact-radio-renderer";
-        $(e_parent).find(tag_link).each((inx, elem)=> {
-            const renderer_root = YoutubeUtil.search_renderer_root($(elem));
-            if (renderer_root.length == 0) {
+        e_parent.querySelectorAll(tag_link).forEach((elem)=> {
+            const renderer_root = YoutubeUtil.search_renderer_root(elem);
+            if (renderer_root == null) {
                 return;
             }
             const elem_title = $(elem).find("span#video-title");
@@ -128,21 +128,21 @@ class YoutubeRecommendFilter {
      */
     filtering_content(elem) {
         const detach_func = YoutubeFilteringUtil.detach_lower_lockup_vm_node;
-        const renderer_root = YoutubeUtil.search_renderer_root($(elem));
-        if (renderer_root.length == 0) {
+        const renderer_root = YoutubeUtil.search_renderer_root(elem);
+        if (renderer_root == null) {
             return false;
         }
         YoutubeUtil.remove_renderer_node_channel_id(renderer_root);
         //
         const elem_title = YoutubeUtil.get_lockup_vm_title_elem(elem);
         const elem_link = YoutubeUtil.get_lockup_vm_link_elem(elem);
-        if (elem_title.length != 1 || elem_link.length != 1) {
+        if (elem_title == null || elem_link == null) {
             return false;
         }
         let channel_id = null;
         const title
-            = text_utility.remove_blank_line_and_head_space($(elem_title).text());
-        const url = $(elem_link).attr("href");
+            = text_utility.remove_blank_line_and_head_space(elem_title.textContent);
+        const url = elem_link.href;
         if (YoutubeUtil.is_mixlist_link(url)) {
             // MIXリスト
             if (this.storage.title_filter(title)) {
@@ -176,7 +176,7 @@ class YoutubeRecommendFilter {
             if (elem_channel == null) {
                 return false;
             }
-            const channel = $(elem_channel).text();
+            const channel = elem_channel.textContent;
             if (this.storage.channel_and_title_filter(channel, title)) {
                 detach_func(renderer_root);
                 return true;
@@ -227,8 +227,8 @@ class YoutubeRecommendFilter {
         if (content_id != get_func($(elem))) {
             return;
         }
-        const renderer_root = YoutubeUtil.search_renderer_root($(elem));
-        if (renderer_root.length == 0) {
+        const renderer_root = YoutubeUtil.search_renderer_root(elem);
+        if (renderer_root == null) {
             return;
         }
         const title_tag = "span#video-title";
@@ -253,15 +253,15 @@ class YoutubeRecommendFilter {
      *  @note   25年07月以降の構成(lockup-view-model)に対応
      */
     filtering_content_lvm_by_channel_id(elem, content_id, channel_id) {
-        const renderer_root = YoutubeUtil.search_renderer_root($(elem));
-        if (renderer_root.length == 0) {
+        const renderer_root = YoutubeUtil.search_renderer_root(elem);
+        if (renderer_root == null) {
             return;
         }
         const elem_link = YoutubeUtil.get_lockup_vm_link_elem(elem);
-        if (elem_link.length == 0) {
+        if (elem_link == null) {
             return;
         }
-        const url = $(elem_link).attr("href");
+        const url = elem_link.href;
         if (YoutubeUtil.is_mixlist_link(url)) {
             return;
         } else
@@ -275,11 +275,11 @@ class YoutubeRecommendFilter {
             }
         }
         const elem_title = YoutubeUtil.get_lockup_vm_title_elem(elem);
-        if (elem_title.length == 0) {
+        if (elem_title == null) {
             return;
         }
         const title
-            = text_utility.remove_blank_line_and_head_space($(elem_title).text());
+            = text_utility.remove_blank_line_and_head_space(elem_title.textContent);
         if (this.storage.channel_id_filter(channel_id, title)) {
             YoutubeFilteringUtil.detach_lower_lockup_vm_node(renderer_root);
         } else {
@@ -369,8 +369,8 @@ class YoutubeRecommendFilter {
                                              tag_title,
                                              tag_thumbnail,
                                              tag_channel)=> {
-            const renderer_root = YoutubeUtil.search_renderer_root($(elem));
-            if (renderer_root.length == 0) {
+            const renderer_root = YoutubeUtil.search_renderer_root(elem[0]);
+            if (renderer_root == null) {
                 return;
             }
             const elem_channel

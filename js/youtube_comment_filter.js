@@ -16,11 +16,7 @@ class YoutubeCommentFilter {
     }
 
     get_content_text_node(elem) {
-        const e = $(elem).find("yt-formatted-string#content-text");
-        if (e.length > 0) {
-            return e;
-        }
-        return $(elem).find("yt-attributed-string#content-text");
+        return elem.querySelector("yt-attributed-string#content-text");
     }
 
     /*!
@@ -30,25 +26,34 @@ class YoutubeCommentFilter {
         const author_tag
             = "a#author-text.yt-simple-endpoint.style-scope";
         let ret = {};
-        const elem_author = $(elem).find(author_tag);
-        if (elem_author.length != 1) {
+        if (elem == null) {
+            return ret;
+        }
+        const elem_author = elem.querySelector(author_tag);
+        if (elem_author == null) {
             return ret;
         }
         const elem_comment = this.get_content_text_node(elem);
-        if (elem_comment.length != 1) {
+        if (elem_comment == null) {
             return ret;
         }
-        const author_url = $(elem_author).attr("href");
+        const author_url = elem_author.href;
         if (author_url == null) {
             return ret;
         }
         let handle = null;
         let userid = null;
-        if (YoutubeUtil.is_handle_channel_url(author_url)) {
-            handle = YoutubeUtil.cut_channel_id(author_url);
+        const author = YoutubeUtil.cut_channel_author(author_url);
+        if (author == null) {
+            return ret;
+        }
+        if (author[1] === '@') {
+            handle = author[0];
             userid = this.channel_info_accessor.get_channel_id(handle);
+        } else if (author[1] === 'channel/') {
+            userid = author[2];
         } else {
-            userid = YoutubeUtil.cut_channel_id(author_url);
+            return ret;
         }
         const comment_info = YoutubeUtil.get_comment(elem_comment);
         if (comment_info.reply_id != null) {
@@ -71,7 +76,7 @@ class YoutubeCommentFilter {
             ret = this.storage.comment_filter_without_id(handle, comment_info.comment);
             if (!ret.result) {
                 this.channel_info_accessor.entry(handle);
-                this.inq_comment_list[handle] = null;
+                this.inq_comment_list.add(handle);
             }
         }
         return ret;
@@ -144,29 +149,27 @@ class YoutubeCommentFilter {
      */
     filtering() {
         let candidate_of_additional_ng_id = [];
-        const comments_root_grp = $("ytd-comments");
         const tag_comment = "ytd-comment-thread-renderer";
         const tag_elem = "div#main";
-        for (const comments_root of comments_root_grp) {
-            this.call_filtering(comments_root, tag_comment, (comment_root)=> {
-                const elem
-                    = HTMLUtil.find_first_appearing_element(comment_root, tag_elem);
-                const ret = this.filtering_unit(elem);
-                if (ret.result) {
-                    // reply群を先に削除
-                    const tag_replies = "div#replies";
-                    HTMLUtil.detach_lower_node(comment_root, tag_replies);
-                    // スクロールによる追加読み込みが効かなくなるのでrootはdetachしない
-                    const comment_body = $(elem).parent().parent();
-                    $(comment_body).detach();
-                    if (ret.add_ng_id) {
-                        candidate_of_additional_ng_id.push(ret.userid);
-                    }
-                } else {
-                    this.filtering_replies(comment_root);
+        const comments = document.querySelectorAll(tag_comment);
+        comments.forEach(comment_root=> {
+            const elem
+                = HTMLUtil.find_first_appearing_element_fast(comment_root, tag_elem);
+            const ret = this.filtering_unit(elem);
+            if (ret.result) {
+                // reply群を先に削除
+                const tag_replies = "div#replies";
+                HTMLUtil.detach_lower_node2(comment_root, tag_replies);
+                // スクロールによる追加読み込みが効かなくなるのでrootはdetachしない
+                const comment_body = elem.parentNode.parentNode;
+                comment_body.remove();
+                if (ret.add_ng_id) {
+                    candidate_of_additional_ng_id.push(ret.userid);
                 }
-            });
-        }
+            } else {
+                this.filtering_replies(comment_root);
+            }
+        });
         this.add_ng_id_to_storage(candidate_of_additional_ng_id);
     }
 
@@ -271,7 +274,7 @@ class YoutubeCommentFilter {
     }
 
     tell_get_channel_id(unique_name, channel_id) {
-        if (unique_name in this.inq_comment_list) {
+        if (this.inq_comment_list.has(unique_name)) {
             this.filtering();
         }
     }
@@ -284,6 +287,6 @@ class YoutubeCommentFilter {
         this.storage = storage;
         this.renderer_observer = [];
         this.channel_info_accessor = channel_info_accessor;
-        this.inq_comment_list = [];
+        this.inq_comment_list = new Set();
     }
 }
