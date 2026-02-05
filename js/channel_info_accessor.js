@@ -67,14 +67,15 @@ class ChannelInfoAccessor {
      *  @param  unique_name カスタムチャンネル名/ハンドル
      *  @param  html        チャンネル情報(html)
      *  @param  post_func   後処理
+     *  @note   channel_nameが存在しない事が稀にある→handle入れとく
      */
     tell_get_html(unique_name, html, post_func) {
-        const name_match = html.match(/<meta itemprop="name" content="([^"]+)">/i);
+        const name_match = html.match(/"pageTitle":"([^"]+)"/i);
         const id_match = html.match(/"(?:channelId|browseId)":"(UC[a-zA-Z0-9_-]{22})"/i);
         if (unique_name in this.channel_info_map) {
             var obj = this.channel_info_map[unique_name];
-            obj.channel_id = id_match ?id_match[1] :null;
-            obj.channel_name = name_match ?name_match[1] :null;
+            obj.channel_id = (id_match != null) ?id_match[1] :null;
+            obj.channel_name = (name_match != null) ?name_match[1] :unique_name;
             obj.busy = false;
             post_func(obj);
         }

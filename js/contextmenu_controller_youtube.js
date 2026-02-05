@@ -8,12 +8,12 @@ class ContextMenuController_Youtube extends ContextMenuController {
 
     static get_channel_text(element) {
         // 動画/チャンネル/プレイリスト
-        const ch_name = YoutubeUtil.get_channel_name(element);
+        const ch_name = YoutubeUtil.get_channel_name(element[0]);
         if (ch_name != "") {
             return ch_name;
         }
         // 動画/チャンネル/プレイリスト(25年07月以降/lockup-view-model)
-        const lvm_ch_name = YoutubeUtil.get_lockup_vm_channel_name(element);
+        const lvm_ch_name = YoutubeUtil.get_lockup_vm_channel_name(element[0]);
         if (lvm_ch_name != "") {
             return lvm_ch_name;
         }
@@ -23,9 +23,9 @@ class ContextMenuController_Youtube extends ContextMenuController {
             return srch_name;
         }
         // プレイリスト(24年11月以降)
-        const pl_channel = YoutubeUtil.get_list_channel_element(element);
-        if (pl_channel != null && pl_channel.length > 0) {
-            return $(pl_channel[0]).text();
+        const pl_channel = YoutubeUtil.get_list_channel_element(element[0]);
+        if (pl_channel != null) {
+            return pl_channel.textContent;
         }
         // shorts(チャンネル名なし)例外
         const sch_name = $(element).attr("channel_name");
@@ -93,14 +93,14 @@ class ContextMenuController_Youtube extends ContextMenuController {
                 return short_reel;
             }
         }
-        const chid_node = YoutubeUtil.search_renderer_root($(element));
-        if (chid_node.length != 0) {
-            return chid_node;
+        const chid_node = YoutubeUtil.search_renderer_root(element);
+        if (chid_node != null) {
+            return $(chid_node);
         }
         // shorts(チャンネル名なし/検索結果画面)例外
-        const shorts_node = YoutubeUtil.search_shorts_renderer_root($(element));
-        if (shorts_node.length != 0) {
-            return shorts_node;
+        const shorts_node = YoutubeUtil.search_shorts_renderer_root(element);
+        if (shorts_node != null) {
+            return $(shorts_node);
         }
         // fullscreen-reccomend(26/01時点では動画終了画面おすすめ含む)例外
         return HTMLUtil.search_upper_node($(element), (e)=> {
@@ -149,6 +149,9 @@ class ContextMenuController_Youtube extends ContextMenuController {
             channel_id = unique_name;
         }
         if (channel_id == null) {
+            return false;
+        }
+        if (channel == null) {
             return false;
         }
         const channel_st = channel.slice(0, max_disp_channel-1);
