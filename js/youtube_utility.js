@@ -166,8 +166,8 @@ class YoutubeUtil {
      *  @param  nd_hash ハッシュ取得ノード
      */
     static get_video_hash_by_node(nd_hash) {
-        if (nd_hash.length > 0) {
-            const link = $(nd_hash).attr("href");
+        if (nd_hash != null) {
+            const link = nd_hash.href;
             return YoutubeUtil.get_video_hash_by_link(link);
         }
         return "";
@@ -178,7 +178,7 @@ class YoutubeUtil {
      *  @param  tag     ハッシュ取得タグ
      */
     static get_video_hash(elem, tag) {
-        return YoutubeUtil.get_video_hash_by_node($(elem).find(tag));
+        return YoutubeUtil.get_video_hash_by_node(elem.querySelector(tag));
     }
 
     /*!
@@ -204,8 +204,8 @@ class YoutubeUtil {
         return hash;
     }
     static get_playlist_hash_by_node(nd_hash) {
-        if (nd_hash.length > 0) {
-            const link = $(nd_hash).attr("href");
+        if (nd_hash != null) {
+            const link = nd_hash.href;
             return YoutubeUtil.get_playlist_hash(link);
         } else {
             return "";
@@ -329,7 +329,7 @@ class YoutubeUtil {
     static set_channel_name(elem, channel_name) {
         let ch_node = YoutubeUtil.get_channel_name_element(elem);
         if (ch_node != null) {
-            $(ch_node).text(channel_name);
+            ch_node.textContent = channel_name;
             return true;
         } else {
             return false;
@@ -342,7 +342,7 @@ class YoutubeUtil {
     static remove_channel_name(elem) {
         let ch_node = YoutubeUtil.get_channel_name_element(elem);
         if (ch_node != null) {
-            $(ch_node).text("");
+            ch_node.textContent = '';
         }
     }
 
@@ -919,17 +919,9 @@ class YoutubeUtil {
     }
 
     static set_renderer_node_channel_id(element, channel_id) {
-        $(element).attr("channel_id", channel_id);
+        element.setAttribute("channel_id", channel_id);
     }
     static remove_renderer_node_channel_id(element) {
-        $(element).removeAttr("channel_id");
-    }
-    static debug_output_channel_id(element) {
-        const channel_id = $(element).attr("channel_id")
-        if (channel_id != null) {
-            console.log("ch = " + channel_id);
-        } else {
-            console.log("ch = null");
-        }
+        element.removeAttribute("channel_id");
     }
 }
