@@ -4,14 +4,26 @@
 const ATTR_STATE = "state";
 class YoutubeFilteringUtil {
 
+    static set_state(renderer_node, state) {
+        renderer_node.setAttribute(ATTR_STATE, state);
+    }
+    static get_state(renderer_node) {
+        return renderer_node.getAttribute(ATTR_STATE);
+    }
+    static remove_state(renderer_node) {
+        renderer_node.removeAttribute(ATTR_STATE);
+    }
+    static STATE_WAIT = "wait";
     static set_wait(renderer_node) {
-        renderer_node.setAttribute(ATTR_STATE, "wait");
+        renderer_node.setAttribute(ATTR_STATE, YoutubeFilteringUtil.STATE_WAIT);
     }
+    static STATE_COMPLETE = "complete";
     static completed(renderer_node) {
-        renderer_node.setAttribute(ATTR_STATE, "complete");
+        renderer_node.setAttribute(ATTR_STATE, YoutubeFilteringUtil.STATE_COMPLETE);
     }
+    static STATE_REMOVE = "remove";
     static removed(renderer_node) {
-        renderer_node.setAttribute(ATTR_STATE, "remove");
+        renderer_node.setAttribute(ATTR_STATE, YoutubeFilteringUtil.STATE_REMOVE);
     }
 
     /*!

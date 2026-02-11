@@ -412,6 +412,7 @@ class YoutubeRecommendFilter {
         root.forEach(rt=> {
             const tag_a = "a.ytp-modern-videowall-still:not([state])";
             const func_remove = (elem)=> {
+                // 削除すると定期的に再生成されるのでhiddenで回避
                 elem.hidden = true;
                 YoutubeFilteringUtil.removed(elem);
             };

@@ -859,7 +859,7 @@ class YoutubeUtil {
             if (e.localName == null ) {
                 return false;
             }
-            const ln = e.localName.valueOf();
+            const ln = e.localName;
             return ln === 'ytd-video-renderer' ||
                    ln === 'ytd-channel-renderer' ||
                    ln === 'ytd-radio-renderer' ||
@@ -879,17 +879,17 @@ class YoutubeUtil {
                    ln === 'ytd-compact-playlist-renderer' ||
                    ln === 'yt-lockup-view-model';
         };
-        return HTMLUtil.search_upper_node2(elem, is_root);
+        return HTMLUtil.search_parent_node(elem, is_root);
     }
     static search_shorts_renderer_root(elem) {
         const is_root = function(e) {
             if (e.localName == null ) {
                 return false;
             }
-            const ln = e.localName.valueOf();
+            const ln = e.localName;
             return ln == 'ytm-shorts-lockup-view-model-v2';
         };
-        return HTMLUtil.search_upper_node2(elem, is_root);
+        return HTMLUtil.search_parent_node(elem, is_root);
     }
 
     static search_preview_node(elem) {

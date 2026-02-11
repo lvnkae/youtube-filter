@@ -103,7 +103,7 @@ class HTMLUtil {
         }
         return {length:0};
     }
-    static search_upper_node2(elem, func) {
+    static search_parent_node(elem, func) {
         while(elem != null) {
             if (func(elem)) {
                 return elem;
@@ -137,7 +137,18 @@ class HTMLUtil {
             return;
         }
         dt_node.remove();
-    }    
+    }
+
+    static search_children(e_parent, func) {
+        let e_ret = null;
+        for (const e of e_parent.children) {
+            if (func(e)) {
+                e_ret = e;
+                break;
+            }
+        }
+        return e_ret;
+    }
 
     static detach_children_all(elem) {
         const len = elem.children.length;
@@ -146,6 +157,13 @@ class HTMLUtil {
             $(elem.children[0]).detach();
         }
     }
+    static remove_children_all(elem) {
+        const len = elem.children.length;
+        for (let inx = 0; inx < len; inx++) {
+            // childrenは減っていく
+            elem.children[0].remove();
+        }
+    }    
 
     /*!
      *  @brief  urlからqueryパラメータをカットする
