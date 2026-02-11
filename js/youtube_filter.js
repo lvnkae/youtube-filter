@@ -861,7 +861,7 @@ class YoutubeFilter extends FilterBase {
     }
 
     filtering_comments() {
-        this.comment_filter.filtering();
+        this.comment_filter.refiltering();
     }
 
     /*!
@@ -1199,7 +1199,7 @@ class YoutubeFilter extends FilterBase {
         }        
         this.post_filtering_by_unique_name(obj.unique_name, obj.channel_id);
         //
-        this.comment_filter.tell_get_channel_id(obj.unique_name, obj.channel_id);
+        this.comment_filter.tell_get_channel_id(obj.unique_name);
     }
     /*!
      *  @brief  チャンネル情報(html)取得完了通知
@@ -1479,10 +1479,11 @@ class YoutubeFilter extends FilterBase {
             }
         }
         if (to_urlw.in_youtube_short_page())  {
-            // ※shortsページ
+            // shortsページ
             if (!prev_urlw.in_youtube_short_page()) {
                 this.shorts_filter.open();
             } else {
+                this.comment_filter.remove_comments_state();
                 this.shorts_filter.turn();
             }
             // elem監視だけだとすっぽ抜けるのでtimerでサポートする
@@ -1518,6 +1519,7 @@ class YoutubeFilter extends FilterBase {
             }
         } else {
             if (prev_urlw.in_youtube_short_page()) {
+                this.comment_filter.remove_comments_state();
                 this.shorts_filter.player_finalize();
                 this.shorts_filter.close();
             }
