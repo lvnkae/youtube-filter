@@ -13,6 +13,7 @@ function cut_collabo_channel(text) {
         return "";
     }
 }
+const ATTR_CLICKED = "clicked";
 class YoutubeUtil {
 
     static is_channel_url(author_url) {
@@ -48,6 +49,13 @@ class YoutubeUtil {
     }
     static is_mixlist_link(link) {
         return link.indexOf("&start_radio") >= 0;
+    }
+
+    static is_handle_author(author) {
+        return author[1] === '@';
+    }
+    static is_channel_id_author(author) {
+        return author[1] === 'channel/';
     }
 
     /*!
@@ -90,10 +98,10 @@ class YoutubeUtil {
     }
     /*!
      *  @brief  Youtubeチャンネルリンクから主を切り出す
-     *  @retval ret[0] @ / ret[1] handle
-     *  @retval ret[0] c / ret[1] custom-channel
-     *  @retval ret[0] user / ret[1] username
-     *  @retval ret[0] channel / ret[1] channel-id
+     *  @retval ret[1] '@'          / ret[0] handle
+     *  @retval ret[0] 'c/'         / ret[2] custom-channel
+     *  @retval ret[0] 'user/'      / ret[2] username
+     *  @retval ret[1] 'channel/'   / ret[2] channel-id
      *  @note   正規表現高速化版
      */
     static cut_channel_author(channel_href) {
@@ -104,7 +112,7 @@ class YoutubeUtil {
         if (author == null) {
             return null;
         }
-        if (author[1] === '@') {
+        if (YoutubeUtil.is_handle_author(author)) {
             return author[0];
         } else {
             return author[2];
@@ -265,24 +273,28 @@ class YoutubeUtil {
      *  @brief  ページチャンネル名を得る
      */
     static get_page_channel_name() {
-        const e_channel_name
-            = $("div#channel-header").find(YoutubeUtil.get_channel_name_tag());
-        if (e_channel_name.length > 0) {
-            return $(e_channel_name).text();
+        const e_channel_header = document.querySelector("div#channel-header");
+        if (e_channel_header != null) {
+            const e_channel_name =
+                e_channel_header.querySelector(YoutubeUtil.get_channel_name_tag());
+            if (e_channel_name != null) {
+                return e_channel_name.textContent;
+            }
         }
         const tag_topic_name = YoutubeUtil.get_channel_topic_tag();
-        const e_channel_topic = $(tag_topic_name);
-        if (e_channel_topic.length > 0) {
-            return $(e_channel_topic).text();
+        const e_channel_topic = document.querySelector(tag_topic_name);
+        if (e_channel_topic != null) {
+            return e_channel_topic.textContent;
         }
-        const e_channel_sp
-            = HTMLUtil.find_first_visible_element($(YoutubeUtil.get_channel_sp_tag()));
+        const e_channel_sp_grp
+            = document.querySelectorAll(YoutubeUtil.get_channel_sp_tag());
+        const e_channel_sp = HTMLUtil.find_first_visible_element(e_channel_sp_grp);
         if (e_channel_sp != null) {
-            const e_h1 = HTMLUtil.search_node(e_channel_sp, "h1", (e)=>{
-                return $(e).attr("aria-label") != null && HTMLUtil.is_visible(e);
+            const e_h1 = HTMLUtil.search_node(e_channel_sp, "h1", e=>{
+                return e.hasAttribute("aria-label") && HTMLUtil.is_visible(e);
             });
             if (e_h1 != null) {
-                return $(e_h1).text();
+                return e_h1.textContent;
             }
         }
         return null;
@@ -321,30 +333,21 @@ class YoutubeUtil {
         } else {
             return "";
         }
-    }    
+    }
+    /*!
+     *  @brief  チャンネル名を得る
+     *  @note   short(チャンネル名なし)用
+     */
+    static get_slim_short_channel_name(elem) {
+        return elem.getAttribute("channel_name");
+    }
     /*!
      *  @brief  チャンネル名をセットする
-     *  @note   elem    基準ノード
+     *  @note   short(チャンネル名なし)用
      */
-    static set_channel_name(elem, channel_name) {
-        let ch_node = YoutubeUtil.get_channel_name_element(elem);
-        if (ch_node != null) {
-            ch_node.textContent = channel_name;
-            return true;
-        } else {
-            return false;
-        }
-    }
-    /*!
-     *  @brief  チャンネル名を削除する
-     *  @note   elem    基準ノード
-     */
-    static remove_channel_name(elem) {
-        let ch_node = YoutubeUtil.get_channel_name_element(elem);
-        if (ch_node != null) {
-            ch_node.textContent = '';
-        }
-    }
+    static set_slim_short_channel_name(elem, channel_name) {
+        elem.setAttribute("channel_name", channel_name);
+    }    
 
     /*!
      *  @brief  複合チャンネル情報取得(home/sports/live)
@@ -372,17 +375,17 @@ class YoutubeUtil {
      *  @note   24年11月以降の構成対応
      */
     static get_short_reel_channel_elem(elem) {
-        return $(elem).find("yt-reel-channel-bar-view-model");
+        return elem.querySelector("yt-reel-channel-bar-view-model");
     }
     static get_short_reel_channel_name(elem) {
         const e_channel = YoutubeUtil.get_short_reel_channel_elem(elem);
-        if (e_channel.length == 1) {
-            const e_a = $(e_channel).find("a");
-            if (e_a.length == 1) {
-                return $(e_a).text();
+        if (e_channel != null) {
+            const e_a = e_channel.querySelector("a");
+            if (e_a != null) {
+                return e_a.textContent;
             }
         }
-        return null;
+        return "";
     }
 
     /*!
@@ -525,40 +528,6 @@ class YoutubeUtil {
          }
         return ret;
     }
-    /*!
-     *  @brief  コメントIDを得る
-     *  @note   コメント毎に割り振られるUniqueID
-     */
-    static get_comment_id(elem) {
-        const tag_timestamp = "yt-formatted-string.published-time-text";
-        const nd_timestamp = HTMLUtil.find_first_appearing_element(elem, tag_timestamp);
-        const nd_a = $(nd_timestamp).find("a");
-        if (nd_a.length > 0) {
-            const href = $(nd_a).attr("href");
-            const sp_href = href.split("&lc=");
-            return sp_href[sp_href.length-1];
-        }
-        return "";
-    }
-    /*!
-     *  @brief  返信数をセットする
-     *  @note   0ならheaderごと削除
-     *  @note   ※headerの使いまわしがあるらしくtextをいじると
-     *  @note   ※コメント並べ替え時に不具合が生じるので
-     *  @note   ※返信数変更機能は削除
-     *  @note   (element追加/削除で処理されるせいでeventが消える？)
-     */
-    static set_num_reply_or_remove(comment_root, num) {
-        const tag_cont = "ytd-continuation-item-renderer";
-        const nd_continuation = $(comment_root).find(tag_cont);
-        if (nd_continuation.children().length > 0) {
-            return; // "他の返信を表示"があればスルー
-        }
-        if (num == 0) {
-            const nd_replies = $(comment_root).find("div#replies");
-            $(nd_replies).detach();
-        }
-    }
 
     /*!
      *  @brief  div#dismiss(a|i)bleを得る
@@ -567,10 +536,10 @@ class YoutubeUtil {
      *  @note   どちらでも対応できるよう細工しておく…いずれ外す
      */
     static get_div_dismissible() {
-        if ($("div#dismissable").length > 0) {
+        if (document.querySelectorAll("div#dismissable").length > 0) {
             return "div#dismissable"
         } else 
-        if ($("div#dismissible").length > 0) {
+        if (document.querySelectorAll("div#dismissible").length > 0) {
             return "div#dismissible"
         } else {
             return "";
@@ -604,23 +573,24 @@ class YoutubeUtil {
      *  @note   要素未生成段階(準備中)でのヘッダ削除禁止
      */
     static permit_clearing_section_list_header_core(tag) {
-        $(tag).each((inx, elem)=> {
-            const sc_container = $(elem).find("div#scroll-container");
-            if (sc_container.length <= 0) {
+        document.querySelectorAll(tag).forEach(elem=> {
+            const sc_container = elem.querySelector("div#scroll-container");
+            if (sc_container == null) {
                 return;
             }
-            const items = $(sc_container).find("div#items");
-            if (items.length <= 0) {
-                return;
-            }
-            if (items[0].childNodes.length > 0) {
-                $(elem).attr('ready', '');
+            const items = HTMLUtil.search_children(sc_container, e=> {
+                return e.localName === "div" && e.id === "items";
+            });
+            if (items != null && items.childNodes.length > 0) {
+                elem.setAttribute('ready', '');
             }
         });
     }
     static permit_clearing_section_list_header() {
         const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
         YoutubeUtil.permit_clearing_section_list_header_core(t_reel);
+        const t_ytd_reel = "ytd-shelf-renderer";
+        YoutubeUtil.permit_clearing_section_list_header_core(t_ytd_reel);
         const t_horizontal = YoutubeUtil.get_horizontal_list_header_tag();
         YoutubeUtil.permit_clearing_section_list_header_core(t_horizontal);
     }
@@ -629,39 +599,46 @@ class YoutubeUtil {
      *  @note   属する動画が(フィルタリングされて)空ならヘッダも削除
      */
     static clearing_section_list_header_core(tag) {
-        $(tag).each((inx, elem)=> {
-            if ($(elem).attr('ready') == null) {
+        document.querySelectorAll(tag).forEach(elem=> {
+            if (elem.hasAttribute('ready') == null) {
                 return;
             }
-            const sc_container = $(elem).find("div#scroll-container");
-            if (sc_container.length == 0) {
+            const sc_container = elem.querySelector("div#scroll-container");
+            if (sc_container == null) {
                 return;
             }
-            const items = $(sc_container).find("div#items");
-            const right_arrow = $(elem).find("div#right-arrow");
-            if (items.length == 0 ||
-                right_arrow.length == 0 ||
-                items[0].childNodes.length > 0) {
+            const items = HTMLUtil.search_children(sc_container, e=> {
+                return e.localName === "div" && e.id === "items";
+            });
+            const right_arrow = elem.querySelector("div#right-arrow");
+            if (items == null ||
+                right_arrow == null ||
+                items.childNodes.length > 0) {
                 return;
             }
-            const button_renderer = $(right_arrow).find("ytd-button-renderer");
+            const button_renderer = right_arrow.querySelector("ytd-button-renderer");
             if (HTMLUtil.is_visible(button_renderer)) {
                 // 右矢印ボタンが表示されていたらclick(scroll)してみる
                 // (未取得の要素取得要求)
-                if ($(button_renderer).attr('clicked') == null) {
+                if (!button_renderer.hasAttribute(ATTR_CLICKED)) {
                     // 連射禁止
-                    $(button_renderer).attr('clicked', '');
-                    $(button_renderer).click();
+                    button_renderer.setAttribute(ATTR_CLICKED, '');
+                    button_renderer.click();
                 }
             } else {
                 // 要素が空かつ追加要素もない
-                $(elem).detach();
+                elem.remove();
             }
         });
     }    
     static clearing_section_list_header() {
+        // shorts(slim)
         const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
         YoutubeUtil.clearing_section_list_header_core(t_reel);
+        // チャンネル/spチャンネルページホーム動画群
+        const t_ytd_reel = "ytd-shelf-renderer";
+        YoutubeUtil.clearing_section_list_header_core(t_ytd_reel);
+        // spチャンネルページ動画群
         const t_horizontal = YoutubeUtil.get_horizontal_list_header_tag();
         YoutubeUtil.clearing_section_list_header_core(t_horizontal);
     }
@@ -671,10 +648,10 @@ class YoutubeUtil {
      *  @note   コンテンツdetachで読み込み中マークが残ってしまう件
      */
     static remove_spiner_renderer(e_parent) {            
-        $(e_parent).find("ytd-continuation-item-renderer").each((inx, spin)=> {
-            const e_next = $(spin).next();
-            if (e_next.length > 0 && $(e_next).attr("hidden") == null) {
-                $(spin).detach();
+        e_parent.querySelectorAll("ytd-continuation-item-renderer").forEach(spin=> {
+            const e_next = spin.nextsibling;
+            if (e_next != null && e_next.offsetParent != null) {
+                spin.remove();
             }
         });
     }
@@ -686,9 +663,10 @@ class YoutubeUtil {
      */
     static remove_carousel_banner() {
         // フィルタ対象動画が含まれていても部分的には消せないので全消し
-        var elem = $("div#carousel-item.style-scope.ytd-carousel-item-renderer");
-        if (elem.length > 0) {
-            $(elem).detach();
+        const tag = "div#carousel-item.style-scope.ytd-carousel-item-renderer";
+        const elem = document.querySelector(tag);
+        if (elem != null) {
+            elem.remove();
         }
     }
 
@@ -696,34 +674,40 @@ class YoutubeUtil {
      *  @brief  自動再生を無効化する
      */
     static disable_autoplay() {
+        const e_controls = document.querySelector("div.ytp-right-controls-left");
+        if (e_controls == null) {
+            return;
+        }
         const button = "button.ytp-button";
-        $(button).each((inx, btn)=> {
-            var tgt_id =  $(btn).attr("data-tooltip-target-id");
-            if (tgt_id != "ytp-autonav-toggle-button") {
-                return;
+        for (const btn of e_controls.querySelectorAll(button)) {
+            const tgt_id = btn.getAttribute("data-tooltip-target-id");
+            if (tgt_id !== "ytp-autonav-toggle-button") {
+                continue;
             }
-            var btn_core  = $(btn).find("div.ytp-autonav-toggle-button");
-            if (btn_core.length <= 0) {
-                return;
+            const btn_core = btn.querySelector("div.ytp-autonav-toggle-button");
+            if (btn_core == null) {
+                break;
             } 
-            if (HTMLUtil.in_disappearing(btn)) {
-                return; // 非表示中は操作できない
+            if (btn.offsetParent == null) {
+                break; // 非表示中は操作できない
             }
-            const press = $(btn_core).attr("aria-checked");
+            const press = btn_core.getAttribute("aria-checked");
             if (press == null) {
-                return;
+                break;
             }
-            const clicked = $(btn).attr("clicked");
-            if (press == "true") {
+            const ATTR_CLICKED = "clicked";
+            if (press === "true") {
                 // 連打禁止
-                if (clicked == null) {
-                    $(btn).attr("clicked", "true");
+                if (!btn.hasAttribute(ATTR_CLICKED)) {
+                    btn.setAttribute(ATTR_CLICKED, "");
                     btn.click();
                 }
-            } else {
-                $(btn).removeAttr("clicked");
+            } else
+            if (btn.hasAttribute(ATTR_CLICKED)) {
+                btn.removeAttribute(ATTR_CLICKED);
             }
-        });
+            break;
+        }
     }
 
     /*!
@@ -732,19 +716,19 @@ class YoutubeUtil {
      */
     static get_player_setting_elem(func) {
         let ret_item = null;
-        const menu = $("div.ytp-popup.ytp-settings-menu");
-        if (menu.length > 0) {
-            $(menu[0]).find("div.ytp-menuitem").each((inx, mitm)=> {
-                const label = $(mitm).find("div.ytp-menuitem-label");
-                if (label.length != 0) {
-                    const txt
-                        = text_utility.remove_new_line_and_space($(label[0]).text());
-                    if (func(txt)) {
-                        ret_item = mitm;
-                        return true;
+        const menu = document.querySelector("div.ytp-popup.ytp-settings-menu");
+        if (menu != null) {
+            for (const menuitem of menu.querySelectorAll("div.ytp-menuitem")) {
+                const e_label = HTMLUtil.search_children(menuitem, (e)=>{
+                    return e.className === "ytp-menuitem-label";
+                });
+                if (e_label != null) {
+                    if (func(e_label.textContent)) {
+                        ret_item = menuitem;
+                        break;
                     }
                 }
-            });
+            }
         }
         return ret_item;
     }
@@ -757,22 +741,26 @@ class YoutubeUtil {
      *  @note   言語依存するのであんまりやりたくないが…
      */
     static is_annotation(label) {
-        return label == "アノテーション" ||
-               label == "Annoteringar" ||   /* 瑞 */
-               label == "Anmerkungen" ||    /* 独 */
-               label == "Annotations" ||
-               label == "Anotações" ||      /* 伯 */
-               label == "註解";             /* 繁 */
+        return label === "アノテーション" ||
+               label === "Annoteringar" ||  /* 瑞 */
+               label === "Anmerkungen" ||   /* 独 */
+               label === "Annotations" ||
+               label === "Anotações" ||     /* 伯 */
+               label === "註解";            /* 繁 */
     }
     /*!
      *  @brief  'アノテーション'を無効化する
      */
     static disable_annotation() {
+        const e_player = document.querySelector("div.html5-video-player");
+        if (e_player == null) {
+            return;
+        }
         // 動画再生設定の'アノテーション'オフ
         let menu_item = YoutubeUtil.get_player_setting_elem(YoutubeUtil.is_annotation);
         if (menu_item != null) {
-            const press = $(menu_item).attr("aria-checked");
-            if (press != null && press == "true") {
+            const press = menu_item.getAttribute("aria-checked");
+            if (press != null && press === "true") {
                 menu_item.click();
             }
         }
@@ -784,9 +772,9 @@ class YoutubeUtil {
             "div.annotation.annotation-type-custom.iv-branding", // 右下チャンネルアイコン
         ];
         for (const tag of disp_off_node_name) {
-            $(tag).each((inx, an_node)=> {
-                $(an_node).attr("style", "display: none;");
-            });
+            for (const an_node of e_player.querySelectorAll(tag)) {
+                an_node.hidden = true;
+            }
         }
     }
 
@@ -795,12 +783,13 @@ class YoutubeUtil {
      *  @param  label   ラベル文字列
      */
     static is_sleeptimer(label) {
-        return label == "Timerdesuspensão" ||   /* 伯 */
-               label == "スリープタイマー" ||
-               label == "Ruhemodus-Timer" ||    /* 独 */
-               label == "Sleeptimer" ||
-               label == "睡眠計時器" ||         /* 繁 */
-               label == "Sovtimer";             /* 瑞 */
+        return label === "Timerdesuspensão" ||  /* 伯 */
+               label === "スリープタイマー" ||
+               label === "スリープ タイマー" ||
+               label === "Ruhemodus-Timer" ||   /* 独 */
+               label === "Sleeptimer" ||
+               label === "睡眠計時器" ||        /* 繁 */
+               label === "Sovtimer";            /* 瑞 */
     }
     /*!
      *  @brief  動画再生設定から'スリープタイマー'を消す
@@ -808,7 +797,7 @@ class YoutubeUtil {
     static remove_sleeptimer() {
         const menu_item = YoutubeUtil.get_player_setting_elem(YoutubeUtil.is_sleeptimer);
         if (menu_item != null) {
-            $(menu_item).detach();
+            menu_item.hidden = true;
         }
     }
 
@@ -818,7 +807,8 @@ class YoutubeUtil {
     static disable_border_radius_of_thumbnail() {
         // inlineed-cssの置き換え
         const NLC = text_utility.new_line_code_lf();
-        const anti_border_radius_head =
+        let head_style = document.createElement('style');
+        head_style.textContent =
             'ytd-thumbnail[size=large] a.ytd-thumbnail,ytd-thumbnail[size=large]:before { border-radius: 0px; }' + NLC +
             'ytd-thumbnail[size=large][large-margin] a.ytd-thumbnail, ytd-thumbnail[size=large][large-margin]:before { border-radius: 0px; }' + NLC +
             'ytd-thumbnail[size=medium] a.ytd-thumbnail,ytd-thumbnail[size=medium]:before { border-radius: 0px; }' + NLC +
@@ -841,9 +831,10 @@ class YoutubeUtil {
             'ytd-watch-grid[rounded-player-large][default-layout] #ytd-player.ytd-watch-grid { border-radius: 0px; }' + NLC + /* watch */
             '.image-wrapper.ytd-hero-playlist-thumbnail-renderer { border-radius: 0px; }' + NLC +
             '.player-container.ytd-reel-video-renderer { border-radius: 0px; }';
-        $('head').append('<style>' + anti_border_radius_head + '</style>');
+        document.head.appendChild(head_style);
         // www-player.cssの置き換え(headだと負ける)
-        const anti_border_radius_body =
+        let body_style = document.createElement('style');
+        body_style.textContent = 
             'ytd-video-preview:not([has-endorsement]) #inline-preview-player.ytp-rounded-inline-preview' +
             ',ytd-video-preview:not([has-endorsement]) #inline-preview-player.ytp-rounded-inline-preview' +
             ' .html5-main-video { border-radius: 0px; }' + NLC +
@@ -851,7 +842,7 @@ class YoutubeUtil {
             '.ytp-ce-expanding-overlay-background { border-radius: 0px }' + NLC +
             '.ytp-videowall-still-round-large .ytp-videowall-still-image { border-radius: 0px }' + NLC + /* thumb(endscreen 25/07) */
             '.ytp-modern-videowall-still-image { border-radius: 0px }';
-        $('body').append('<style>' + anti_border_radius_body + '</style>');
+        document.body.appendChild(body_style);
     }
 
     static search_renderer_root(elem) {
@@ -897,7 +888,7 @@ class YoutubeUtil {
             if (e.localName == null) {
                 return false;
             }
-            const ln = e.localName.valueOf();
+            const ln = e.localName;
             return ln.indexOf('ytd-video-preview') >= 0 ||
                    ln.indexOf('ytd-inline-preview') >= 0 ||
                    ln.indexOf('ytd-rounded-inline-preview') >= 0;
@@ -905,19 +896,22 @@ class YoutubeUtil {
         if (is_preview(elem)) {
             return elem;
         }
-        return HTMLUtil.search_upper_node(elem, is_preview);
+        return HTMLUtil.search_parent_node(elem, is_preview);
     }
 
     static get_filtered_marker(element) {
-        return $(element).attr("marker");
-    }
-    static remove_filtered_marker(element) {
-        $(element).removeAttr("marker");
+        return element.getAttribute("marker");
     }
     static set_filtered_marker(element, marker) {
-        return $(element).attr("marker", marker);
+        element.setAttribute("marker", marker);
+    }    
+    static remove_filtered_marker(element) {
+        element.removeAttribute("marker");
     }
 
+    static get_renderer_node_channel_id(element) {
+        return element.getAttribute("channel_id");
+    }
     static set_renderer_node_channel_id(element, channel_id) {
         element.setAttribute("channel_id", channel_id);
     }

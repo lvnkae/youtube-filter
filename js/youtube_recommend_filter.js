@@ -15,8 +15,8 @@ class YoutubeRecommendFilter {
         const e_parent = document.querySelector("div#related.style-scope.ytd-watch-flexy");
         if (e_parent != null) {
             fl_func(e_parent);
+            YoutubeUtil.remove_spiner_renderer(e_parent);
         }
-        YoutubeUtil.remove_spiner_renderer(e_parent);
     }
 
     /*!

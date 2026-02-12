@@ -63,10 +63,10 @@ function filtering_unit(wait_map, elem, channel_info_accessor, storage) {
     if (author == null) {
         return ret;
     }
-    if (author[1] === '@') {
+    if (YoutubeUtil.is_handle_author(author)) {
         handle = author[0];
         userid = channel_info_accessor.get_channel_id(handle);
-    } else if (author[1] === 'channel/') {
+    } else if (YoutubeUtil.is_channel_id_author(author)) {
         userid = author[2];
     } else {
         return ret;

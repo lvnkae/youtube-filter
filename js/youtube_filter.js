@@ -827,10 +827,6 @@ class YoutubeFilter extends FilterBase {
         channel_info.id
             = dc.get_channel_id_from_author_url_or_entry_request(author_url);
         //
-        const TAG_GRID_SLIM_MEDIA = YoutubeShortsFilter.TAG_GRID_SLIM_MEDIA();
-        this.shorts_filter.filtering_slim_videos(TAG_GRID_SLIM_MEDIA);
-        const TAG_REEL_RENDERER = YoutubeShortsFilter.TAG_REEL_RENDERER();
-        this.shorts_filter.filtering_slim_videos(TAG_REEL_RENDERER);
         const t_grid = YoutubeUtil.get_rich_grid_header_tag();
         this.shorts_filter.filtering_slim_videos2(t_grid);
         const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
@@ -892,8 +888,6 @@ class YoutubeFilter extends FilterBase {
             this.filtering_lists(rc_grid);
         });
         //
-        const TAG_GRID_SLIM_MEDIA = YoutubeShortsFilter.TAG_GRID_SLIM_MEDIA();
-        this.shorts_filter.filtering_slim_videos(TAG_GRID_SLIM_MEDIA);
         const t_rich = YoutubeUtil.get_rich_shelf_header_tag();
         this.shorts_filter.filtering_slim_videos2(t_rich);
     }
@@ -950,7 +944,6 @@ class YoutubeFilter extends FilterBase {
                 loc.in_youtube_search_page() ||
                 loc.in_youtube_sp_channel_page() ||
                 loc.in_youtube_movie_page()) {
-                YoutubeShortsFilter.remove_whole_header();
                 YoutubeShortsFilter.remove_whole_header2();
             }
         }
@@ -963,8 +956,6 @@ class YoutubeFilter extends FilterBase {
             this.filtering_searched_playlists();
             this.filtering_searched_radios();
             this.filtering_searched_lists();
-            const TAG_REEL_RENDERER = YoutubeShortsFilter.TAG_REEL_RENDERER();
-            this.shorts_filter.filtering_slim_videos(TAG_REEL_RENDERER);
             const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
             this.shorts_filter.filtering_slim_videos2(t_reel);
             const t_gs_vm = YoutubeShortsFilter.TAG_GRID_SHELF_VM();
@@ -994,8 +985,6 @@ class YoutubeFilter extends FilterBase {
             this.filtering_searched_channel();
             this.filtering_searched_playlists();
             this.filtering_searched_radios();
-            const TAG_REEL_RENDERER = YoutubeShortsFilter.TAG_REEL_RENDERER();
-            this.shorts_filter.filtering_slim_videos(TAG_REEL_RENDERER);
             const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
             this.shorts_filter.filtering_slim_videos2(t_reel);    
         } else {
@@ -1072,7 +1061,6 @@ class YoutubeFilter extends FilterBase {
      */
     post_filtering_by_video_id(video_id, channel_id) {
         this.recommend_filter.filtering_videos_by_channel_id(video_id, channel_id);
-        this.shorts_filter.filtering_slim_video_by_video_id(video_id);
         this.shorts_filter.filtering_slim_video_by_video_id2(video_id);
     }
     /*!
@@ -1301,8 +1289,6 @@ class YoutubeFilter extends FilterBase {
         if (loc.in_youtube_search_page()) {
             this.clear_searched_video_marker();
             this.clear_horizontal_video_marker();
-            const TAG_REEL_RENDERER = YoutubeShortsFilter.TAG_REEL_RENDERER();
-            this.shorts_filter.clear_slim_videos_marker(TAG_REEL_RENDERER);
             const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
             this.shorts_filter.clear_slim_videos_marker2(t_reel);
             const t_gs_vm = YoutubeShortsFilter.TAG_GRID_SHELF_VM();
@@ -1312,8 +1298,6 @@ class YoutubeFilter extends FilterBase {
                    loc.in_youtube_hashtag() ||
                    loc.in_youtube_sports()) {
             this.clear_home_video_marker();
-            const TAG_GRID_SLIM_MEDIA = YoutubeShortsFilter.TAG_GRID_SLIM_MEDIA();
-            this.shorts_filter.clear_slim_videos_marker(TAG_GRID_SLIM_MEDIA);
             const t_rich = YoutubeUtil.get_rich_shelf_header_tag();
             this.shorts_filter.clear_slim_videos_marker2(t_rich);
             const t_reel2 = YoutubeUtil.get_reel_shelf_header2_tag();
@@ -1322,10 +1306,6 @@ class YoutubeFilter extends FilterBase {
             this.clear_home_video_marker();
             this.clear_searched_video_marker();
             this.clear_horizontal_video_marker();
-            const TAG_GRID_SLIM_MEDIA = YoutubeShortsFilter.TAG_GRID_SLIM_MEDIA();
-            this.shorts_filter.clear_slim_videos_marker(TAG_GRID_SLIM_MEDIA);
-            const TAG_REEL_RENDERER = YoutubeShortsFilter.TAG_REEL_RENDERER();
-            this.shorts_filter.clear_slim_videos_marker(TAG_REEL_RENDERER);
             const t_rich = YoutubeUtil.get_rich_shelf_header_tag();
             this.shorts_filter.clear_slim_videos_marker2(t_rich);
             const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
@@ -1335,10 +1315,6 @@ class YoutubeFilter extends FilterBase {
                    loc.in_youtube_user_page() ||
                    loc.in_youtube_custom_channel_page() ||
                    loc.in_youtube_handle_page()) {
-            const TAG_REEL_RENDERER = YoutubeShortsFilter.TAG_REEL_RENDERER();
-            this.shorts_filter.clear_slim_videos_marker(TAG_REEL_RENDERER);
-            const TAG_GRID_SLIM_MEDIA = YoutubeShortsFilter.TAG_GRID_SLIM_MEDIA();
-            this.shorts_filter.clear_slim_videos_marker(TAG_GRID_SLIM_MEDIA);
             const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
             this.shorts_filter.clear_slim_videos_marker2(t_reel);    
             const t_grid = YoutubeUtil.get_rich_grid_header_tag();
@@ -1351,33 +1327,34 @@ class YoutubeFilter extends FilterBase {
      *  @note   DOM要素追加タイミングで行いたい処理群
      */
     callback_domelement_adition() {
+        const storage = this.storage;
         // 自動再生をオフにする
-        if (this.storage.json.stop_autoplay) {
+        if (storage.json.stop_autoplay) {
             YoutubeUtil.disable_autoplay();
         }
         // アノテーションをオフにする
-        if (this.storage.json.disable_annotation) {
+        if (storage.json.disable_annotation) {
             YoutubeUtil.disable_annotation();
         }
         // 'スリープタイマー'を消す
-        if (this.storage.is_remove_sleeptimer()) {
+        if (storage.is_remove_sleeptimer()) {
             YoutubeUtil.remove_sleeptimer();
-        }
-        // 24年2月新UIを無効化する
-        if (this.ui_disabler != null) {
-            this.ui_disabler.disable_element(this.current_location);
         }
     }
 
     get_observing_node(elem) {
         const tag = "ytd-page-manager#page-manager.style-scope.ytd-app";
-        $(tag).each((inx, e)=> { elem.push(e); });
+        const e_page_manager = document.querySelector(tag);
+        if (e_page_manager != null) { elem.push(e_page_manager); };
         const tag_popup = "ytd-popup-container.style-scope.ytd-app";
-        $(tag_popup).each((inx, e)=> { elem.push(e); });
+        const e_popup_container = document.querySelector(tag_popup);
+        if (e_popup_container != null) { elem.push(e_popup_container); };
     }
 
     callback_domloaded() {
-        this.shorts_filter.callback_domloaded();
+        if (this.current_location.in_youtube_short_page()) {
+            this.shorts_filter.callback_domloaded();
+        }
         super.filtering();
         super.callback_domloaded();
     }
@@ -1448,12 +1425,6 @@ class YoutubeFilter extends FilterBase {
         if (this.storage.is_disable_border_radius()) {
             YoutubeUtil.disable_border_radius_of_thumbnail();
         }
-        if (this.current_location.in_youtube_movie_page()) {
-            const video_id
-                = YoutubeUtil.cut_movie_hash(this.current_location.url);
-            this.ui_disabler
-                = new Youtube24febUIDisabler(this.storage, video_id);
-        }
     }
 
     callback_change_url(prev_urlw, to_urlw) {
@@ -1469,16 +1440,7 @@ class YoutubeFilter extends FilterBase {
             this.shorts_filtering_timer = null;
         }
         if (prev_urlw.in_youtube_movie_page()) {
-            this.ui_disabler.exit_watch_page();
             this.recommend_filter.callback_exit_watch();
-        } else
-        if (to_urlw.in_youtube_movie_page()) {
-            if (this.ui_disabler == null) {
-                const video_id
-                    = YoutubeUtil.cut_movie_hash(to_urlw.url);
-                this.ui_disabler
-                    = new Youtube24febUIDisabler(this.storage, video_id);
-            }
         }
         if (to_urlw.in_youtube_short_page())  {
             // shortsページ
@@ -1525,9 +1487,6 @@ class YoutubeFilter extends FilterBase {
                 this.shorts_filter.player_finalize();
                 this.shorts_filter.close();
             }
-        }
-        if (this.ui_disabler != null) {
-            this.ui_disabler.update_css(to_urlw);
         }
     }
 
