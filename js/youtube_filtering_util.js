@@ -42,7 +42,7 @@ class YoutubeFilteringUtil {
      *  @note   Youtubeホームのsemi-root
      */
     static each_rich_grid_renderer(func) {
-        $("ytd-rich-grid-renderer").each((inx, rc_grid)=>{
+        document.querySelectorAll("ytd-rich-grid-renderer").forEach(rc_grid=>{
             func(rc_grid);
         });
     }
@@ -110,9 +110,9 @@ class YoutubeFilteringUtil {
     static each_rich_grid_media(do_func, dismissible_tag) {
         const tag_grid = dismissible_tag + ".style-scope.ytd-rich-grid-media";
         const tag_title = "#video-title-link";
-        $(tag_grid).each((inx, elem)=> {
+        for (const elem of document.querySelectorAll(tag_grid)) {
             do_func(elem, tag_title);
-        });
+        };
     }
     /*!
      *  @brief  ytd-rich-grid-mediaに対するフィルタリング

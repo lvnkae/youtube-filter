@@ -63,7 +63,7 @@ class HTMLUtil {
     }    
 
     static is_visible(e) {
-        return $(e).is(":visible");
+        return e.checkVisibility();
     }
 
     /*!
@@ -81,14 +81,12 @@ class HTMLUtil {
 
     static search_node(elem, key, func) {
         let e_ret = null;
-        $(elem).find(key).each((inx, elem)=> {
-            if (func(elem)) {
-                e_ret = elem;
-                return false;
-            } else {
-                return true;
+        for (const e of elem.querySelectorAll(key)) {
+            if (func(e)) {
+                e_ret = e;
+                break;
             }
-        });
+        };
         return e_ret;
     }
 

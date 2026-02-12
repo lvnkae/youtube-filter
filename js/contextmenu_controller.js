@@ -11,8 +11,8 @@ class ContextMenuController {
      */
     clear() {
         this.monitoring_target = null;
-        this.monitoring_target_base = {length:0};
-        this.context_menu =  { channel_id:null };
+        this.monitoring_target_base = null;
+        this.context_menu = { channel_id:null };
     }
 
     /*!
@@ -26,7 +26,7 @@ class ContextMenuController {
         }
         const max_disp_channel = 32;
         const channel_st = channel.slice(0, max_disp_channel-1);
-        const channel_id = $(element).attr("channel_id");
+        const channel_id = YoutubeUtil.get_renderer_node_channel_id(element);
         if (channel_id == null) {
             return false;
         }
@@ -59,7 +59,7 @@ class ContextMenuController {
 
     update_context_menu(ret) {
         if (this.filter_active) {
-            if (this.monitoring_target_base.length > 0 &&
+            if (this.monitoring_target_base != null &&
                 this.on_mute_menu(ret.type, this.monitoring_target_base)) {
                 return;
             }
@@ -83,14 +83,14 @@ class ContextMenuController {
             if (e.target == this.monitoring_target) {
                 return;
             }
-            let ret = { type: ContextMenuController.TYPE_NONE, base_node:{length:0}};
+            let ret = { type: ContextMenuController.TYPE_NONE, base_node:null};
             if (this.filter_active) {
                 ret = this.get_base_node(new urlWrapper(location.href), e.target);
                 if (ret.type == ContextMenuController.TYPE_IGNORE) {
                     return;
                 }
             }
-            if (ret.base_node[0] == this.monitoring_target_base[0]) {
+            if (ret.base_node == this.monitoring_target_base) {
                 return;
             }
             this.monitoring_target = e.target;

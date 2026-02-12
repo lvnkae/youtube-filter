@@ -53,15 +53,12 @@ class YoutubeDataCounter {
         }
         if (storage.channel_id_filter(channel_info.id, title) ||
             storage.channel_filter(channel_info.name, title)) {
-            $(renderer_node).detach();
+            renderer_node.remove();
             return true;
         } else {
             // ContextMenu用に書き込んでおく
             YoutubeUtil.set_renderer_node_channel_id(renderer_node, channel_info.id);
-            if (!YoutubeUtil.set_channel_name(renderer_node, channel_info.name)) {
-                // channel_nameノードがなかったら作る(V2用)
-                $(renderer_node).attr("channel_name", channel_info.name);
-            }
+            YoutubeUtil.set_slim_short_channel_name(renderer_node, channel_info.name);
             return false;
         }
     }
