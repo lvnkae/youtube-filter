@@ -4,11 +4,11 @@
 const ATTR_STATE = "state";
 class YoutubeFilteringUtil {
 
-    static set_state(renderer_node, state) {
-        renderer_node.setAttribute(ATTR_STATE, state);
-    }
     static get_state(renderer_node) {
         return renderer_node.getAttribute(ATTR_STATE);
+    }
+    static set_state(renderer_node, state) {
+        renderer_node.setAttribute(ATTR_STATE, state);
     }
     static remove_state(renderer_node) {
         renderer_node.removeAttribute(ATTR_STATE);
@@ -42,45 +42,49 @@ class YoutubeFilteringUtil {
      *  @note   Youtubeホームのsemi-root
      */
     static each_rich_grid_renderer(func) {
-        document.querySelectorAll("ytd-rich-grid-renderer").forEach(rc_grid=>{
+        const tag_rich_grid = "ytd-rich-grid-renderer";
+        for (const rc_grid of document.body.getElementsByTagName(tag_rich_grid)) {
             func(rc_grid);
-        });
+        }
     }
     /*!
      *  @brief  <ytd-item-section-renderer>ごとの処理
      *  @note   検索結果のsemi-root
      */
     static each_item_section_renderer(func) {
-        $("ytd-item-section-renderer").each((inx, section)=>{
+        const tag_item_sect = "ytd-item-section-renderer";
+        for (const section of document.body.getElementsByTagName(tag_item_sect)) {
             func(section);
-        });
+        }
     }
     /*!
      *  @brief  <ytd-grid-renderer>ごとの処理
      *  @note   チャンネルページ>再生リストのsemi-root
      */
     static each_grid_renderer(func) {
-        $("ytd-grid-renderer").each((inx, grid)=>{
+        for (const grid of document.body.getElementsByTagName("ytd-grid-renderer")) {
             func(grid);
-        });
+        }
     }
     /*!
      *  @brief  <yt-horizontal-list-renderer>ごとの処理
      *  @note   チャンネルページ>ホームのプレイリストsemi-root
      */
     static each_horizontal_list_renderer(func) {
-        $("yt-horizontal-list-renderer").each((inx, horizontal)=>{
+        const tag = "yt-horizontal-list-renderer";
+        for (const horizontal of document.body.getElementsByTagName(tag)) {
             func(horizontal);
-        });
+        }
     }
 
     /*!
      *  @brief  検索結果>プレイリストごとの処理
      */
     static each_searched_playlists(func) {
-        $("a.yt-simple-endpoint.style-scope.ytd-playlist-renderer").each((inx, elem)=> {
-            return func(elem);
-        });
+        const tag = "a.yt-simple-endpoint.style-scope.ytd-playlist-renderer";
+        for (const elem of document.body.querySelectorAll(tag)) {
+            func(elem);
+        }
     }
     /*!
      *  @brief  おすすめ>動画ごとの処理
@@ -88,9 +92,9 @@ class YoutubeFilteringUtil {
      */
     static each_recommend_videos(e_parent, func) {
         const tag_link = "a.yt-simple-endpoint.style-scope.ytd-compact-video-renderer";
-        e_parent.querySelectorAll(tag_link).forEach((elem)=> {
+        for (const elem of e_parent.querySelectorAll(tag_link)) {
             func(elem);
-        });
+        }
     }
     /*!
      *  @brief  おすすめ>プレイリストごとの処理
@@ -99,9 +103,9 @@ class YoutubeFilteringUtil {
     static each_recommend_playlists(e_parent, func) {
         const tag_link
             = "a.yt-simple-endpoint.style-scope.ytd-compact-playlist-renderer";
-        e_parent.querySelectorAll(tag_link).forEach((elem)=> {
+        for (const elem of e_parent.querySelectorAll(tag_link)) {
             func(elem);
-        });
+        }
     }
 
     /*!
@@ -110,7 +114,7 @@ class YoutubeFilteringUtil {
     static each_rich_grid_media(do_func, dismissible_tag) {
         const tag_grid = dismissible_tag + ".style-scope.ytd-rich-grid-media";
         const tag_title = "#video-title-link";
-        for (const elem of document.querySelectorAll(tag_grid)) {
+        for (const elem of document.body.querySelectorAll(tag_grid)) {
             do_func(elem, tag_title);
         };
     }
@@ -130,12 +134,12 @@ class YoutubeFilteringUtil {
      */
     static each_element(func, p_parent, tag) {
         if (p_parent != null) {
-            p_parent.querySelectorAll(tag).forEach((elem)=> {
-                return func(elem);
-            });
+            for (const elem of p_parent.querySelectorAll(tag)) {
+                func(elem);
+            }
         } else {
             document.querySelectorAll(tag).forEach((elem)=> {
-                return func(elem);
+                func(elem);
             });
         }
     }
@@ -144,7 +148,9 @@ class YoutubeFilteringUtil {
      *  @note   プレイ/MIXリスト用(24年11月時点)
      */
     static each_lockup_view_model(func, p_parent) {
-        YoutubeFilteringUtil.each_element(func, p_parent, "yt-lockup-view-model");
+        for (const elem of p_parent.getElementsByTagName("yt-lockup-view-model")) {
+            func (elem);
+        }
     }
     /*!
      *  @brief  <yt-lockup-view-model>ごとの処理
@@ -183,7 +189,7 @@ class YoutubeFilteringUtil {
                 if (detach_func) {
                     detach_func(renderer_node);
                 } else {
-                    $(renderer_node).detach();
+                    renderer_node.remove();
                 }
                 return true;
             } else {

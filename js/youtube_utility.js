@@ -287,7 +287,7 @@ class YoutubeUtil {
             return e_channel_topic.textContent;
         }
         const e_channel_sp_grp
-            = document.querySelectorAll(YoutubeUtil.get_channel_sp_tag());
+            = document.body.querySelectorAll(YoutubeUtil.get_channel_sp_tag());
         const e_channel_sp = HTMLUtil.find_first_visible_element(e_channel_sp_grp);
         if (e_channel_sp != null) {
             const e_h1 = HTMLUtil.search_node(e_channel_sp, "h1", e=>{
@@ -536,10 +536,10 @@ class YoutubeUtil {
      *  @note   どちらでも対応できるよう細工しておく…いずれ外す
      */
     static get_div_dismissible() {
-        if (document.querySelectorAll("div#dismissable").length > 0) {
+        if (document.body.querySelectorAll("div#dismissable").length > 0) {
             return "div#dismissable"
         } else 
-        if (document.querySelectorAll("div#dismissible").length > 0) {
+        if (document.body.querySelectorAll("div#dismissible").length > 0) {
             return "div#dismissible"
         } else {
             return "";
@@ -573,7 +573,7 @@ class YoutubeUtil {
      *  @note   要素未生成段階(準備中)でのヘッダ削除禁止
      */
     static permit_clearing_section_list_header_core(tag) {
-        document.querySelectorAll(tag).forEach(elem=> {
+        for (const elem of document.body.querySelectorAll(tag)) {
             const sc_container = elem.querySelector("div#scroll-container");
             if (sc_container == null) {
                 return;
@@ -584,7 +584,7 @@ class YoutubeUtil {
             if (items != null && items.childNodes.length > 0) {
                 elem.setAttribute('ready', '');
             }
-        });
+        }
     }
     static permit_clearing_section_list_header() {
         const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
@@ -599,7 +599,7 @@ class YoutubeUtil {
      *  @note   属する動画が(フィルタリングされて)空ならヘッダも削除
      */
     static clearing_section_list_header_core(tag) {
-        document.querySelectorAll(tag).forEach(elem=> {
+        for (const elem of document.body.querySelectorAll(tag)) {
             if (elem.hasAttribute('ready') == null) {
                 return;
             }
@@ -629,7 +629,7 @@ class YoutubeUtil {
                 // 要素が空かつ追加要素もない
                 elem.remove();
             }
-        });
+        }
     }    
     static clearing_section_list_header() {
         // shorts(slim)
@@ -647,13 +647,14 @@ class YoutubeUtil {
      *  @brief  ぐるぐる対策
      *  @note   コンテンツdetachで読み込み中マークが残ってしまう件
      */
-    static remove_spiner_renderer(e_parent) {            
-        e_parent.querySelectorAll("ytd-continuation-item-renderer").forEach(spin=> {
+    static remove_spiner_renderer(e_parent) {
+        const tag_continuation = "ytd-continuation-item-renderer";
+        for (const spin of e_parent.getElementsByTagName(tag_continuation)) {
             const e_next = spin.nextsibling;
             if (e_next != null && e_next.offsetParent != null) {
                 spin.remove();
             }
-        });
+        }
     }
 
     /*!

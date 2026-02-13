@@ -142,11 +142,11 @@ class YoutubeShortsFilter {
      *  @note   Ver2/24年8月末頃の構成変更対応版
      */
     static remove_whole_header2_core(tag) {
-        document.querySelectorAll(tag).forEach(shelf=> {
-            if (shelf.querySelectorAll(TAG_SHORTS_V2).length > 0) {
+        for (const shelf of document.body.querySelectorAll(tag)) {
+            if (shelf.getElementsByTagName(TAG_SHORTS_V2).length > 0) {
                 shelf.remove();
             }
-        });
+        }
     }
     static remove_whole_header2() {
         const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
@@ -161,11 +161,11 @@ class YoutubeShortsFilter {
 
 
     static each_slim_videos2(tag, do_func) {
-        document.querySelectorAll(tag).forEach(shelf=> {
-            shelf.querySelectorAll(TAG_SHORTS_V2).forEach(elem=> {
+        for (const shelf of document.body.querySelectorAll(tag)) {
+            for (const elem of shelf.getElementsByTagName(TAG_SHORTS_V2)) {
                 do_func(elem);
-            });
-        });
+            }
+        }
     }
     /*!
      *  @brief  short動画群にフィルタをかける

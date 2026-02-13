@@ -8,14 +8,11 @@ class HTMLUtil {
      *  @param  e   調べる要素
      */
     static in_disappearing(e) {
-        if ($(e).attr("hidden") != null) {
+        if (e.hasAttribute("hidden")) {
             return true;
         }
-        const attr_style = $(e).attr("style");
-        if (attr_style != null && attr_style.indexOf("display: none;") >= 0) {
-            return true;
-        }
-        return false;
+        const attr_style = e.getAttribute("style");
+        return attr_style != null && attr_style.indexOf("display: none;") >= 0;
     }
 
     static hide_element(e) {
@@ -33,7 +30,7 @@ class HTMLUtil {
      */
     static find_first_appearing_element(start_elem, key) {
         const elements = start_elem.querySelectorAll(key)
-        for (var e of elements) {
+        for (const e of elements) {
             if (!HTMLUtil.in_disappearing(e)) {
                 return e;
             }
