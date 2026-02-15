@@ -11,7 +11,7 @@ class urlWrapper {
                 'https://'
             ];
             for (const headar of href_header) {
-                if (url.substring(0, headar.length) == headar) {
+                if (url.substring(0, headar.length) === headar) {
                     return url.substring(headar.length).split('/');
                 }
             }
@@ -37,8 +37,8 @@ class urlWrapper {
     }
     in_google()
     {
-        return this.domain == 'www.google.com' ||
-               this.domain == 'www.google.co.jp';
+        return this.domain === 'www.google.com' ||
+               this.domain === 'www.google.co.jp';
     }
     in_google_searched_youtube()
     {
@@ -54,7 +54,7 @@ class urlWrapper {
     in_youtube_top_yoodle()
     {
         return this.subdir.length >= 1 &&
-               this.subdir[0].slice(0,4) == '?bp=';
+               this.subdir[0].startsWith('?bp=');
     }
     in_top_page()
     {
@@ -66,7 +66,7 @@ class urlWrapper {
     {
         return this.subdir.length >=1 &&
                (this.subdir[0].indexOf('watch?') >= 0 ||
-                this.subdir[0] == 'live');
+                this.subdir[0] === 'live');
     }
     in_youtube_playlist_page()
     {
@@ -75,22 +75,23 @@ class urlWrapper {
     }
     in_youtube_channel_page()
     {
-        // sports(Egdi0XIXXZ-qJOFPf4JSKw)だけ構造が違うので除外
+        // sports/liveだけ構造が違うので除外
         return this.subdir.length >=2 &&
-               this.subdir[0] == 'channel' &&
-               this.subdir[1] != 'UCEgdi0XIXXZ-qJOFPf4JSKw';
+               this.subdir[0] === 'channel' &&
+               this.subdir[1] !== 'UC4R8DWoMoI7CAwX8_LjQHig' &&
+               this.subdir[1] !== 'UCEgdi0XIXXZ-qJOFPf4JSKw';
     }
     in_youtube_user_page()
     {
-        return (this.subdir.length >=1 && this.subdir[0] == 'user');
+        return (this.subdir.length >=1 && this.subdir[0] === 'user');
     }
     in_youtube_custom_channel_page()
     {
-        return (this.subdir.length >=1 && this.subdir[0] == 'c');
+        return (this.subdir.length >=1 && this.subdir[0] === 'c');
     }
     in_youtube_channel_playlists() {
         // in_youtube_(channel|user|custom_channel)_pageの後に使う(単体NG)
-        return (this.subdir.length == 3 && this.subdir[2] == 'playlists');
+        return (this.subdir.length == 3 && this.subdir[2] === 'playlists');
     }    
     in_youtube_handle_page()
     {
@@ -98,27 +99,7 @@ class urlWrapper {
     }
     in_youtube_handle_playlists() {
         // in_youtube_handle_pageの後に使う(単体NG)
-        return (this.subdir.length == 2 && this.subdir[1] == 'playlists');
-    }
-    /*!
-     *  @brief  チャンネル>投稿>コメント
-     */
-    in_youtube_channel_post()
-    {
-        return this.subdir.length >=1 &&
-               this.subdir[0] == 'post';
-    }
-    in_youtube_sp_channel_page()
-    {
-        if (this.subdir.length >=1 && this.subdir[0] == 'gaming') {
-            return true; /* ゲーム */
-        }
-        if (this.subdir.length >=2 &&
-            this.subdir[0] == 'feed' &&
-            this.subdir[1] == 'news_destination') {
-            return true; /* ニュース */
-        }
-        return false;
+        return (this.subdir.length == 2 && this.subdir[1] === 'playlists');
     }
     in_youtube_search_page()
     {
@@ -126,25 +107,54 @@ class urlWrapper {
                this.subdir[0].indexOf('results?') >= 0 &
                this.subdir[0].indexOf('search_query=') >= 0;
     }
+    /*!
+     *  @brief  チャンネル>投稿>コメント
+     */
+    in_youtube_channel_post()
+    {
+        return this.subdir.length >=1 &&
+               this.subdir[0] === 'post';
+    }
+    in_youtube_gaming()
+    {
+        if (this.subdir.length >=1 && this.subdir[0] === 'gaming') {
+            return true; /* ゲーム */
+        }
+    }
+    in_youtube_news()
+    {
+        if (this.subdir.length >=2 &&
+            this.subdir[0] === 'feed' &&
+            this.subdir[1] === 'news_destination') {
+            return true; /* ニュース */
+        }
+        return false;
+    }
     in_youtube_sports()
     {
         // 専用URLにしてほしい…
         return this.subdir.length >=2 &&
-               this.subdir[0] == 'channel' &&
-               this.subdir[1] == 'UCEgdi0XIXXZ-qJOFPf4JSKw';
+               this.subdir[0] === 'channel' &&
+               this.subdir[1] === 'UCEgdi0XIXXZ-qJOFPf4JSKw';
+    }
+    in_youtube_live() {
+        // 専用URLにしてほしい…
+        return this.subdir.length >=2 &&
+               this.subdir[0] === 'channel' &&
+               this.subdir[1] === 'UC4R8DWoMoI7CAwX8_LjQHig';
     }
     in_youtube_hashtag()
     {
-        return (this.subdir.length >=1 && this.subdir[0] == 'hashtag');
+        return (this.subdir.length >=1 && this.subdir[0] === 'hashtag');
     }
     in_youtube_short_page()
     {
-        return (this.subdir.length >=1 && this.subdir[0] == 'shorts');
+        return (this.subdir.length >=1 && this.subdir[0] === 'shorts');
     }
     in_youtube_feeds() 
     {
         return this.subdir.length >=2 &&
-               this.subdir[0] == 'feed' &&
+               this.subdir[0] === 'feed' &&
                this.subdir[1].indexOf('subscriptions') >= 0;
 
     }

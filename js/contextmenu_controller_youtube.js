@@ -14,18 +14,13 @@ class ContextMenuController_Youtube extends ContextMenuController {
         }
         // 動画/チャンネル/プレイリスト(25年07月以降/lockup-view-model)
         const lvm_ch_name = YoutubeUtil.get_lockup_vm_channel_name(element);
-        if (lvm_ch_name !== '') {
+        if (lvm_ch_name != null) {
             return lvm_ch_name;
         }
         // shorts(reel/24年12月下旬以降)
         const srch_name = YoutubeUtil.get_short_reel_channel_name(element);
         if (srch_name !== '') {
             return srch_name;
-        }
-        // プレイリスト(24年11月以降)
-        const pl_channel = YoutubeUtil.get_list_channel_element(element);
-        if (pl_channel != null) {
-            return pl_channel.textContent;
         }
         // shorts(チャンネル名なし)例外
         const sch_name = YoutubeUtil.get_slim_short_channel_name(element);
@@ -207,13 +202,15 @@ class ContextMenuController_Youtube extends ContextMenuController {
                 return ret;
             }
         } else
-        if (!loc.in_youtube_sp_channel_page() &&
-            !loc.in_youtube_channel_post() &&
+        if (!loc.in_youtube_channel_post() &&
             !loc.in_youtube_search_page() &&
             !loc.in_youtube_short_page() &&
             !loc.in_youtube_movie_page() &&
             !loc.in_youtube_hashtag() &&
+            !loc.in_youtube_gaming() &&
             !loc.in_youtube_sports() &&
+            !loc.in_youtube_live() &&
+            !loc.in_youtube_news() &&
             !loc.in_top_page()) {
             return ret;
         }

@@ -24,8 +24,6 @@ class ContextMenuController {
         if (channel == null) {
             return false;
         }
-        const max_disp_channel = 32;
-        const channel_st = channel.slice(0, max_disp_channel-1);
         const channel_id = YoutubeUtil.get_renderer_node_channel_id(element);
         if (channel_id == null) {
             return false;
@@ -33,6 +31,8 @@ class ContextMenuController {
         if (channel_id == this.context_menu.channel_id) {
             return true; // 前回と同じなので不要
         }
+        const max_disp_channel = 32;
+        const channel_st = channel.slice(0, max_disp_channel-1);
         this.context_menu.channel_id = channel_id;
         const title = channel_st + "をミュート";
         MessageUtil.send_message({

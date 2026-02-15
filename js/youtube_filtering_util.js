@@ -97,25 +97,30 @@ class YoutubeFilteringUtil {
 
     /*!
      *  @brief  ytd-rich-grid-mediaに対するeach
+     *  @note   Channel>Videos/Live
+     *  @note   特殊チャンネル(ニュース/スポーツ/ライブ)
      */
-    static each_rich_grid_media(do_func, dismissible_tag) {
-        const tag_grid = dismissible_tag + ".style-scope.ytd-rich-grid-media";
+    static each_rich_grid_media_fresh(do_func) {
+        const tag_grid = "ytd-rich-grid-media:not([state])";
         const tag_title = "#video-title-link";
-        for (const elem of document.body.querySelectorAll(tag_grid)) {
-            do_func(elem, tag_title);
-        };
+        const tag_gmedia = "div#dismissible.style-scope.ytd-rich-grid-media";
+        for (const e_grid of document.body.querySelectorAll(tag_grid)) {
+            const elem = e_grid.querySelector(tag_gmedia);
+            do_func(e_grid, elem, tag_title);
+        }
     }
     /*!
-     *  @brief  ytd-rich-grid-mediaに対するフィルタリング
-     *  @note   home等で使う
+     *  @brief  ytd-rich-grid-mediaに対するeach
      */
-    static filtering_rich_grid_media(filter_func, dismissible_tag) {
-        YoutubeFilteringUtil.each_rich_grid_media((elem, tag_title)=> {
-            const tag_thumbnail = "a#thumbnail";
-            const tag_channel = ".yt-simple-endpoint.style-scope.yt-formatted-string";
-            filter_func(elem, tag_title, tag_thumbnail, tag_channel, dismissible_tag);
-        }, dismissible_tag);
-    }    
+    static each_rich_grid_media_wait(do_func) {
+        const tag_grid = 'ytd-rich-grid-media[state="wait"]';
+        const tag_title = "#video-title-link";
+        const tag_gmedia = "div#dismissible.style-scope.ytd-rich-grid-media";
+        for (const e_grid of document.body.querySelectorAll(tag_grid)) {
+            const elem = e_grid.querySelector(tag_gmedia);
+            do_func(e_grid, elem, tag_title);
+        }
+    }
 
     /*!
      */
