@@ -428,11 +428,38 @@ class YoutubeUtil {
      *  @note   25年07月以降の構成(lockup-view-model)用
      */    
     static get_lockup_vm_channel_element(elem) {
+        if (elem == null) {
+            return null;
+        }
         const rows = YoutubeUtil.get_lockup_vm_metadata_elem(elem);
         if (rows == null) {
             return null;
         }
         return rows.querySelector("span.yt-core-attributed-string");
+    }
+    /*!
+     *  @brief  link付きチャンネルノードを得る
+     *  @note   25年07月以降の構成(lockup-view-model)用
+     */    
+    static get_lockup_vm_channel_link_element(elem) {
+        if (elem == null) {
+            return null;
+        }
+        const rows = YoutubeUtil.get_lockup_vm_metadata_elem(elem);
+        if (rows == null) {
+            return null;
+        }
+        const elem_link = rows.querySelector(YoutubeUtil.get_lockup_vm_channel_tag());
+        if (elem_link == null) {
+            // チャンネル名ノードが無いパターン/[MIXリスト]含む
+            return null;
+        }
+        const author_url = elem_link.href;
+        if (!YoutubeUtil.is_channel_link(author_url)) {
+            // チャンネル名ノードはあるが他の使い方されてるパターン[MIXリスト]
+            return null;
+        }
+        return elem_link;
     }    
     /*!
      *  @brief  チャンネル名を得る
@@ -441,40 +468,9 @@ class YoutubeUtil {
     static get_lockup_vm_channel_name(elem) {
         const elem_channel = YoutubeUtil.get_lockup_vm_channel_element(elem);
         if (elem_channel == null) {
-            return "";
-        }
-        const elem_link = elem_channel.querySelector("a.yt-core-attributed-string__link");
-        if (elem_link == null) {
-            return elem_channel.textContent;
-        } else {
-            return elem_link.textContent;
-        }
-    }
-
-    /*!
-     *  @brief  プレイ/MIXリストのチャンネル名ノードを得る
-     *  @note   24年11月以降の構成対応
-     *  @retval null    error/MIXリスト(チャンネル名なし)
-     */
-    static get_list_channel_element(elem) {
-        if (elem == null) {
             return null;
         }
-        const rows = YoutubeUtil.get_lockup_vm_metadata_elem(elem);
-        if (rows == null) {
-            return null;
-        }
-        const elem_channel = rows.querySelector(YoutubeUtil.get_lockup_vm_channel_tag());
-        if (elem_channel == null) {
-            // チャンネル名ノードが無いパターン/[MIXリスト]含む
-            return null;
-        }
-        const author_url = elem_channel.href;
-        if (!YoutubeUtil.is_channel_link(author_url)) {
-            // チャンネル名ノードはあるが他の使い方されてるパターン[MIXリスト]
-            return null;
-        }
-        return elem_channel;
+        return elem_channel.textContent;
     }
 
     /*!
@@ -527,23 +523,6 @@ class YoutubeUtil {
             }
          }
         return ret;
-    }
-
-    /*!
-     *  @brief  div#dismiss(a|i)bleを得る
-     *  @note   youtubeはdismissibleをdismissableとtypoしていた
-     *  @note   21年2月下旬頃修正されたが、youtubeは新旧混在がよくあるので
-     *  @note   どちらでも対応できるよう細工しておく…いずれ外す
-     */
-    static get_div_dismissible() {
-        if (document.body.querySelectorAll("div#dismissable").length > 0) {
-            return "div#dismissable"
-        } else 
-        if (document.body.querySelectorAll("div#dismissible").length > 0) {
-            return "div#dismissible"
-        } else {
-            return "";
-        }
     }
 
     /*!
@@ -908,6 +887,9 @@ class YoutubeUtil {
         element.removeAttribute("marker");
     }
 
+    static has_renderer_node_channel_id(element) {
+        return element.hasAttribute("channel_id")
+    }
     static get_renderer_node_channel_id(element) {
         return element.getAttribute("channel_id");
     }

@@ -1448,7 +1448,6 @@ class YoutubeShortsFilter {
     constructor(storage, data_counter) {
         this.storage = storage;
         this.data_counter = data_counter;
-        this.dismissible_tag = null;
         this.no_disp_mode = YoutubeShortsFilter.NO_DISP_NONE;
         //
         this.fill_in_thumb_timer = null;

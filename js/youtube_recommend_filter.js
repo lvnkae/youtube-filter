@@ -274,6 +274,20 @@ class YoutubeRecommendFilter {
     }
 
     /*!
+     *  @note   NGID追加(ContextMenu)用
+     *  @note   stateを一回消して全contentsに再度フィルタをかける
+     */
+    clear_contents_state() {
+        this.call_contents_filter((e_parent)=> {
+            for (const elem of e_parent.querySelectorAll("ytd-compact-video-renderer")) {
+                YoutubeFilteringUtil.remove_state(elem);
+            }
+            YoutubeFilteringUtil.each_lockup_view_model((elem)=>{
+                YoutubeFilteringUtil.remove_state(elem);
+            }, e_parent);
+        });
+    }
+    /*!
      *  @note   rootからdetachするとloadingマークが残る
      *  @note   dismissibleからdetachすると動画→動画で再利用失敗する
      *  @note   →watchから抜ける際に全消しして再利用回避
