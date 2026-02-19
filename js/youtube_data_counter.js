@@ -58,7 +58,7 @@ class YoutubeDataCounter {
         } else {
             // ContextMenu用に書き込んでおく
             YoutubeUtil.set_renderer_node_channel_id(renderer_node, channel_info.id);
-            YoutubeUtil.set_slim_short_channel_name(renderer_node, channel_info.name);
+            YoutubeUtil.set_attribute_channel_name(renderer_node, channel_info.name);
             return false;
         }
     }

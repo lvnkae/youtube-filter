@@ -4,7 +4,7 @@
 const AUTHOR_EXTRACTOR = /(@|user\/|channel\/|c\/)([^/?#]+)/;
 // 日|米|瑞|伯|繁|独
 const COLLABO_EXTRACTOR
-    = /^([^"]+?)(?:、他 \d+ チャンネル| and \d+ more| och \d+ till| e mais \d+|和\d+| und \d+(\s|\u00A0)weitere)$/ui;
+    = /^([^"]+?)(?:、他 \d+ チャンネル| and \d+ more| och \d+ till| e mais \d+|和\d+| und \d+(\s|\u00A0)weitere)$/u;
 function cut_collabo_channel(text) {
     const match = text.match(COLLABO_EXTRACTOR);
     if (match != null) {
@@ -336,17 +336,29 @@ class YoutubeUtil {
     }
     /*!
      *  @brief  チャンネル名を得る
-     *  @note   short(チャンネル名なし)用
+     *  @note   short(チャンネル名なし)/collabo-channelで使用
      */
-    static get_slim_short_channel_name(elem) {
+    static get_attribute_channel_name(elem) {
         return elem.getAttribute("channel_name");
     }
     /*!
      *  @brief  チャンネル名をセットする
-     *  @note   short(チャンネル名なし)用
+     *  @note   short(チャンネル名なし)/collabo-channelで使用
      */
-    static set_slim_short_channel_name(elem, channel_name) {
+    static set_attribute_channel_name(elem, channel_name) {
         elem.setAttribute("channel_name", channel_name);
+    }
+    /*!
+     *  @brief  チャンネル名を得る
+     *  @note   collabo-channelでYoutubeが使用
+     */
+    static get_attributed_channel_name(elem) {
+        const e_channel = elem.querySelector("div#attributed-channel-name");
+        if (e_channel != null) {
+            return e_channel.textContent;
+        } else {
+            return '';
+        }
     }    
 
     /*!
@@ -368,6 +380,22 @@ class YoutubeUtil {
         ret.channel = cut_collabo_channel(collabo_ch);
         ret.author_url = elem_thumb.href;
         return ret;
+    }
+    /*!
+     *  @brief  複合チャンネルの2チャンネル目切り出し
+     *  @param  channel     親チャンネル名
+     *  @param  collabo_ch  複合チャンネル文字列
+     *  @retval null        pair-collaboではない
+     */
+    static cut_collabo_channel_2nd(channel, collabo_ch) {
+        if (!COLLABO_EXTRACTOR.test(collabo_ch)) {
+            const match = collabo_ch.match(
+                RegExp('^' + channel +  '\s?(、|and |och |e |和|und )([^"]+?)$', "u"));
+            if (match != null) {
+                return match[2];
+            }
+        }
+        return null;
     }
 
     /*!
@@ -833,7 +861,6 @@ class YoutubeUtil {
             const ln = e.localName;
             return ln === 'ytd-video-renderer' ||
                    ln === 'ytd-channel-renderer' ||
-                   ln === 'ytd-radio-renderer' ||
                    ln === 'ytd-playlist-renderer' ||
                    ln === 'ytd-reel-item-renderer' ||
                    ln === 'ytd-reel-video-renderer' ||

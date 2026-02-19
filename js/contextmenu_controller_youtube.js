@@ -1,3 +1,58 @@
+function get_lockup_vm_channel_name(element) {
+    const lvm_channel = YoutubeUtil.get_lockup_vm_channel_element(element);
+    if (lvm_channel != null) {
+        const v_channel_name = YoutubeUtil.get_attribute_channel_name(element);
+        if (v_channel_name != null) {
+            return v_channel_name;
+        } else {
+            return lvm_channel.textContent;
+        }
+    }
+    return '';
+}
+
+function get_channel_text(element) {
+    // 動画/チャンネル/プレイリスト
+    const ch_name = YoutubeUtil.get_channel_name(element);
+    if (ch_name !== '') {
+        return ch_name;
+    }
+    // 動画/チャンネル/プレイリスト(25年07月以降/lockup-view-model)
+    const lvm_ch_name = get_lockup_vm_channel_name(element);
+    if (lvm_ch_name !== '') {
+        return lvm_ch_name;
+    }
+    // shorts(reel/24年12月下旬以降)
+    const srch_name = YoutubeUtil.get_short_reel_channel_name(element);
+    if (srch_name !== '') {
+        return srch_name;
+    }
+    // shorts(チャンネル名なし)例外
+    const sch_name = YoutubeUtil.get_attribute_channel_name(element);
+    if (sch_name != null) {
+        return sch_name;
+    }
+    // grid-channel(○水平リスト)例外
+    const gr_ch_tag = "span#title.style-scope.ytd-grid-channel-renderer";
+    const gr_ch_node = element.querySelector(gr_ch_tag);
+    if (gr_ch_node != null) {
+        return gr_ch_node.textContent;
+    }
+    // fullscreen-reccomend(26/01時点では動画終了画面おすすめ含む)例外
+    const fullscr_ch_tag = "span.ytp-modern-videowall-still-info-author";
+    const fullscr_ch_node = element.querySelector(fullscr_ch_tag);
+    if (fullscr_ch_node != null) {
+        return fullscr_ch_node.textContent;
+    }
+    // endscreen-content(動画終了画面おすすめ動画)例外
+    const edscr_ch_tag = "span.ytp-videowall-still-info-author";
+    const edscr_ch_node = element.querySelector(edscr_ch_tag);
+    if (edscr_ch_node != null) {
+        return YoutubeUtil.get_channel_from_author_info(edscr_ch_node.textContent);
+    }
+    return '';
+}
+
 /*!
  *  @brief  右クリックメニュー制御(youtube用)
  */
@@ -6,54 +61,13 @@ class ContextMenuController_Youtube extends ContextMenuController {
     static TYPE_CHANNEL = 1;
     static TYPE_COMMENT = 2;
 
-    static get_channel_text(element) {
-        // 動画/チャンネル/プレイリスト
-        const ch_name = YoutubeUtil.get_channel_name(element);
-        if (ch_name !== '') {
-            return ch_name;
-        }
-        // 動画/チャンネル/プレイリスト(25年07月以降/lockup-view-model)
-        const lvm_ch_name = YoutubeUtil.get_lockup_vm_channel_name(element);
-        if (lvm_ch_name != null) {
-            return lvm_ch_name;
-        }
-        // shorts(reel/24年12月下旬以降)
-        const srch_name = YoutubeUtil.get_short_reel_channel_name(element);
-        if (srch_name !== '') {
-            return srch_name;
-        }
-        // shorts(チャンネル名なし)例外
-        const sch_name = YoutubeUtil.get_slim_short_channel_name(element);
-        if (sch_name != null) {
-            return sch_name;
-        }
-        // grid-channel(○水平リスト)例外
-        const gr_ch_tag = "span#title.style-scope.ytd-grid-channel-renderer";
-        const gr_ch_node = element.querySelector(gr_ch_tag);
-        if (gr_ch_node != null) {
-            return gr_ch_node.textContent;
-        }
-        // fullscreen-reccomend(26/01時点では動画終了画面おすすめ含む)例外
-        const fullscr_ch_tag = "span.ytp-modern-videowall-still-info-author";
-        const fullscr_ch_node = element.querySelector(fullscr_ch_tag);
-        if (fullscr_ch_node != null) {
-            return fullscr_ch_node.textContent;
-        }
-        // endscreen-content(動画終了画面おすすめ動画)例外
-        const edscr_ch_tag = "span.ytp-videowall-still-info-author";
-        const edscr_ch_node = element.querySelector(edscr_ch_tag);
-        if (edscr_ch_node != null) {
-            return YoutubeUtil.get_channel_from_author_info(edscr_ch_node.textContent);
-        }
-        return '';
-    }
 
     /*!
      *  @brief  Youtubeチャンネル名を得る
      *  @param  element 起点ノード
      */
     get_channel(element) {
-        const channel = ContextMenuController_Youtube.get_channel_text(element);
+        const channel = get_channel_text(element);
         if (channel.length > 0) {
             return channel;
         }
@@ -190,26 +204,16 @@ class ContextMenuController_Youtube extends ContextMenuController {
      */
     get_base_node(loc, element) {
         const ret = { type:ContextMenuController.TYPE_NONE, base_node:null};
-        if (loc.in_youtube_handle_page()) {
-            if (loc.in_youtube_handle_playlists()) {
-                return ret;
-            }
-        } else 
-        if (loc.in_youtube_custom_channel_page() ||
-            loc.in_youtube_channel_page() ||
-            loc.in_youtube_user_page()) {
-            if (loc.in_youtube_channel_playlists()) {
-                return ret;
-            }
+        if (loc.in_youtube_channel_nomutemenu()) {
+            return ret;
         } else
-        if (!loc.in_youtube_channel_post() &&
+        if (!loc.in_youtube_any_channnel_page() &&
+            !loc.in_youtube_channel_post() &&
             !loc.in_youtube_search_page() &&
             !loc.in_youtube_short_page() &&
             !loc.in_youtube_movie_page() &&
             !loc.in_youtube_hashtag() &&
             !loc.in_youtube_gaming() &&
-            !loc.in_youtube_sports() &&
-            !loc.in_youtube_live() &&
             !loc.in_youtube_news() &&
             !loc.in_top_page()) {
             return ret;
