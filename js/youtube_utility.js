@@ -13,6 +13,16 @@ function cut_collabo_channel(text) {
         return "";
     }
 }
+function cut_collabo_channel_2nd(channel, collabo_ch) {
+    const match = collabo_ch.match(
+        RegExp('^' + channel +  '\s?(、|and |och |e |和|und )([^"]+?)$', "u"));
+    if (match != null) {
+        return match[2];
+    } else {
+        return null;
+    }
+}
+
 const ATTR_CLICKED = "clicked";
 class YoutubeUtil {
 
@@ -348,6 +358,9 @@ class YoutubeUtil {
     static set_attribute_channel_name(elem, channel_name) {
         elem.setAttribute("channel_name", channel_name);
     }
+    static clear_attribute_channel_name(elem) {
+        elem.removeAttribute("channel_name");
+    }    
     /*!
      *  @brief  チャンネル名を得る
      *  @note   collabo-channelでYoutubeが使用
@@ -389,14 +402,26 @@ class YoutubeUtil {
      */
     static cut_collabo_channel_2nd(channel, collabo_ch) {
         if (!COLLABO_EXTRACTOR.test(collabo_ch)) {
-            const match = collabo_ch.match(
-                RegExp('^' + channel +  '\s?(、|and |och |e |和|und )([^"]+?)$', "u"));
-            if (match != null) {
-                return match[2];
-            }
+            return cut_collabo_channel_2nd(channel, collabo_ch);
         }
         return null;
     }
+    /*!
+     *  @brief  channel主体の複合チャンネルか
+     *  @param  channel     親チャンネル名
+     *  @param  collabo_ch  複合チャンネル文字列
+     */    
+    static is_collabo_channel(channel, collabo_ch) {
+        let result = true;
+        let ch2nd = null;
+        if (COLLABO_EXTRACTOR.test(collabo_ch)) {
+            result = true;
+        } else {
+            ch2nd = cut_collabo_channel_2nd(channel, collabo_ch);
+            result = ch2nd != null;
+        }
+        return { result:result, ch2nd:ch2nd }
+    }    
 
     /*!
      *  @brief  ショート動画(reel)のチャンネル名ノードを得る
@@ -454,7 +479,7 @@ class YoutubeUtil {
     /*!
      *  @brief  チャンネルノードを得る
      *  @note   25年07月以降の構成(lockup-view-model)用
-     */    
+     */
     static get_lockup_vm_channel_element(elem) {
         if (elem == null) {
             return null;
@@ -464,6 +489,20 @@ class YoutubeUtil {
             return null;
         }
         return rows.querySelector("span.yt-core-attributed-string");
+    }
+    /*!
+     *  @note   チャンネルページ専用/チャンネル名なしを考慮
+     */
+    static get_lockup_vm_channel_page_channel_element(elem) {
+        const elem_link = YoutubeUtil.get_lockup_vm_channel_link_element(elem);
+        if (elem_link == null) {
+            return null;
+        } else {
+            return HTMLUtil.search_parent_node(elem_link, (e)=> {
+                return e.localName === "span" &&
+                       e.className.startsWith("yt-core-attributed-string");
+            });
+        }
     }
     /*!
      *  @brief  link付きチャンネルノードを得る
@@ -583,7 +622,7 @@ class YoutubeUtil {
         for (const elem of document.body.querySelectorAll(tag)) {
             const sc_container = elem.querySelector("div#scroll-container");
             if (sc_container == null) {
-                return;
+                continue;
             }
             const items = HTMLUtil.search_children(sc_container, e=> {
                 return e.localName === "div" && e.id === "items";
@@ -608,11 +647,11 @@ class YoutubeUtil {
     static clearing_section_list_header_core(tag) {
         for (const elem of document.body.querySelectorAll(tag)) {
             if (elem.hasAttribute('ready') == null) {
-                return;
+                continue;
             }
             const sc_container = elem.querySelector("div#scroll-container");
             if (sc_container == null) {
-                return;
+                continue;
             }
             const items = HTMLUtil.search_children(sc_container, e=> {
                 return e.localName === "div" && e.id === "items";
@@ -621,7 +660,7 @@ class YoutubeUtil {
             if (items == null ||
                 right_arrow == null ||
                 items.childNodes.length > 0) {
-                return;
+                continue;
             }
             const button_renderer = right_arrow.querySelector("ytd-button-renderer");
             if (HTMLUtil.is_visible(button_renderer)) {

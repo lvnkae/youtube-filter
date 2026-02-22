@@ -140,7 +140,7 @@ class urlWrapper {
             return (this.subdir[0] === 'feed' &&
                     this.subdir[1] === 'news_destination') ||
                    (this.subdir[0] === 'channel' &&
-                    this.subdir[1] !== 'UCYfdidRxbB8Qhf0Nx7ioOYw');
+                    this.subdir[1] === 'UCYfdidRxbB8Qhf0Nx7ioOYw');
         }
         return false;
     }

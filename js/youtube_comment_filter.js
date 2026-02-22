@@ -269,7 +269,7 @@ class YoutubeCommentFilter {
                 return e.localName === "div" && e.id === "contents";
             });
             if (e_contents == null) {
-                return;
+                continue;
             }
             let candidate_additional_ng_id = [];
             let wait_map = new Map();
@@ -310,7 +310,7 @@ class YoutubeCommentFilter {
                 return e.localName === "div" && e.id === "contents";
             });
             if (e_contents == null) {
-                return;
+                continue;
             }
             for (const e of e_contents.children) {
                 if (e.localName !== TAG_COMMENT_ROOT) {

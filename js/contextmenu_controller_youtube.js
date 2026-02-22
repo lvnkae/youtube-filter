@@ -1,3 +1,15 @@
+function get_channel_name(element) {
+    const elem_channel = YoutubeUtil.get_channel_name_element(element);
+    if (elem_channel != null) {
+        const v_channel_name = YoutubeUtil.get_attribute_channel_name(element);
+        if (v_channel_name != null) {
+            return v_channel_name;
+        } else {
+            return elem_channel.textContent;
+        }
+    }
+    return '';
+}
 function get_lockup_vm_channel_name(element) {
     const lvm_channel = YoutubeUtil.get_lockup_vm_channel_element(element);
     if (lvm_channel != null) {
@@ -13,7 +25,7 @@ function get_lockup_vm_channel_name(element) {
 
 function get_channel_text(element) {
     // 動画/チャンネル/プレイリスト
-    const ch_name = YoutubeUtil.get_channel_name(element);
+    const ch_name = get_channel_name(element);
     if (ch_name !== '') {
         return ch_name;
     }
@@ -42,7 +54,12 @@ function get_channel_text(element) {
     const fullscr_ch_tag = "span.ytp-modern-videowall-still-info-author";
     const fullscr_ch_node = element.querySelector(fullscr_ch_tag);
     if (fullscr_ch_node != null) {
-        return fullscr_ch_node.textContent;
+        const v_channel_name = YoutubeUtil.get_attribute_channel_name(element);
+        if (v_channel_name != null) {
+            return v_channel_name;
+        } else {
+            return fullscr_ch_node.textContent;
+        }
     }
     // endscreen-content(動画終了画面おすすめ動画)例外
     const edscr_ch_tag = "span.ytp-videowall-still-info-author";
