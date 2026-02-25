@@ -549,7 +549,7 @@ class YoutubeFilter extends FilterBase {
      *  @param  tag_title   動画タイトルタグ
      */    
     filtering_collabo_video_by_channel_id(video_id, channel_id, tag_marker, tag_title) {
-        const tag_elem = tag_marker + '[marker="' + video_id + '"]';
+        const tag_elem = `${tag_marker}[marker="${video_id}"]`;
         const tag_channel = YoutubeUtil.get_channel_link_tag();                                    
         for (const elem of document.body.querySelectorAll(tag_elem)) {
             const renderer_root = YoutubeUtil.search_renderer_root(elem);
@@ -1584,9 +1584,9 @@ class YoutubeFilter extends FilterBase {
      *  @brief  element追加callback
      *  @note   after_domloaded_observerから呼ばれる
      */
-    callback_observing_element_change(b_change_url) {
+    callback_observing_element_change() {
         const urlw = this.current_location;
-        this.comment_filter.callback_observing_element_change(b_change_url, urlw);
+        this.comment_filter.callback_observing_element_change(urlw);
         if (urlw.in_youtube_movie_page()) {
             this.recommend_filter.callback_observing_element_change();
         } else
@@ -1619,13 +1619,17 @@ class YoutubeFilter extends FilterBase {
         }
         if (prev_urlw.in_youtube_movie_page()) {
             this.recommend_filter.callback_exit_watch();
+            this.comment_filter.callback_exit_have_comment_page();
+        } else
+        if (prev_urlw.in_youtube_channel_post()) {
+            this.comment_filter.callback_exit_have_comment_page();
         }
         if (to_urlw.in_youtube_short_page())  {
             // shortsページ
             if (!prev_urlw.in_youtube_short_page()) {
                 this.shorts_filter.open();
             } else {
-                this.comment_filter.remove_comments_state();
+                this.comment_filter.callback_turn_short();
                 this.shorts_filter.turn();
             }
             // elem監視だけだとすっぽ抜けるのでtimerでサポートする
@@ -1662,6 +1666,7 @@ class YoutubeFilter extends FilterBase {
         } else {
             if (prev_urlw.in_youtube_short_page()) {
                 this.comment_filter.remove_comments_state();
+                this.comment_filter.callback_exit_have_comment_page();
                 this.shorts_filter.player_finalize();
                 this.shorts_filter.close();
             }

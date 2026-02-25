@@ -98,7 +98,7 @@ class FilterBase {
             if (func_is_invalid_records(records)) {
                 return; // 無効
             }
-            this.callback_observing_element_change(b_change_url);
+            this.callback_observing_element_change();
             //
             if (b_change_url) {
                 // URLが変わった(=下位フレーム再構成)らタイマー捨てて即処理
