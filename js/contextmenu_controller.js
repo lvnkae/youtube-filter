@@ -16,7 +16,7 @@ class ContextMenuController {
     }
 
     /*!
-     *  @brief  右クリックメニューの「$(channel)をミュート」を有効化
+     *  @brief  右クリックメニューの「${channel}をミュート」を有効化
      *  @param  element
      */
     on_usermute(element) {
@@ -34,7 +34,7 @@ class ContextMenuController {
         const max_disp_channel = 32;
         const channel_st = channel.slice(0, max_disp_channel-1);
         this.context_menu.channel_id = channel_id;
-        const title = channel_st + "をミュート";
+        const title = `${channel_st}をミュート`;
         MessageUtil.send_message({
             command: MessageUtil.command_update_contextmenu(),
             click_command: MessageUtil.command_mute_channel_id(),

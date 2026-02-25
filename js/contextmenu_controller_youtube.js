@@ -156,7 +156,7 @@ class ContextMenuController_Youtube extends ContextMenuController {
     }
 
     /*!
-     *  @brief  右クリックメニューの「$(channel)をコメントミュート」を有効化
+     *  @brief  右クリックメニューの「${channel}をコメントミュート」を有効化
      *  @param  element
      */
     on_commentmute(element) {
@@ -188,7 +188,7 @@ class ContextMenuController_Youtube extends ContextMenuController {
         }
         const channel_st = channel.slice(0, max_disp_channel-1);
         this.context_menu.channel_id = channel_id;
-        const title = channel_st + "をコメントミュート";
+        const title = `${channel_st}をコメントミュート`;
         MessageUtil.send_message({
             command: MessageUtil.command_update_contextmenu(),
             click_command: MessageUtil.command_mute_comment_id(),

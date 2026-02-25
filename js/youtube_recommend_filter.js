@@ -1,5 +1,5 @@
 function detach_video(elem) {
-    HTMLUtil.detach_lower_node2(elem, "div#dismissible");
+    HTMLUtil.detach_lower_node(elem, "div#dismissible");
 }
 function get_elem_link_compact_video_renderer(renderer_root) {
     const tag_a = "a.yt-simple-endpoint.style-scope.ytd-compact-video-renderer";

@@ -65,7 +65,7 @@ class AuthorInfoAccessor {
         if (elem_channel_id.length == 0) {
             return;
         }
-        const channel_id = $(elem_channel_id[0]).text();
+        const channel_id = elem_channel_id[0].textContent;
         if (username in this.author_info_map) {
             var obj = this.author_info_map[username];
             obj.channel_id = channel_id;

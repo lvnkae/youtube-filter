@@ -11,8 +11,7 @@
       "name": "Youtube Filter"
    },
    "content_scripts": [ {
-      "js": [ "js/jquery-3.3.1.min.js",
-              "js/message_utility.js",
+      "js": [ "js/message_utility.js",
               "js/text_utility.js",
               "js/url_wrapper.js",
               "js/html_utility.js",

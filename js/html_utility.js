@@ -4,6 +4,13 @@
 class HTMLUtil {
 
     /*!
+     *  @brief  再計算要求
+     */
+    static recalculation() {
+        window.dispatchEvent(new Event('resize'));
+    }
+
+    /*!
      *  @brief  要素が非表示であるか
      *  @param  e   調べる要素
      */
@@ -16,10 +23,11 @@ class HTMLUtil {
     }
 
     static hide_element(e) {
-        if ($(e).is(":visible")) {
-            $(e).hide();
-        }
-    }
+        e.style.display = "none";
+    }    
+    static show_element(e) {
+        e.style.display = "";
+    }    
 
     /*!
      *  @brief  key要素を探す
@@ -108,25 +116,7 @@ class HTMLUtil {
         return null;
     }    
 
-    static detach_upper_node(elem, tag) {
-        const check_tag = function(e) {
-            return e.localName == tag;
-        }
-        const nd = HTMLUtil.search_upper_node(elem, check_tag);
-        if (nd.length == 0) {
-            return;
-        }
-        $(nd).detach();
-    }
-
     static detach_lower_node(elem, tag) {
-        const dt_node = $(elem).find(tag);
-        if (dt_node.length == 0) {
-            return;
-        }
-        $(dt_node).detach();
-    }
-    static detach_lower_node2(elem, tag) {
         const dt_node = elem.querySelector(tag);
         if (dt_node == null) {
             return;
@@ -145,13 +135,6 @@ class HTMLUtil {
         return e_ret;
     }
 
-    static detach_children_all(elem) {
-        const len = elem.children.length;
-        for (let inx = 0; inx < len; inx++) {
-            // childrenは減っていく
-            $(elem.children[0]).detach();
-        }
-    }
     static remove_children_all(elem) {
         const len = elem.children.length;
         for (let inx = 0; inx < len; inx++) {
@@ -232,13 +215,12 @@ class HTMLUtil {
 
     static get_selected_element(elements) {
         let ret_elem = null;
-        $(elements).each((inx, elem)=>{
+        for (const elem of document.querySelectorAll(elements)) {
             if (elem.className.indexOf("selected") >= 0) {
                 ret_elem = elem;
-                return false;
+                break;
             }
-            return true;
-        });
+        }
         return ret_elem;
     }
 }

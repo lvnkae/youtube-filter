@@ -696,7 +696,7 @@ class YoutubeUtil {
     static remove_spiner_renderer(e_parent) {
         const tag_continuation = "ytd-continuation-item-renderer";
         for (const spin of e_parent.getElementsByTagName(tag_continuation)) {
-            const e_next = spin.nextSibling;
+            const e_next = spin.nextElementSibling;
             if (e_next != null && e_next.offsetParent != null) {
                 spin.remove();
             }
