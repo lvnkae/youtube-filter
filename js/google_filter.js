@@ -1,3 +1,4 @@
+const detach_func = (elem) => { elem.remove(); }
 /*!
  *  @brief  Googleフィルタ
  */
@@ -124,205 +125,193 @@ class GoogleFilter extends FilterBase {
     }
 
     filtering_carousel(carousel) {
-        $(carousel).find("g-inner-card").each((inx, mov)=> {
-            const a_tag = $(mov).find("a");
-            if (a_tag.length < 2) {
-                return;
+        const storage = this.storage;
+        const video_info_accessor = this.video_info_accessor;
+        for (const mov of carousel.getElementsByTagName("g-inner-card")) {
+            const a_tags = mov.getElementsByTagName("a");
+            if (a_tags.length < 2) {
+                continue;
             }
-            const href = $(a_tag[1]).attr("href");
-            if (href == null) {
-                return null;
-            }
-            const url = new urlWrapper(GoogleUtil.cut_searched_url(href));
+            const link = GoogleUtil.cut_searched_url(a_tags[1].href);
+            const url = new urlWrapper(link);
             if (!url.in_google_searched_youtube()) {
-                return;
+                continue;
             }
-            const divs = $(a_tag[1]).find("div");
+            const divs = a_tags[1].getElementsByTagName("div");
             if (divs.length < 6) {
-                return;
+                continue;
             }
-            const title = $(divs[3]).text();
+            const title = divs[3].textContent;
             const channel = GoogleUtil.get_channel_from_video_card_node(divs[5]);
-            if (channel == "") {
-                return;
+            if (channel === '') {
+                continue;
             }
-            if (this.storage.channel_and_title_filter(channel, title)) {
-                $(mov).detach();
+            if (storage.channel_and_title_filter(channel, title)) {
+                mov.remove();
             } else {
-                const video_id = YoutubeUtil.cut_movie_hash(url.url);
-                const channel_id = this.video_info_accessor.get_channel_id(video_id);
+                const video_id = YoutubeUtil.cut_movie_hash(link);
+                const channel_id = video_info_accessor.get_channel_id(video_id);
                 if (channel_id != null) {
-                    if (this.storage.channel_id_filter(channel_id, title)) {
-                        $(mov).detach();
+                    if (storage.channel_id_filter(channel_id, title)) {
+                        mov.remove();
                     } else {
                         GoogleUtil.set_channel_info(mov, channel_id, channel);
                     }
                 } else {
-                    this.video_info_accessor.entry(video_id);
+                    video_info_accessor.entry(video_id);
                 }
             }
-        });        
+        }
     }
 
     filtering_video_list(mvlist) {
-        const check_nd = HTMLUtil.search_upper_node($(mvlist), (e)=>{
-            return e.localName == "g-section-with-header";
+        const check_nd = HTMLUtil.search_parent_node(mvlist, e=>{
+            return e.localName === "g-section-with-header";
         });
-        if (check_nd.length != 0) {
+        if (check_nd != null) {
             return;
         }
-        const root = HTMLUtil.search_upper_node($(mvlist), (e)=>{
-            return e.localName == "div" &&
-                   $(e).attr("jscontroller") != null &&
-                   $(e).attr("jsaction") != null &&
-                   $(e).attr("data-hveid") != null;
+        const root = HTMLUtil.search_parent_node(mvlist, e=>{
+            return e.localName === "div" &&
+                   e.hasAttribute("jscontroller") &&
+                   e.hasAttribute("jsaction") &&
+                   e.hasAttribute("data-hveid");
         });
-        if (root.length == 0) {
+        if (root == null) {
             return;
         }
-        $(root).find("a").each((inx, a)=>{
-            if ($(a).attr("ping") == null) {
-                return;
+        for (const a  of root.getElementsByTagName("a")) {
+            if (!a.hasAttribute("ping")) {
+                continue;
             }
-            const url = $(a).attr("href");
+            const url = a.href;
             const urlW = new urlWrapper(url);
             if (!urlW.in_google_searched_youtube()) {
-                return;
+                continue;
             }
-            let title = "";
-            $(a).find("span").each((inx, spn)=>{
-                const cld = $(spn).children();
-                if (cld.length != 0) {
-                    return true;
+            let title = '';
+            for (const spn of a.getElementsByTagName("span")) {
+                if (spn.children.length != 0) {
+                    continue;
                 } else {
-                    title = $(spn).text();
-                    return false;
+                    title = spn.textContent;
+                    break;
                 }
-            });
-            const detach = (e) => { $(e).parent().detach(); };
-            if (urlW.in_youtube_movie_page()) {
-                this.youtube_video_filter($(a).parent(), title, url, detach);
-            } else if (urlW.in_youtube_short_page()) {
-                this.youtube_shorts_filter($(a).parent(), title, url, detach);
             }
-        });
+            const detach = (e)=> { e.parentNode.remove(); };
+            if (urlW.in_youtube_movie_page()) {
+                this.youtube_video_filter(a.parentNode, title, url, detach);
+            } else if (urlW.in_youtube_short_page()) {
+                this.youtube_shorts_filter(a.parentNode, title, url, detach);
+            }
+        }
     }
     filtering_thumb_header(header) {
-        $(header).find("div").each((inx, elem)=> {
-            const url = $(elem).attr("data-lpage");
-            const atr = $(elem).attr("data-attrid");
-            if (url == null || atr == null) {
-                return;
+        for (const elem of header.getElementsByTagName("div")) {
+            const url = elem.getAttribute("data-lpage");
+            if (url == null || !elem.hasAttribute("data-attrid")) {
+                continue;
             }
-            const a_tag = $(elem).find("a");
-            if (a_tag.length <= 0) {
-                return;
-            }
-            const title = $(a_tag[0].firstChild).text();
-            const detach = (elem) => { $(elem).detach(); };
             const urlW = new urlWrapper(url);
             if (!urlW.in_google_searched_youtube()) {
-                return;
+                continue;
             }
+            const a_tag = elem.querySelector("a");
+            if (a_tag == null) {
+                continue;
+            }
+            const title = a_tag.firstChild.textContent;
             if (urlW.in_youtube_movie_page()) {
-                this.youtube_video_filter(elem, title, url, detach);
-            } else if (urlW.in_youtube_channel_page() ||
-                       urlW.in_youtube_user_page() ||
-                       urlW.in_youtube_custom_channel_page() ||
-                       urlW.in_youtube_handle_page()) {
-                this.youtube_channel_filter(elem, title, url, detach);
+                this.youtube_video_filter(elem, title, url, detach_func);
+            } else if (urlW.in_youtube_any_channel_page()) {
+                this.youtube_channel_filter(elem, title, url, detach_func);
             }
-        });        
+        }
     }
 
     filtering_searched_movie_part(elem) {
-        $(elem).find("video-voyager").each((inx, video)=> {
-            $(video).find("a").each((inx, lnk)=> {
-                const url = $(lnk).attr("href");
-                if (url == null) {
-                    return;
-                }
+        const storage = this.storage;
+        const video_info_accessor = this.video_info_accessor;
+        for (const video of elem.getElementsByTagName("video-voyager")) {
+            for (const lnk of video.getElementsByTagName("a")) {
+                const url = lnk.href;
                 const urlW = new urlWrapper(url);
                 if (urlW.in_youtube_movie_page()) {
-                    const divs = $(lnk).find("div");
+                    const divs = lnk.getElementsByTagName("div");
                     if (divs.length < 3) {
-                        return;
+                        continue;
                     }
-                    const title = $(divs[1]).text();
+                    const title = divs[1].textContent;
                     const channel = GoogleUtil.get_channel_from_video_card_node(divs[3]);
-                    if (this.storage.channel_and_title_filter(channel, title)) {
-                        $(video).detach();
+                    if (storage.channel_and_title_filter(channel, title)) {
+                        video.remove();
                     } else {
                         const video_id = YoutubeUtil.cut_movie_hash(url);
-                        const channel_id = this.video_info_accessor.get_channel_id(video_id);
+                        const channel_id = video_info_accessor.get_channel_id(video_id);
                         if (channel_id != null) {
-                            if (this.storage.channel_id_filter(channel_id, title)) {
-                                $(video).detach();
+                            if (storage.channel_id_filter(channel_id, title)) {
+                                video.remove();
                             } else {
                                 GoogleUtil.set_channel_info(video, channel_id, channel);
                             }
                         } else {
-                            this.video_info_accessor.entry(video_id);
+                            video_info_accessor.entry(video_id);
                         }
                     }
                 };
-            });
-        });
+            }
+        }
     }
 
     filtering_google_pic_search() {
-        const pic_root = $("div#islrg");
-        if (pic_root.length <= 0) {
+        const pic_root = document.body.querySelector("div#islrg");
+        if (pic_root == null) {
             return;
         }
-        $(pic_root).find("div").each((inx, pict)=>{
-            if ($(pict).attr("data-ved") == null ||
-                $(pict).attr("data-hveid") == null) {
-                return
+        for (const pict of pic_root.getElementsByTagName("div")) {
+            if (!pict.hasAttribute("data-ved") ||
+                !pict.hasAttribute("data-hveid")) {
+                continue;
             }
-            const role = $(pict).attr("role");
-            if (role == null || role != "listitem") {
-                return;
+            const role = pict.getAttribute("role");
+            if (role == null || role !== "listitem") {
+                continue;
             }
-            const a_elm = HTMLUtil.search_node(pict, "a", (e)=>{
-                return $(e).attr("data-ved") != null;
+            const a_elm = HTMLUtil.search_node(pict, "a", e=>{
+                return e.hasAttribute("data-ved");
             });
             if (a_elm == null) {
-                return;
+                continue;
             }
-            const url = $(a_elm).attr("href");
-            const title = $(a_elm).attr("title");
-            const detach = (elem) => { $(elem).detach(); };
+            const url = a_elm.href;
+            const title = a_elm.getAttribute("title");
             const urlW = new urlWrapper(url);
             if (!urlW.in_google_searched_youtube()) {
-                return;
+                continue;
             }
             if (urlW.in_youtube_movie_page()) {
-                this.youtube_video_filter(pict, title, url, detach);
-            } else if (urlW.in_youtube_channel_page() ||
-                urlW.in_youtube_user_page() ||
-                urlW.in_youtube_custom_channel_page() ||
-                urlW.in_youtube_handle_page()) {
-                this.youtube_channel_filter(pict, title, url, detach);
+                this.youtube_video_filter(pict, title, url, detach_func);
+            } else if (urlW.in_youtube_any_channel_page()) {
+                this.youtube_channel_filter(pict, title, url, detach_func);
             } else if (urlW.in_youtube_playlist_page()) {
-                this.youtube_playlist_filter(pict, title, url, detach);
+                this.youtube_playlist_filter(pict, title, url, detach_func);
             }
-        });
+        }
     }
 
     /*!
      *  @brief  google検索結果にフィルタをかける
      */
     filtering_google_search_unit(elem) {
-        const elem_title = $(elem).find("h3");
-        if (elem_title.length != 1) {
+        const elem_title = elem.querySelector("h3");
+        if (elem_title == null) {
             return false;
         }
         const s_node = GoogleUtil.get_search_node(elem);
-        const href = $(elem).attr("href");
+        const href = elem.href;
         if (href == null) {
             // 動画検索部分表示
-            if ($(s_node).find("g-more-link").length == 1) {
+            if (s_node.getElementsByTagName("g-more-link").length == 1) {
                 this.filtering_searched_movie_part(elem);
             }
             return false;
@@ -332,16 +321,13 @@ class GoogleFilter extends FilterBase {
         if (!urlW.in_google_searched_youtube()) {
             return false; // tubeじゃない
         }
-        const title = $(elem_title[0]).text();
+        const title = elem_title.textContent;
         const detach = GoogleUtil.detach_search_node;
         if (urlW.in_youtube_movie_page()) {
             this.youtube_video_filter(s_node, title, url, detach);
         } else if (urlW.in_youtube_short_page()) {
             this.youtube_shorts_filter(s_node, title, url, detach);
-        } else if (urlW.in_youtube_channel_page() ||
-                urlW.in_youtube_user_page() ||
-                urlW.in_youtube_custom_channel_page() ||
-                urlW.in_youtube_handle_page()) {
+        } else if (urlW.in_youtube_any_channel_page()) {
             const channel_url = HTMLUtil.cut_url_query_param(url);
             this.youtube_channel_filter(s_node, title, channel_url, detach);
         } else if (urlW.in_youtube_playlist_page()) {
@@ -350,36 +336,36 @@ class GoogleFilter extends FilterBase {
         return true;
     }    
     filtering_google_search_core(elem) {
-        $(elem).find("a").each((inx, a)=>{
-            if ($(a).attr("jsname") == null) {
-                return;
+        for (const a of elem.getElementsByTagName("a")) {
+            if (!a.hasAttribute("jsname")) {
+                continue;
             }
             this.filtering_google_search_unit(a);
-        });
+        };
     }
     filtering_google_search_group(key_tag) {
-        const e_search = HTMLUtil.collect_node($(key_tag), "div", (elem)=> {
-            return $(elem).attr("data-async-context") != null;
+        const e_search = HTMLUtil.collect_node(key_tag, "div", (elem)=> {
+            return elem.hasAttribute("data-async-context");
         });
-        e_search.forEach((e, index, arr)=>{
-            $(e).children().each((inx, elem)=> {
-                if (this.filtering_google_search_core(elem)) {
-                    return;
+        for (const e of e_search) {
+            for (const ec of e.children) {
+                if (this.filtering_google_search_core(ec)) {
+                    continue;
                 }
                 // 動画スライド表示
-                $(elem).find("g-scrolling-carousel").each((inx, carousel)=> {
+                for (const carousel of ec.getElementsByTagName("g-scrolling-carousel")) {
                     this.filtering_carousel(carousel);
-                });
+                }
                 // 画像(サムネ)水平表示
-                $(elem).find("g-section-with-header").each((inx, header)=> {
+                for (const header of ec.getElementsByTagName("g-section-with-header")) {
                     this.filtering_thumb_header(header);
-                });
+                }
                 // 動画リスト表示
-                $(elem).find("g-more-link").each((inx, mvlist)=> {
+                for (const mvlist of ec.getElementsByTagName("g-more-link")) {
                     this.filtering_video_list(mvlist);
-                });
-            });
-        });
+                }
+            }
+        }
     }
     filtering_google_search() {
         this.filtering_google_search_group("div#search");
@@ -446,12 +432,12 @@ class GoogleFilter extends FilterBase {
      *  @param  json        動画情報(json)
      */
     tell_get_video_json(result, video_id, json) {
-        if (result == "success") {
+        if (result === "success") {
             this.video_info_accessor
                 .tell_get_json(video_id,
                                json,
                                this.post_proc_tell_get_video_json.bind(this));
-        } else if (result == "unauthorized") {
+        } else if (result === "unauthorized") {
             this.video_searcher.entry(video_id);
             this.video_searcher.kick();
         }
@@ -473,7 +459,7 @@ class GoogleFilter extends FilterBase {
      *  @param  xml         動画更新情報(xml)
      */
     tell_get_videos_xml(result, username, xml) {
-        if (result == "success") {
+        if (result === "success") {
             this.author_info_accessor
                 .tell_get_xml(username,
                               xml,
@@ -501,7 +487,7 @@ class GoogleFilter extends FilterBase {
      *  @param  html        チャンネル情報(html)
      */
     tell_get_channel_html(result, unique_name, html) {
-        if (result == "success") {
+        if (result === "success") {
             this.channel_info_accessor
                 .tell_get_html(unique_name,
                                html,
@@ -539,7 +525,7 @@ class GoogleFilter extends FilterBase {
      *  @param  html        検索結果(html)
      */
     tell_search_video_html(result, video_id, html) {
-        if (result == "success") {
+        if (result === "success") {
             this.video_searcher
                 .tell_get_html(video_id,
                                html,
@@ -581,7 +567,7 @@ class GoogleFilter extends FilterBase {
      *  @param  html    検索結果(html)
      */
     tell_search_playlist_html(result, list_id, html) {
-        if (result == "success") {
+        if (result === "success") {
             PlaylistSearcher
                 .parse_html(list_id,
                              html,
@@ -590,10 +576,12 @@ class GoogleFilter extends FilterBase {
     }
 
     get_observing_node(elem) {
-        const tag = "div#center_col";
-        $(tag).each((inx, e)=>{ elem.push(e); });
-        const pic_tag = "div#islmp";
-        $(pic_tag).each((inx, e)=>{ elem.push(e); });
+        for (const e of document.body.querySelectorAll("div#center_col")) {
+            elem.push(e);
+        }
+        for (const e of document.body.querySelectorAll("div#islmp")) {
+            elem.push(e);
+        }
     }
 
     callback_domloaded() {

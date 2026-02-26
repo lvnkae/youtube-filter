@@ -22,349 +22,340 @@ class Dashboard extends SettingBase {
             this.presetTextarea();
         });
         //
-        this.tab_buttons().each((inx, btn)=> {
-            $(btn).click(()=> {
+        for (const btn of this.tab_buttons()) {
+            btn.addEventListener('click', ()=> {
                 this.tab_selected(btn);
             });
-        });
-        this.selectbox_channel_filter().change(()=> {
+        }
+        this.selectbox_channel_filter().addEventListener('change', ()=> {
             this.selectbox_channel_filter_change();
         });
-        this.selectbox_comment_filter().change(()=> {
+        this.selectbox_comment_filter().addEventListener('change', ()=> {
             this.selectbox_comment_filter_change();
         });
-        this.selectbox_imexport().change(()=> {
+        this.selectbox_imexport().addEventListener('change', ()=> {
             this.selectbox_imexport_change();
         });
         //
-        this.textarea_filter_channel().keyup(()=> {
+        const textarea_filter_channel = this.textarea_filter_channel();
+        textarea_filter_channel.addEventListener('keyup', ()=> {
             this.textarea_filter_channel_keyup();
         });
-        this.textarea_filter_channel().keydown((event)=> {
+        textarea_filter_channel.addEventListener('keydown', (event)=> {
             Dashboard.textarea_keydown(
                 event, this.textarea_filter_channel_keyup.bind(this));
         });
-        this.textarea_filter_channel().scroll(()=> {
+        textarea_filter_channel.addEventListener('scroll', ()=> {
             this.textarea_filter_channel_scroll();
         });
-        this.textarea_filter_channel().click(()=> {
+        textarea_filter_channel.addEventListener('click', ()=> {
             this.textarea_filter_channel_click();
         });
-        this.textarea_filter_channel_id().keyup(()=> {
+        const textarea_filter_channel_id = this.textarea_filter_channel_id();
+        textarea_filter_channel_id.addEventListener('keyup', ()=> {
             this.textarea_filter_channel_id_keyup();
         });
-        this.textarea_filter_channel_id().keydown((event)=> {
+        textarea_filter_channel_id.addEventListener('keydown', (event)=> {
             Dashboard.textarea_keydown(
                 event, this.textarea_filter_channel_id_keyup.bind(this));
         });
-        this.textarea_filter_channel_id().scroll(()=> {
+        textarea_filter_channel_id.addEventListener('scroll', ()=> {
             this.textarea_filter_channel_id_scroll();
         });
-        this.textarea_filter_channel_id().click(()=> {
+        textarea_filter_channel_id.addEventListener('click', ()=> {
             this.textarea_filter_channel_id_click();
         });
-        this.textarea_filter_ex_channel().keyup(()=> {
+        this.textarea_filter_ex_channel().addEventListener('keyup', ()=> {
             this.textarea_filter_ex_channel_keyup();
         });
-        this.textarea_filter_ex_channel_id().keyup(()=> {
+        this.textarea_filter_ex_channel_id().addEventListener('keyup', ()=> {
             this.textarea_filter_ex_channel_id_keyup();
         });
-        this.textbox_channelname().keyup(()=> {
+        this.textbox_channelname().addEventListener('keyup' ,()=> {
             this.textbox_channelname_keyup();
         });
         //
-        this.textarea_filter_title().keyup(()=> {
+        this.textarea_filter_title().addEventListener('keyup', ()=> {
             this.textarea_filter_title_keyup();
         });
         //
-        this.textarea_filter_comment_by_user().keyup(()=> {
+        const textarea_filter_comment_by_user = this.textarea_filter_comment_by_user();
+        textarea_filter_comment_by_user.addEventListener('keyup', ()=> {
             this.textarea_filter_comment_by_user_keyup();
         });
-        this.textarea_filter_comment_by_user().keydown((event)=> {
+        textarea_filter_comment_by_user.addEventListener('keydown', (event)=> {
             Dashboard.textarea_keydown(
                 event, this.textarea_filter_comment_by_user_keyup.bind(this));
         });
-        this.textarea_filter_comment_by_user().scroll(()=> {
+        textarea_filter_comment_by_user.addEventListener('scroll', ()=> {
             this.textarea_filter_comment_by_user_scroll();
-        });        
-        this.textarea_filter_comment_by_user().click(()=> {
+        });
+        textarea_filter_comment_by_user.addEventListener('click', ()=> {
             this.textarea_filter_comment_by_user_click();
         });
-        this.textarea_filter_comment_by_id().keyup(()=> {
+        this.textarea_filter_comment_by_id().addEventListener('keyup', ()=> {
             this.textarea_filter_comment_by_id_keyup();
         });
-        this.textarea_filter_comment_by_word().keyup(()=> {
+        this.textarea_filter_comment_by_word().addEventListener('keyup', ()=> {
             this.textarea_filter_comment_by_word_keyup();
         });
-        this.textarea_filter_comment_by_handle().keyup(()=> {
+        this.textarea_filter_comment_by_handle().addEventListener('keyup', ()=> {
             this.textarea_filter_comment_by_handle_keyup();
         });
         //
-        this.textarea_import_storage().on('paste',(e)=> {
+        this.textarea_import_storage().addEventListener('paste',(e)=> {
             this.button_import_enable();
         });
         //
-        this.checkbox_filter_ex_channel_regexp().change(()=> {
+        this.checkbox_filter_ex_channel_regexp().addEventListener('change', ()=> {
             this.button_save_enable();
         });
-        this.checkbox_filter_ex_channel_perfectmatch().change(()=> {
+        this.checkbox_filter_ex_channel_perfectmatch().addEventListener('change', ()=> {
             this.button_save_enable();
         });
-        this.checkbox_filter_ex_channel_normalize().change(()=> {
+        this.checkbox_filter_ex_channel_normalize().addEventListener('change', ()=> {
             this.button_save_enable();
         });
-        this.checkbox_filter_ex_comment_by_user_regexp().change(()=> {
+        this.checkbox_filter_ex_comment_by_user_regexp().addEventListener('change', ()=> {
             this.button_save_enable();
         });
-        this.checkbox_filter_ex_comment_by_user_perfectmatch().change(()=> {
+        this.checkbox_filter_ex_comment_by_user_perfectmatch().addEventListener('change', ()=> {
             this.button_save_enable();
         });
-        this.checkbox_filter_ex_comment_by_user_normalize().change(()=> {
+        this.checkbox_filter_ex_comment_by_user_normalize().addEventListener('change', ()=> {
             this.button_save_enable();
         });
-        this.checkbox_filter_ex_comment_by_user_auto_ng_id().change(()=> {
+        this.checkbox_filter_ex_comment_by_user_auto_ng_id().addEventListener('change', ()=> {
             this.button_save_enable();
         });
-        this.checkbox_stop_autoplay().change(()=> {
+        this.checkbox_stop_autoplay().addEventListener('change', ()=> {
             this.button_save_enable();
         });
-        this.checkbox_disable_annotation().change(()=> {
+        this.checkbox_disable_annotation().addEventListener('change', ()=> {
             this.button_save_enable();
         });
-        this.checkbox_remove_sleeptimer().change(()=> {
+        this.checkbox_remove_sleeptimer().addEventListener('change', ()=> {
             this.button_save_enable();
         });
-        this.checkbox_disable_border_radius().change(()=> {
+        this.checkbox_disable_border_radius().addEventListener('change', ()=> {
             this.button_save_enable();
         });
-        this.checkbox_mute_shorts().change(()=> {
+        this.checkbox_mute_shorts().addEventListener('change', ()=> {
             this.button_save_enable();
         });
-        this.checkbox_remove_suggestion().change(()=> {
+        this.checkbox_remove_suggestion().addEventListener('change', ()=> {
             this.button_save_enable();
         });
-        this.checkbox_hidden_start().change(()=> {
-            this.button_save_enable();
-        });
-        this.checkbox_disable_24feb_ui().change(()=> {
+        this.checkbox_hidden_start().addEventListener('change', ()=> {
             this.button_save_enable();
         });
         //
-        this.button_save().click(()=> {
+        this.button_save().addEventListener('click', ()=> {
             this.button_save_click();
         });
-        this.button_import().click(()=> {
+        this.button_import().addEventListener('click', ()=> {
             this.button_import_click();
         });
     }
 
     checkbox_filter_ex_channel_regexp() {
-        return $("input#filter_ex_channel_regexp");
+        return document.body.querySelector("input#filter_ex_channel_regexp");
     }
     checkbox_filter_ex_channel_perfectmatch() {
-        return $("input#filter_ex_channel_perfectmatch");
+        return document.body.querySelector("input#filter_ex_channel_perfectmatch");
     }
     checkbox_filter_ex_channel_normalize() {
-        return $("input#filter_ex_channel_normalize");
+        return document.body.querySelector("input#filter_ex_channel_normalize");
     }
     checkbox_label_filter_ex_channel_regexp() {
-        return $("label#filter_ex_channel_regexp");
+        return document.body.querySelector("label#filter_ex_channel_regexp");
     }
     checkbox_label_filter_ex_channel_perfectmatch() {
-        return $("label#filter_ex_channel_perfectmatch");
+        return document.body.querySelector("label#filter_ex_channel_perfectmatch");
     }
     checkbox_label_filter_ex_channel_normalize() {
-        return $("label#filter_ex_channel_normalize");
+        return document.body.querySelector("label#filter_ex_channel_normalize");
     }
     textbox_channelname() {
-        return $("input#channelname");
+        return document.body.querySelector("input#channelname");
     }
     textbox_label_channelname() {
-        return $("label#channelname");
+        return document.body.querySelector("label#channelname");
     }
     //
     checkbox_filter_ex_comment_by_user_regexp() {
-        return $("input#com_regexp");
+        return document.body.querySelector("input#com_regexp");
     }
     checkbox_filter_ex_comment_by_user_perfectmatch() {
-        return $("input#com_perfectmatch");
+        return document.body.querySelector("input#com_perfectmatch");
     }
     checkbox_filter_ex_comment_by_user_normalize() {
-        return $("input#com_normalize");
+        return document.body.querySelector("input#com_normalize");
     }
     checkbox_filter_ex_comment_by_user_auto_ng_id() {
-        return $("input#com_autongid");
+        return document.body.querySelector("input#com_autongid");
     }
     checkbox_label_filter_ex_comment_by_user_regexp() {
-        return $("label#com_regexp");
+        return document.body.querySelector("label#com_regexp");
     }
     checkbox_label_filter_ex_comment_by_user_perfectmatch() {
-        return $("label#com_perfectmatch");
+        return document.body.querySelector("label#com_perfectmatch");
     }
     checkbox_label_filter_ex_comment_by_user_normalize() {
-        return $("label#com_normalize");
+        return document.body.querySelector("label#com_normalize");
     }
     checkbox_label_filter_ex_comment_by_user_auto_ng_id() {
-        return $("label#com_autongid");
+        return document.body.querySelector("label#com_autongid");
     }
     //
     checkbox_stop_autoplay() {
-        return $("input#stop_autoplay");
+        return document.body.querySelector("input#stop_autoplay");
     }
     checkbox_disable_annotation() {
-        return $("input#disable_annotation");
+        return document.body.querySelector("input#disable_annotation");
     }
     checkbox_remove_sleeptimer() {
-        return $("input#remove_sleeptimer");
+        return document.body.querySelector("input#remove_sleeptimer");
     }
     checkbox_disable_border_radius() {
-        return $("input#disable_border_radius");
+        return document.body.querySelector("input#disable_border_radius");
     }
     checkbox_mute_shorts() {
-        return $("input#mute_shorts");
+        return document.body.querySelector("input#mute_shorts");
     }
     checkbox_remove_suggestion() {
-        return $("input#remove_suggestion");
+        return document.body.querySelector("input#remove_suggestion");
     }
     checkbox_hidden_start() {
-        return $("input#hidden_start");
-    }
-    checkbox_disable_24feb_ui() {
-        return $("input#disable_24feb_ui");
+        return document.body.querySelector("input#hidden_start");
     }
     checkbox_label_stop_autoplay() {
-        return $("label#stop_autoplay");
+        return document.body.querySelector("label#stop_autoplay");
     }
     checkbox_label_disable_annotation() {
-        return $("label#disable_annotation");
+        return document.body.querySelector("label#disable_annotation");
     }
     checkbox_label_remove_sleeptimer() {
-        return $("label#remove_sleeptimer");
+        return document.body.querySelector("label#remove_sleeptimer");
     }
     checkbox_label_disable_border_radius() {
-        return $("label#disable_border_radius");
+        return document.body.querySelector("label#disable_border_radius");
     }
     checkbox_label_mute_shorts() {
-        return $("label#mute_shorts");
+        return document.body.querySelector("label#mute_shorts");
     }
     checkbox_label_remove_suggestion() {
-        return $("label#remove_suggestion");
+        return document.body.querySelector("label#remove_suggestion");
     }
     checkbox_label_hidden_start() {
-        return $("label#hidden_start");
-    }
-    checkbox_label_disable_24feb_ui() {
-        return $("label#disable_24feb_ui");
+        return document.body.querySelector("label#hidden_start");
     }
 
     get_flag_enable_filter() {
         return this.flag_enable_filter;
     }
     get_flag_stop_autoplay() {
-        return this.checkbox_stop_autoplay().prop("checked");
+        return this.checkbox_stop_autoplay().checked;
     }
     get_flag_disable_annotation() {
-        return this.checkbox_disable_annotation().prop("checked");
+        return this.checkbox_disable_annotation().checked;
     }
     get_flag_remove_sleeptimer() {
-        return this.checkbox_remove_sleeptimer().prop("checked");
+        return this.checkbox_remove_sleeptimer().checked;
     }
     get_flag_disable_border_radius() {
-        return this.checkbox_disable_border_radius().prop("checked");
+        return this.checkbox_disable_border_radius().checked;
     }
     get_flag_mute_shorts() {
-        return this.checkbox_mute_shorts().prop("checked");
+        return this.checkbox_mute_shorts().checked;
     }
     get_flag_remove_suggestion() {
-        return this.checkbox_remove_suggestion().prop("checked");
+        return this.checkbox_remove_suggestion().checked;
     }
     get_flag_hidden_start() {
-        return this.checkbox_hidden_start().prop("checked");
-    }
-    get_flag_disable_24feb_ui() {
-        return this.checkbox_disable_24feb_ui().prop("checked");
+        return this.checkbox_hidden_start().checked;
     }
     //
     textarea_export_storage() {
-        return $("textarea[name=export_storage]");
+        return document.body.querySelector("textarea[name=export_storage]");
     }
     textarea_import_storage() {
-        return $("textarea[name=import_storage]");
+        return document.body.querySelector("textarea[name=import_storage]");
     }
     tab_buttons() {
-        return $("div.tabButtons").find("button");
+        return document.body.querySelector("div.tabButtons").getElementsByTagName("button");
     }
 
     cursor_filter_channel() {
-        return $("div.cursor#filter_channel");
+        return document.body.querySelector("div.cursor#filter_channel");
     }
     cursor_filter_channel_id() {
-        return $("div.cursor#filter_channel_id");
+        return document.body.querySelector("div.cursor#filter_channel_id");
     }
     cursor_filter_comment_by_user() {
-        return $("div.cursor#filter_comment_by_user");
+        return document.body.querySelector("div.cursor#filter_comment_by_user");
     }
     subheading_filter_ex_channel() {
-        return $("div.subheading#filter_ex_channel");
+        return document.body.querySelector("div.subheading#filter_ex_channel");
     }
     subheading_filter_ex_channel_id() {
-        return $("div.subheading#filter_ex_channel_id");
+        return document.body.querySelector("div.subheading#filter_ex_channel_id");
     }
 
     pagetop_filter_channel() {
-        return $("div.pagetop#filter_channel");
+        return document.body.querySelector("div.pagetop#filter_channel");
     }
     pagetop_filter_title() {
-        return $("div.pagetop#filter_title");
+        return document.body.querySelector("div.pagetop#filter_title");
     }
     pagetop_filter_comment() {
-        return $("div.pagetop#filter_comment");
+        return document.body.querySelector("div.pagetop#filter_comment");
     }
     pagetop_imexport() {
-        return $("div.pagetop#imexport");
+        return document.body.querySelector("div.pagetop#imexport");
     }
     pagetop_option() {
-        return $("div.pagetop#option");
+        return document.body.querySelector("div.pagetop#option");
     }
 
 
     //
     hide_channel_filter_textarea_all() {
-        this.textarea_filter_channel().hide();
-        this.textarea_filter_channel_id().hide();
-        this.textarea_filter_ex_channel().hide();
-        this.textarea_filter_ex_channel_id().hide();
+        HTMLUtil.hide_element(this.textarea_filter_channel());
+        HTMLUtil.hide_element(this.textarea_filter_channel_id());
+        HTMLUtil.hide_element(this.textarea_filter_ex_channel());
+        HTMLUtil.hide_element(this.textarea_filter_ex_channel_id());
     }
     hide_channel_filter_cursor_all() {
-        this.cursor_filter_channel().hide();
-        this.cursor_filter_channel_id().hide();
+        HTMLUtil.hide_element(this.cursor_filter_channel());
+        HTMLUtil.hide_element(this.cursor_filter_channel_id());
     }
     hide_channel_filter_checkbox_all() {
-        this.checkbox_filter_ex_channel_regexp().hide();
-        this.checkbox_filter_ex_channel_perfectmatch().hide();
-        this.checkbox_filter_ex_channel_normalize().hide();
-        this.checkbox_label_filter_ex_channel_regexp().hide();
-        this.checkbox_label_filter_ex_channel_perfectmatch().hide();
-        this.checkbox_label_filter_ex_channel_normalize().hide();
+        HTMLUtil.hide_element(this.checkbox_filter_ex_channel_regexp());
+        HTMLUtil.hide_element(this.checkbox_filter_ex_channel_perfectmatch());
+        HTMLUtil.hide_element(this.checkbox_filter_ex_channel_normalize());
+        HTMLUtil.hide_element(this.checkbox_label_filter_ex_channel_regexp());
+        HTMLUtil.hide_element(this.checkbox_label_filter_ex_channel_perfectmatch());
+        HTMLUtil.hide_element(this.checkbox_label_filter_ex_channel_normalize());
     }
     show_channel_filter_checkbox_all() {
-        this.checkbox_filter_ex_channel_regexp().show();
-        this.checkbox_filter_ex_channel_perfectmatch().show();
-        this.checkbox_filter_ex_channel_normalize().show();
-        this.checkbox_label_filter_ex_channel_regexp().show();
-        this.checkbox_label_filter_ex_channel_perfectmatch().show();
-        this.checkbox_label_filter_ex_channel_normalize().show();
+        HTMLUtil.show_element(this.checkbox_filter_ex_channel_regexp());
+        HTMLUtil.show_element(this.checkbox_filter_ex_channel_perfectmatch());
+        HTMLUtil.show_element(this.checkbox_filter_ex_channel_normalize());
+        HTMLUtil.show_element(this.checkbox_label_filter_ex_channel_regexp());
+        HTMLUtil.show_element(this.checkbox_label_filter_ex_channel_perfectmatch());
+        HTMLUtil.show_element(this.checkbox_label_filter_ex_channel_normalize());
     }
     hide_filter_ex_channel() {
-        this.subheading_filter_ex_channel().hide();
-        this.textarea_filter_ex_channel().hide();
+        HTMLUtil.hide_element(this.subheading_filter_ex_channel());
+        HTMLUtil.hide_element(this.textarea_filter_ex_channel());
         this.hide_channel_filter_checkbox_all();
     }
     hide_filter_ex_channel_id() {
-        this.subheading_filter_ex_channel_id().hide();
-        this.textarea_filter_ex_channel_id().hide();
-        this.textbox_channelname().hide();
-        this.textbox_label_channelname().hide();
+        HTMLUtil.hide_element(this.subheading_filter_ex_channel_id());
+        HTMLUtil.hide_element(this.textarea_filter_ex_channel_id());
+        HTMLUtil.hide_element(this.textbox_channelname());
+        HTMLUtil.hide_element(this.textbox_label_channelname());
     }
     hide_channel_filter_all() {
         this.hide_channel_filter_textarea_all();
@@ -374,38 +365,38 @@ class Dashboard extends SettingBase {
     }
     //
     hide_title_filter_all() {
-        this.textarea_filter_title().hide();
+        HTMLUtil.hide_element(this.textarea_filter_title());
     }
     //
     hide_comment_filter_textarea_all() {
-        this.textarea_filter_comment_by_user().hide();
-        this.textarea_filter_comment_by_id().hide();
-        this.textarea_filter_comment_by_word().hide();
-        this.textarea_filter_comment_by_handle().hide();
+        HTMLUtil.hide_element(this.textarea_filter_comment_by_user());
+        HTMLUtil.hide_element(this.textarea_filter_comment_by_id());
+        HTMLUtil.hide_element(this.textarea_filter_comment_by_word());
+        HTMLUtil.hide_element(this.textarea_filter_comment_by_handle());
     }
     hide_comment_filter_cursor_all() {
-        this.cursor_filter_comment_by_user().hide();
+        HTMLUtil.hide_element(this.cursor_filter_comment_by_user());
     }
     hide_comment_filter_by_user_checkbox_all() {
-        this.checkbox_filter_ex_comment_by_user_regexp().hide();
-        this.checkbox_filter_ex_comment_by_user_perfectmatch().hide();
-        this.checkbox_filter_ex_comment_by_user_normalize().hide();
-        this.checkbox_filter_ex_comment_by_user_auto_ng_id().hide();
-        this.checkbox_label_filter_ex_comment_by_user_regexp().hide();
-        this.checkbox_label_filter_ex_comment_by_user_perfectmatch().hide();
-        this.checkbox_label_filter_ex_comment_by_user_normalize().hide();
-        this.checkbox_label_filter_ex_comment_by_user_auto_ng_id().hide();
+        HTMLUtil.hide_element(this.checkbox_filter_ex_comment_by_user_regexp());
+        HTMLUtil.hide_element(this.checkbox_filter_ex_comment_by_user_perfectmatch());
+        HTMLUtil.hide_element(this.checkbox_filter_ex_comment_by_user_normalize());
+        HTMLUtil.hide_element(this.checkbox_filter_ex_comment_by_user_auto_ng_id());
+        HTMLUtil.hide_element(this.checkbox_label_filter_ex_comment_by_user_regexp());
+        HTMLUtil.hide_element(this.checkbox_label_filter_ex_comment_by_user_perfectmatch());
+        HTMLUtil.hide_element(this.checkbox_label_filter_ex_comment_by_user_normalize());
+        HTMLUtil.hide_element(this.checkbox_label_filter_ex_comment_by_user_auto_ng_id());
     }
     show_comment_filter_by_user_checkbox_all() {
-        this.checkbox_filter_ex_comment_by_user_regexp().show();
-        this.checkbox_filter_ex_comment_by_user_perfectmatch().show();
-        this.checkbox_filter_ex_comment_by_user_normalize().show();
-        this.checkbox_filter_ex_comment_by_user_auto_ng_id().show();
-        this.checkbox_label_filter_ex_comment_by_user_regexp().show();
-        this.checkbox_label_filter_ex_comment_by_user_perfectmatch().show();
-        this.checkbox_label_filter_ex_comment_by_user_normalize().show();
-        this.checkbox_label_filter_ex_comment_by_user_auto_ng_id().show();
-    }    
+        HTMLUtil.show_element(this.checkbox_filter_ex_comment_by_user_regexp());
+        HTMLUtil.show_element(this.checkbox_filter_ex_comment_by_user_perfectmatch());
+        HTMLUtil.show_element(this.checkbox_filter_ex_comment_by_user_normalize());
+        HTMLUtil.show_element(this.checkbox_filter_ex_comment_by_user_auto_ng_id());
+        HTMLUtil.show_element(this.checkbox_label_filter_ex_comment_by_user_regexp());
+        HTMLUtil.show_element(this.checkbox_label_filter_ex_comment_by_user_perfectmatch());
+        HTMLUtil.show_element(this.checkbox_label_filter_ex_comment_by_user_normalize());
+        HTMLUtil.show_element(this.checkbox_label_filter_ex_comment_by_user_auto_ng_id());
+    }
     hide_filter_ex_comment_by_user() {
         this.hide_comment_filter_by_user_checkbox_all();
     }
@@ -416,63 +407,59 @@ class Dashboard extends SettingBase {
     }
     //
     hide_imexport_textarea_all() {
-        this.textarea_export_storage().hide();
-        this.textarea_import_storage().hide();
-        this.textarea_import_storage().val("");
+        HTMLUtil.hide_element(this.textarea_export_storage());
+        HTMLUtil.hide_element(this.textarea_import_storage());
+        this.textarea_import_storage().value = '';
     }
     hide_imexport_all() {
-        this.hide_imexport_textarea_all();        
+        this.hide_imexport_textarea_all();
     }
     //
     hide_option_checkbox_all() {
-        this.checkbox_stop_autoplay().hide();
-        this.checkbox_disable_annotation().hide();
-        this.checkbox_remove_sleeptimer().hide();
-        this.checkbox_disable_border_radius().hide();
-        this.checkbox_mute_shorts().hide();
-        this.checkbox_remove_suggestion().hide();
-        this.checkbox_hidden_start().hide();
-        this.checkbox_disable_24feb_ui().hide();
-        this.checkbox_label_stop_autoplay().hide();
-        this.checkbox_label_disable_annotation().hide();
-        this.checkbox_label_remove_sleeptimer().hide();
-        this.checkbox_label_disable_border_radius().hide();
-        this.checkbox_label_mute_shorts().hide();
-        this.checkbox_label_remove_suggestion().hide();
-        this.checkbox_label_hidden_start().hide();
-        this.checkbox_label_disable_24feb_ui().hide();
+        HTMLUtil.hide_element(this.checkbox_stop_autoplay());
+        HTMLUtil.hide_element(this.checkbox_disable_annotation());
+        HTMLUtil.hide_element(this.checkbox_remove_sleeptimer());
+        HTMLUtil.hide_element(this.checkbox_disable_border_radius());
+        HTMLUtil.hide_element(this.checkbox_mute_shorts());
+        HTMLUtil.hide_element(this.checkbox_remove_suggestion());
+        HTMLUtil.hide_element(this.checkbox_hidden_start());
+        HTMLUtil.hide_element(this.checkbox_label_stop_autoplay());
+        HTMLUtil.hide_element(this.checkbox_label_disable_annotation());
+        HTMLUtil.hide_element(this.checkbox_label_remove_sleeptimer());
+        HTMLUtil.hide_element(this.checkbox_label_disable_border_radius());
+        HTMLUtil.hide_element(this.checkbox_label_mute_shorts());
+        HTMLUtil.hide_element(this.checkbox_label_remove_suggestion());
+        HTMLUtil.hide_element(this.checkbox_label_hidden_start());
     }
     show_option_checkbox_all() {
-        this.checkbox_stop_autoplay().show();
-        this.checkbox_disable_annotation().show();
-        this.checkbox_remove_sleeptimer().show();
-        this.checkbox_disable_border_radius().show();
-        this.checkbox_mute_shorts().show();
-        this.checkbox_remove_suggestion().show();
-        this.checkbox_hidden_start().show();
-        this.checkbox_disable_24feb_ui().show();
-        this.checkbox_label_stop_autoplay().show();
-        this.checkbox_label_disable_annotation().show();
-        this.checkbox_label_remove_sleeptimer().show();
-        this.checkbox_label_disable_border_radius().show();
-        this.checkbox_label_mute_shorts().show();
-        this.checkbox_label_remove_suggestion().show();
-        this.checkbox_label_hidden_start().show();
-        this.checkbox_label_disable_24feb_ui().show();
+        HTMLUtil.show_element(this.checkbox_stop_autoplay());
+        HTMLUtil.show_element(this.checkbox_disable_annotation());
+        HTMLUtil.show_element(this.checkbox_remove_sleeptimer());
+        HTMLUtil.show_element(this.checkbox_disable_border_radius());
+        HTMLUtil.show_element(this.checkbox_mute_shorts());
+        HTMLUtil.show_element(this.checkbox_remove_suggestion());
+        HTMLUtil.show_element(this.checkbox_hidden_start());
+        HTMLUtil.show_element(this.checkbox_label_stop_autoplay());
+        HTMLUtil.show_element(this.checkbox_label_disable_annotation());
+        HTMLUtil.show_element(this.checkbox_label_remove_sleeptimer());
+        HTMLUtil.show_element(this.checkbox_label_disable_border_radius());
+        HTMLUtil.show_element(this.checkbox_label_mute_shorts());
+        HTMLUtil.show_element(this.checkbox_label_remove_suggestion());
+        HTMLUtil.show_element(this.checkbox_label_hidden_start());
     }
     hide_option_all() {
         this.hide_option_checkbox_all();
     }
     //
     hide_main_all() {
-        this.selectbox_channel_filter().hide();
-        this.selectbox_comment_filter().hide();
-        this.selectbox_imexport().hide();
-        this.pagetop_filter_channel().hide();
-        this.pagetop_filter_title().hide();
-        this.pagetop_filter_comment().hide();
-        this.pagetop_imexport().hide();
-        this.pagetop_option().hide();
+        HTMLUtil.hide_element(this.selectbox_channel_filter());
+        HTMLUtil.hide_element(this.selectbox_comment_filter());
+        HTMLUtil.hide_element(this.selectbox_imexport());
+        HTMLUtil.hide_element(this.pagetop_filter_channel());
+        HTMLUtil.hide_element(this.pagetop_filter_title());
+        HTMLUtil.hide_element(this.pagetop_filter_comment());
+        HTMLUtil.hide_element(this.pagetop_imexport());
+        HTMLUtil.hide_element(this.pagetop_option());
         this.hide_channel_filter_all();
         this.hide_title_filter_all();
         this.hide_comment_filter_all();
@@ -481,78 +468,79 @@ class Dashboard extends SettingBase {
     }
     //
     show_export_storage() {
-        this.textarea_export_storage().val(StoragePorter.export(this.storage.json));
-        this.textarea_export_storage().show();
-        this.button_save().hide();
-        this.button_import().hide();
+        this.textarea_export_storage().value = StoragePorter.export(this.storage.json);
+        HTMLUtil.show_element(this.textarea_export_storage());
+        HTMLUtil.hide_element(this.button_save());
+        HTMLUtil.hide_element(this.button_import());
     }
     show_import_storage() {
-        this.textarea_import_storage().show();
-        this.button_save().hide();
-        this.button_import().show();
+        HTMLUtil.show_element(this.textarea_import_storage());
+        HTMLUtil.hide_element(this.button_save());
+        HTMLUtil.show_element(this.button_import());
     }
 
     //
     textarea_filter_channel_keyup() {
-        if (this.textarea_filter_channel().val() != this.storage.ng_channel_text) {
+        if (this.textarea_filter_channel().value !== this.storage.ng_channel_text) {
             this.button_save_enable();
         }
         this.update_cursor_filter_channel();
         this.update_filter_ex_channel_item();
     }
     textarea_filter_channel_id_keyup() {
-        if (this.textarea_filter_channel_id().val() != this.storage.ng_channel_id_text) {
+        if (this.textarea_filter_channel_id().value
+            !== this.storage.ng_channel_id_text) {
             this.button_save_enable();
         }
         this.update_cursor_filter_channel_id();
         this.update_filter_ex_channel_id_item();
     }
     textarea_filter_title_keyup() {
-        if (this.textarea_filter_title().val() != this.storage.ng_title_text) {
+        if (this.textarea_filter_title().value !== this.storage.ng_title_text) {
             this.button_save_enable();
         }
     };
     textarea_filter_ex_channel_keyup() {
-        if (this.textarea_filter_ex_channel().val()
-            != this.ex_channel_buffer[this.ex_channel_last].black_titles) {
+        if (this.textarea_filter_ex_channel().value
+            !== this.ex_channel_buffer[this.ex_channel_last].black_titles) {
             this.button_save_enable();
         }
     }
     textarea_filter_ex_channel_id_keyup() {
-        if (this.textarea_filter_ex_channel_id().val()
-            != this.ex_channel_id_buffer[this.ex_channel_id_last].black_titles) {
+        if (this.textarea_filter_ex_channel_id().value
+            !== this.ex_channel_id_buffer[this.ex_channel_id_last].black_titles) {
             this.button_save_enable();
         }
     }
     textbox_channelname_keyup() {
-        if (this.textbox_channelname().val()
-            != this.ex_channel_id_buffer[this.ex_channel_id_last].commment) {
+        if (this.textbox_channelname().value
+            !== this.ex_channel_id_buffer[this.ex_channel_id_last].commment) {
             this.button_save_enable();
         }
     }
     textarea_filter_comment_by_user_keyup() {
-        if (this.textarea_filter_comment_by_user().val()
-            != this.storage.ng_comment_by_user_text) {
+        if (this.textarea_filter_comment_by_user().value
+            !== this.storage.ng_comment_by_user_text) {
             this.button_save_enable();
         }
         this.update_cursor_filter_comment_by_user();
         this.update_filter_ex_comment_by_user_item();
     }
     textarea_filter_comment_by_id_keyup() {
-        if (this.textarea_filter_comment_by_id().val()
-            != this.storage.ng_comment_by_id_text) {
+        if (this.textarea_filter_comment_by_id().value
+            !== this.storage.ng_comment_by_id_text) {
             this.button_save_enable();
         }
     };
     textarea_filter_comment_by_word_keyup() {
-        if (this.textarea_filter_comment_by_word().val()
-            != this.storage.ng_comment_by_word_text) {
+        if (this.textarea_filter_comment_by_word().value
+            !== this.storage.ng_comment_by_word_text) {
             this.button_save_enable();
         }
     }
     textarea_filter_comment_by_handle_keyup() {
-        if (this.textarea_filter_comment_by_handle().val()
-            != this.storage.ng_comment_by_handle_text) {
+        if (this.textarea_filter_comment_by_handle().value
+            !== this.storage.ng_comment_by_handle_text) {
             this.button_save_enable();
         }
     }
@@ -577,14 +565,14 @@ class Dashboard extends SettingBase {
             this.ex_channel_last = null;
             this.hide_filter_ex_channel();
         };
-        if (t.length <= 0 || t_ex.length <= 0) {
+        if (t == null || t_ex == null) {
             f_dispoff();
             return;
         }
         const word
             = text_utility.search_text_connected_by_new_line(
-                t[0].selectionStart,
-                t.val());
+                t.selectionStart,
+                t.value);
         if (word == null) {
             f_dispoff();
             return;
@@ -592,39 +580,39 @@ class Dashboard extends SettingBase {
         this.cleanup_ex_channel();
         this.ex_channel_last = word;
         //
-        const subheading_offset_x = t[0].clientWidth + 32;
-        let subheading = $("div.subheading#filter_ex_channel");
-        $(subheading).text(word + 'の非表示タイトル');
-        $(subheading).attr("style", "left:" + subheading_offset_x + "px");
+        const subheading_offset_x = t.clientWidth + 32;
+        let subheading = this.subheading_filter_ex_channel();
+        subheading.textContent = `${word}の非表示タイトル`
+        subheading.setAttribute("style", `left:${subheading_offset_x}px`);
         //
-        const t_ex_offset_x = t[0].clientWidth + 32;
+        const t_ex_offset_x = subheading_offset_x;
         const t_ex_offset_y = 32;
-        const t_ex_style = "position:absolute;" 
-                         + "top:" + t_ex_offset_y + "px;"
-                         + "left:" + t_ex_offset_x + "px";
-        $(t_ex).attr("style", t_ex_style);
+        const t_ex_style
+            = `position:absolute;top:${t_ex_offset_y}px;left:${t_ex_offset_x}px`;
+        t_ex.setAttribute("style", t_ex_style);
         let ckbox_regexp = this.checkbox_filter_ex_channel_regexp();
         let ckbox_perfectmatch = this.checkbox_filter_ex_channel_perfectmatch();
         let ckbox_normalize = this.checkbox_filter_ex_channel_normalize();
         if (word in this.ex_channel_buffer) {
             const obj = this.ex_channel_buffer[word];
-            $(t_ex).val(obj.black_titles);
-            ckbox_regexp.prop("checked", obj.b_regexp);
-            ckbox_perfectmatch.prop("checked", obj.b_perfect_match);
-            ckbox_normalize.prop("checked", obj.b_normalize);
+            t_ex.value = obj.black_titles;
+            ckbox_regexp.checked = obj.b_regexp;
+            ckbox_perfectmatch.checked = obj.b_perfect_match;
+            ckbox_normalize.checked = obj.b_normalize;
         } else {
-            $(t_ex).val('');
-            ckbox_regexp.prop("checked", false);
-            ckbox_perfectmatch.prop("checked", false);
-            ckbox_normalize.prop("checked", false);
+            t_ex.value = '';
+            ckbox_regexp.checked = false;
+            ckbox_perfectmatch.checked = false;
+            ckbox_normalize.checked = false;
             this.ex_channel_buffer[word]
                 = new ChannelFilterParam(false, false, false, '');
         }
-        const ckbox_offset_y = t_ex_offset_y + t_ex[0].clientHeight + 16;
-        const ckbox_offset_x = t[0].clientWidth + 32;
-        const ckbox_style = "top:" + ckbox_offset_y + "px;"
-                          + "left:" + ckbox_offset_x + "px";
-        $("div.checkbox#filter_ex_channel").attr("style", ckbox_style);
+        const ckbox_offset_x = subheading_offset_x;
+        const ckbox_offset_y = t_ex_offset_y + t_ex.clientHeight + 16;
+        const ckbox_style = `top:${ckbox_offset_y}px;left:${ckbox_offset_x}px`;
+        let chbox_ex_channel
+            = document.body.querySelector("div.checkbox#filter_ex_channel");
+        chbox_ex_channel.setAttribute("style", ckbox_style);
         this.show_channel_filter_checkbox_all();
     }
     update_filter_ex_channel_id_item() {
@@ -634,14 +622,14 @@ class Dashboard extends SettingBase {
             this.ex_channel_id_last = null;
             this.hide_filter_ex_channel_id();
         };
-        if (t.length <= 0 || t_ex.length <= 0) {
+        if (t == null || t_ex == null) {
             f_dispoff();
             return;
         }
         const channel_id
             = text_utility.search_text_connected_by_new_line(
-                t[0].selectionStart,
-                t.val());
+                t.selectionStart,
+                t.value);
         if (channel_id == null) {
             f_dispoff();
             return;
@@ -649,36 +637,36 @@ class Dashboard extends SettingBase {
         this.cleanup_ex_channel_id();
         this.ex_channel_id_last = channel_id;
         //
-        const subheading_offset_x = t[0].clientWidth + 32;
-        let subheading = $("div.subheading#filter_ex_channel_id");
-        $(subheading).text(channel_id + 'の非表示タイトル');
-        $(subheading).attr("style", "left:" + subheading_offset_x + "px");
+        const subheading_offset_x = t.clientWidth + 32;
+        let subheading = this.subheading_filter_ex_channel_id();
+        subheading.textContent = `${channel_id}の非表示タイトル`;
+        subheading.setAttribute("style", `left:${subheading_offset_x}px`);
         //
-        const t_ex_offset_x = t[0].clientWidth + 32;
+        const t_ex_offset_x = subheading_offset_x;
         const t_ex_offset_y = 32;
-        const t_ex_style = "position:absolute;" 
-                         + "top:" + t_ex_offset_y + "px;"
-                         + "left:" + t_ex_offset_x + "px";
-        $(t_ex).attr("style", t_ex_style);
+        const t_ex_style
+            = `position:absolute;top:${t_ex_offset_y}px;left:${t_ex_offset_x}px`;
+        t_ex.setAttribute("style", t_ex_style);
         {
             if (channel_id in this.ex_channel_id_buffer) {
                 const obj = this.ex_channel_id_buffer[channel_id];
-                this.textarea_filter_ex_channel_id().val(obj.black_titles);
-                this.textbox_channelname().val(obj.comment);
+                this.textarea_filter_ex_channel_id().value = obj.black_titles;
+                this.textbox_channelname().value = obj.comment;
             } else {
-                this.textarea_filter_ex_channel_id().val('');
-                this.textbox_channelname().val('');
+                this.textarea_filter_ex_channel_id().value = '';
+                this.textbox_channelname().value = ''
                 this.ex_channel_id_buffer[channel_id]
                     = new ChannelIDFilterParam('', '');
             }
         }
-        const chname_offset_y = t_ex_offset_y + t_ex[0].clientHeight + 16;
-        const chname_offset_x = t[0].clientWidth + 32;
-        const chname_style = "top:" + chname_offset_y + "px;"
-                           + "left:" + chname_offset_x + "px";
-        $("div.channelname#filter_ex_channel_id").attr("style", chname_style);        
-        this.textbox_channelname().show();
-        this.textbox_label_channelname().show();
+        const chname_offset_x = subheading_offset_x;
+        const chname_offset_y = t_ex_offset_y + t_ex.clientHeight + 16;
+        const chname_style = `top:${chname_offset_y}px;left:${chname_offset_x}px`;
+        let chname_ex_channel_id
+            = document.body.querySelector("div.channelname#filter_ex_channel_id");
+        chname_ex_channel_id.setAttribute("style", chname_style);
+        HTMLUtil.show_element(this.textbox_channelname());
+        HTMLUtil.show_element(this.textbox_label_channelname());
     }
     update_filter_ex_comment_by_user_item() {
         let t = this.textarea_filter_comment_by_user();
@@ -686,14 +674,14 @@ class Dashboard extends SettingBase {
             this.ex_comment_user_last = null;
             this.hide_filter_ex_comment_by_user();
         };
-        if (t.length <= 0) {
+        if (t == null) {
             f_dispoff();
             return;
         }
         const word
             = text_utility.search_text_connected_by_new_line(
-                t[0].selectionStart,
-                t.val());
+                t.selectionStart,
+                t.value);
         if (word == null) {
             f_dispoff();
             return;
@@ -707,48 +695,45 @@ class Dashboard extends SettingBase {
         let ckbox_auto_ng_id = this.checkbox_filter_ex_comment_by_user_auto_ng_id();
         if (word in this.ex_comment_user_buffer) {
             const obj = this.ex_comment_user_buffer[word];
-            ckbox_regexp.prop("checked", obj.b_regexp);
-            ckbox_perfectmatch.prop("checked", obj.b_perfect_match);
-            ckbox_normalize.prop("checked", obj.b_normalize);
-            ckbox_auto_ng_id.prop("checked", obj.b_auto_ng_id);
+            ckbox_regexp.checked = obj.b_regexp;
+            ckbox_perfectmatch.checked = obj.b_perfect_match;
+            ckbox_normalize.checked = obj.b_normalize;
+            ckbox_auto_ng_id.checked = obj.b_auto_ng_id;
         } else {
-            ckbox_regexp.prop("checked", false);
-            ckbox_perfectmatch.prop("checked", false);
-            ckbox_normalize.prop("checked", false);
-            ckbox_auto_ng_id.prop("checked", false);
+            ckbox_regexp.checked = false;
+            ckbox_perfectmatch.checked = false;
+            ckbox_normalize.checked = false;
+            ckbox_auto_ng_id.checked = false;
             this.ex_comment_user_buffer[word]
                 = new CommentFilterByUserParam(false, false, false, false);
         }
+        const ckbox_offset_x = t.clientWidth + 32;
         const ckbox_offset_y = 16;
-        const ckbox_offset_x = t[0].clientWidth + 32;
-        const ckbox_style = "top:" + ckbox_offset_y + "px;"
-                          + "left:" + ckbox_offset_x + "px";
-        $("div.checkbox#filter_ex_comment_by_user").attr("style", ckbox_style);
+        const ckbox_style = `top:${ckbox_offset_y}px;left:${ckbox_offset_x}px`;
+        const chbox_ex_comment_by_user
+            = document.body.querySelector("div.checkbox#filter_ex_comment_by_user");
+        chbox_ex_comment_by_user.setAttribute("style", ckbox_style);
         this.show_comment_filter_by_user_checkbox_all();
     }
     //
     update_option_checkbox() {
         const json = this.storage.json;
         this.flag_enable_filter = json.active;
-        this.checkbox_stop_autoplay().prop("checked",
-            json.stop_autoplay == null ?false
-                                       :json.stop_autoplay);
-        this.checkbox_disable_annotation().prop("checked",
-            json.disable_annotation == null ?false
-                                            :json.disable_annotation);
-        this.checkbox_remove_sleeptimer().prop("checked",
-            json.remove_sleeptimer == null ?false
-                                           :json.remove_sleeptimer);
-        this.checkbox_disable_border_radius().prop(
-            "checked",
-            this.storage.is_disable_border_radius());
-        this.checkbox_mute_shorts().prop("checked", this.storage.is_mute_shorts());
-        this.checkbox_remove_suggestion().prop("checked",
-                                               this.storage.is_remove_suggestion());
-        this.checkbox_hidden_start().prop("checked",
-                                          this.storage.is_hidden_start());
-        this.checkbox_disable_24feb_ui().prop("checked",
-                                              this.storage.is_disable_24feb_ui());
+        this.checkbox_stop_autoplay().checked
+            = json.stop_autoplay == null ?false
+                                         :json.stop_autoplay;
+        this.checkbox_disable_annotation().checked
+            = json.disable_annotation == null ?false
+                                              :json.disable_annotation;
+        this.checkbox_remove_sleeptimer().checked
+            = json.remove_sleeptimer == null ?false
+                                             :json.remove_sleeptimer;
+        this.checkbox_disable_border_radius().checked
+            = this.storage.is_disable_border_radius();
+        this.checkbox_mute_shorts().checked = this.storage.is_mute_shorts();
+        this.checkbox_remove_suggestion().checked
+            = this.storage.is_remove_suggestion();
+        this.checkbox_hidden_start().checked = this.storage.is_hidden_start();
         this.show_option_checkbox_all();
     }
     //
@@ -778,7 +763,7 @@ class Dashboard extends SettingBase {
      *  @brief  前回「非表示チャンネル詳細設定」の後始末
      */
     cleanup_ex_channel() {
-        if (this.ex_channel_last != '') {
+        if (this.ex_channel_last !== '') {
             this.ex_channel_buffer_to_reflect_current(this.ex_channel_last);
         }
     }
@@ -786,7 +771,7 @@ class Dashboard extends SettingBase {
      *  @brief  前回「非表示チャンネル(ID)詳細設定」の後始末
      */
     cleanup_ex_channel_id() {
-        if (this.ex_channel_id_last != '') {
+        if (this.ex_channel_id_last !== '') {
             this.ex_channel_id_buffer_to_reflect_current(this.ex_channel_id_last);
         }
     }
@@ -794,56 +779,57 @@ class Dashboard extends SettingBase {
      *  @brief  前回「非表示コメント(ユーザ)詳細設定」の後始末
      */
     cleanup_ex_comment_by_user() {
-        if (this.ex_comment_user_last != '') {
+        if (this.ex_comment_user_last !== '') {
             this.ex_comment_user_buffer_to_reflect_current(this.ex_comment_user_last);
         }
     }
 
     selectbox_channel_filter() {
-        return $("select[name=select_channel_filter]");
+        return document.body.querySelector("select[name=select_channel_filter]");
     }
     selectbox_comment_filter() {
-        return $("select[name=select_comment_filter]");
+        return document.body.querySelector("select[name=select_comment_filter]");
     }
     selectbox_imexport() {
-        return $("select[name=select_imexport]");
+        return document.body.querySelector("select[name=select_imexport]");
     }
 
     is_selected_ng_channel() {
-        return this.selectbox_channel_filter().val() == "ng_channel_word";
+        return this.selectbox_channel_filter().value === "ng_channel_word";
     }
     is_selected_ng_channel_id() {
-        return this.selectbox_channel_filter().val() == "ng_channel_id";
+        return this.selectbox_channel_filter().value === "ng_channel_id";
     }
     is_selected_ng_comment_by_user() {
-        return this.selectbox_comment_filter().val() == "ng_comment_user";
+        return this.selectbox_comment_filter().value === "ng_comment_user";
     }
     is_selected_ng_comment_by_id() {
-        return this.selectbox_comment_filter().val() == "ng_comment_id";
+        return this.selectbox_comment_filter().value === "ng_comment_id";
     }
     is_selected_ng_comment_by_word() {
-        return this.selectbox_comment_filter().val() == "ng_comment_word";
+        return this.selectbox_comment_filter().value === "ng_comment_word";
     }
     is_selected_ng_comment_by_handle() {
-        return this.selectbox_comment_filter().val() == "ng_comment_handle";
+        return this.selectbox_comment_filter().value === "ng_comment_handle";
     }
     is_selected_export_storage() {
-        return this.selectbox_imexport().val() == "export";
+        return this.selectbox_imexport().value === "export";
     }
     is_selected_import_storage() {
-        return this.selectbox_imexport().val() == "import";
+        return this.selectbox_imexport().value === "import";
     }
 
     static kick_textarea(t) {
-        t().show();
-        t().focus();
-        t().click();
+        const tx = t();
+        HTMLUtil.show_element(tx);
+        tx.focus();
+        tx.click();
     }
     selectbox_channel_filter_change() {
         this.hide_channel_filter_all();
         if (this.is_selected_ng_channel()) {
             Dashboard.kick_textarea(this.textarea_filter_channel.bind(this));
-        } else 
+        } else
         if (this.is_selected_ng_channel_id()) {
             Dashboard.kick_textarea(this.textarea_filter_channel_id.bind(this));
         } else {
@@ -854,10 +840,10 @@ class Dashboard extends SettingBase {
         this.hide_comment_filter_all();
         if (this.is_selected_ng_comment_by_user()) {
             Dashboard.kick_textarea(this.textarea_filter_comment_by_user.bind(this));
-        } else 
+        } else
         if (this.is_selected_ng_comment_by_id()) {
             Dashboard.kick_textarea(this.textarea_filter_comment_by_id.bind(this));
-            this.textarea_filter_comment_by_id().show();
+            HTMLUtil.show_element(this.textarea_filter_comment_by_id());
         } else
         if (this.is_selected_ng_comment_by_word()) {
             Dashboard.kick_textarea(this.textarea_filter_comment_by_word.bind(this));
@@ -872,12 +858,12 @@ class Dashboard extends SettingBase {
         this.hide_imexport_all();
         if (this.is_selected_export_storage()) {
             this.show_export_storage();
-        } else 
+        } else
         if (this.is_selected_import_storage()) {
             this.show_import_storage();
         } else {
             return;
-        }        
+        }
     }
 
     button_save_click() {
@@ -890,14 +876,14 @@ class Dashboard extends SettingBase {
 
     button_import_click() {
         const importer = new StoragePorter(this.storage.json);
-        if (importer.import(this.textarea_import_storage().val())) {
+        if (importer.import(this.textarea_import_storage().value)) {
             this.storage.json = importer.json;
             this.storage.save();
             this.storage.update_text();
             this.updateTextarea();
-            this.textarea_import_storage().val("[[OK]]");
+            this.textarea_import_storage().value = "[[OK]]";
         } else {
-            this.textarea_import_storage().val("[[ERROR]]");
+            this.textarea_import_storage().value = "[[ERROR]]";
         }
     }
 
@@ -909,18 +895,18 @@ class Dashboard extends SettingBase {
         if (Dashboard.button_is_selected(clicked_btn)) {
             return;
         }
-        this.tab_buttons().each((inx, btn)=>{
+        for (const btn of this.tab_buttons()) {
             if (btn == clicked_btn) {
-                $(btn).attr('class', 'tabButton selected');
-            } else 
+                btn.setAttribute('class', 'tabButton selected');
+            } else
             if (Dashboard.button_is_selected(btn)) {
-                $(btn).attr('class', 'tabButton');
+                btn.setAttribute('class', 'tabButton');
             }
-        });
+        }
         this.hide_main_all();
-        this.button_import().hide();
-        this.button_save().hide();
-        switch($(clicked_btn).attr('name')) {
+        HTMLUtil.hide_element(this.button_import());
+        HTMLUtil.hide_element(this.button_save());
+        switch(clicked_btn.getAttribute('name')) {
         case 'tab_channel_filter':
             this.display_elem_channel_filter();
             break;
@@ -941,31 +927,31 @@ class Dashboard extends SettingBase {
 
     //
     display_elem_channel_filter() {
-        this.pagetop_filter_channel().show();
-        this.selectbox_channel_filter().show();
+        HTMLUtil.show_element(this.pagetop_filter_channel());
+        HTMLUtil.show_element(this.selectbox_channel_filter());
         this.selectbox_channel_filter_change();
-        this.button_save().show();
+        HTMLUtil.show_element(this.button_save());
     }
     display_elem_title_filter() {
-        this.pagetop_filter_title().show();
-        this.textarea_filter_title().show();
-        this.button_save().show();
+        HTMLUtil.show_element(this.pagetop_filter_title());
+        HTMLUtil.show_element(this.textarea_filter_title());
+        HTMLUtil.show_element(this.button_save());
     }
     display_elem_comment_filter() {
-        this.pagetop_filter_comment().show();
-        this.selectbox_comment_filter().show();
+        HTMLUtil.show_element(this.pagetop_filter_comment());
+        HTMLUtil.show_element(this.selectbox_comment_filter());
         this.selectbox_comment_filter_change();
-        this.button_save().show();
+        HTMLUtil.show_element(this.button_save());
     }
     display_elem_imexport() {
-        this.pagetop_imexport().show();
-        this.selectbox_imexport().show();
+        HTMLUtil.show_element(this.pagetop_imexport());
+        HTMLUtil.show_element(this.selectbox_imexport());
         this.selectbox_imexport_change();
     }
     display_elem_option() {
-        this.pagetop_option().show();
+        HTMLUtil.show_element(this.pagetop_option());
         this.update_option_checkbox();
-        this.button_save().show();
+        HTMLUtil.show_element(this.button_save());
     }
 
     presetTextarea() {
@@ -984,28 +970,28 @@ class Dashboard extends SettingBase {
      */
     ex_channel_buffer_to_reflect_current(channel) {
         this.ex_channel_buffer[channel] = new ChannelFilterParam(
-            this.checkbox_filter_ex_channel_regexp().prop("checked"),
-            this.checkbox_filter_ex_channel_perfectmatch().prop("checked"),
-            this.checkbox_filter_ex_channel_normalize().prop("checked"),
-            this.textarea_filter_ex_channel().val());
+            this.checkbox_filter_ex_channel_regexp().checked,
+            this.checkbox_filter_ex_channel_perfectmatch().checked,
+            this.checkbox_filter_ex_channel_normalize().checked,
+            this.textarea_filter_ex_channel().value);
     }
     /*!
      *  @brief  現状を「非表示チャンネル(ID)詳細加設定」バッファへ反映する
      */
     ex_channel_id_buffer_to_reflect_current(channel) {
         this.ex_channel_id_buffer[channel]
-            = new ChannelIDFilterParam(this.textbox_channelname().val(),
-                                       this.textarea_filter_ex_channel_id().val());
+            = new ChannelIDFilterParam(this.textbox_channelname().value,
+                                       this.textarea_filter_ex_channel_id().value);
     }
     /*!
      *  @brief  現状を「非表示コメント(ユーザ)詳細加設定」バッファへ反映する
      */
     ex_comment_user_buffer_to_reflect_current(user) {
         this.ex_comment_user_buffer[user] = new CommentFilterByUserParam(
-            this.checkbox_filter_ex_comment_by_user_regexp().prop("checked"),
-            this.checkbox_filter_ex_comment_by_user_perfectmatch().prop("checked"),
-            this.checkbox_filter_ex_comment_by_user_normalize().prop("checked"),
-            this.checkbox_filter_ex_comment_by_user_auto_ng_id().prop("checked"));
+            this.checkbox_filter_ex_comment_by_user_regexp().checked,
+            this.checkbox_filter_ex_comment_by_user_perfectmatch().checked,
+            this.checkbox_filter_ex_comment_by_user_normalize().checked,
+            this.checkbox_filter_ex_comment_by_user_auto_ng_id().checked);
     }
 
     /*! 
@@ -1020,7 +1006,7 @@ class Dashboard extends SettingBase {
             if (selected_btn == null) {
                 return;
             }
-            switch ($(selected_btn).attr('name')) {
+            switch (selected_btn.getAttribute('name')) {
             case 'tab_channel_filter':
                 this.selectbox_channel_filter_change();
                 break;

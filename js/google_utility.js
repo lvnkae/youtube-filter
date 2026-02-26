@@ -1,18 +1,20 @@
 /*!
  *  @brief  Google関連Utility
  */
+const YOUTUBE_TITLE_EXTRACTOR = /([^]+) \- YouTube$/;
 class GoogleUtil {
 
     /*!
      *  @brief  google検索結果のyoutube文字列切り出し
      *  @param  src 元文字列
-     *  @note   検索結果においてyoutubeページ(動画,チャンネル等)は末尾に" - YouTube"が付加される
-     *  @note   これをカットした本来の文字列を得る
+     *  @note   検索結果においてyoutubeチャンネルページは末尾に" - YouTube"が付加される
+     *  @note   ことがある。これをカットした本来の文字列を得る。
      *  @note   ※" - Youtube"を含めて表示文字列上限を超えない場合に限る
      */
     static cut_googled_youtube_title(src) {
-        if (src.search(RegExp(" \- YouTube$", "")) >= 0) {
-            return src.slice(0, src.length - " - Youtube".length);
+        const match = src.match(YOUTUBE_TITLE_EXTRACTOR);
+        if (match != null) {
+            return match[1];
         } else {
             return src;
         }
@@ -23,7 +25,7 @@ class GoogleUtil {
      *  @param  nd_ggl  検索結果ノード
      */
     static get_channel_name(nd_ggl) {
-        return $(nd_ggl).attr("channel_name")
+        return nd_ggl.getAttribute("channel_name")
     }
 
     /*!
@@ -32,8 +34,8 @@ class GoogleUtil {
      *  @note   ContextMenus用
      */
     static set_channel_info(nd_ggl, channel_id, channel) {
-        $(nd_ggl).attr("channel_id", channel_id);
-        $(nd_ggl).attr("channel_name", channel);
+        nd_ggl.setAttribute("channel_id", channel_id);
+        nd_ggl.setAttribute("channel_name", channel);
     }
 
     /*!
@@ -41,10 +43,9 @@ class GoogleUtil {
      *  @param  nd_div  <div>ノード[チャンネル名]
      */
     static get_channel_from_video_card_node(nd_div) {
-        const nd_span = $(nd_div).find("span");
-        for (const span of nd_span) {
+        for (const span of nd_div.getElemensByTagName("span")) {
             for (const ch_nd of span.childNodes) {
-                if (ch_nd.nodeName == "#text") {
+                if (ch_nd.nodeName === "#text") {
                     return text_utility.remove_blank_line_and_head_space(ch_nd.nodeValue);
                 }
             }
@@ -65,10 +66,10 @@ class GoogleUtil {
     }
 
     static get_search_node(elem) {
-        return  HTMLUtil.search_upper_node($(elem), (e)=> {
-            return e.localName == "div" &&
-                 (($(e).attr("jscontroller") != null && $(e).attr("jsaction") != null) ||
-                 ($(e).attr("jsname") != null && $(e).attr("data-hveid") != null));
+        return  HTMLUtil.search_parent_node(elem, e=> {
+            return e.localName === "div" &&
+                 ((e.hasAttribute("jscontroller") && e.hasAttribute("jsaction")) ||
+                  (e.hasAttribute("jsname") && e.hasAttribute("data-hveid")));
         });
     }
     /*!
@@ -76,8 +77,8 @@ class GoogleUtil {
      */
     static detach_search_node(elem) {
         const c = GoogleUtil.get_search_node(elem);
-        if (c.length != 0) {
-            $(c).detach();
+        if (c != null) {
+            c.remove();
         }
     }
 }

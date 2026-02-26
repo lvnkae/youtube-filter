@@ -27,60 +27,59 @@ class SettingBase {
     get_flag_mute_shorts() { return false; }
     get_flag_remove_suggestion() { return false; }
     get_flag_hidden_start() { return false;}
-    get_flag_disable_24feb_ui() { return false; }
 
     textarea_filter_channel() {
-        return $("textarea[name=filter_channel]");
+        return document.body.querySelector("textarea[name=filter_channel]");
     }
     textarea_filter_channel_id() {
-        return $("textarea[name=filter_channel_id]");
+        return document.body.querySelector("textarea[name=filter_channel_id]");
     }
     textarea_filter_title() {
-        return $("textarea[name=filter_title]");
+        return document.body.querySelector("textarea[name=filter_title]");
     }
     textarea_filter_ex_channel() {
-        return $("textarea[name=filter_ex_channel]");
+        return document.body.querySelector("textarea[name=filter_ex_channel]");
     }
     textarea_filter_ex_channel_id() {
-        return $("textarea[name=filter_ex_channel_id]");
+        return document.body.querySelector("textarea[name=filter_ex_channel_id]");
     }
     textarea_filter_comment_by_user() {
-        return $("textarea[name=filter_comment_by_user]");
+        return document.body.querySelector("textarea[name=filter_comment_by_user]");
     }
     textarea_filter_comment_by_id() {
-        return $("textarea[name=filter_comment_by_id]");
+        return document.body.querySelector("textarea[name=filter_comment_by_id]");
     }
     textarea_filter_comment_by_word() {
-        return $("textarea[name=filter_comment_by_word]");
+        return document.body.querySelector("textarea[name=filter_comment_by_word]");
     }
     textarea_filter_comment_by_handle() {
-        return $("textarea[name=filter_comment_by_handle]");
+        return document.body.querySelector("textarea[name=filter_comment_by_handle]");
     }
 
     button_save() {
-        return $("button[name=req_save]");
+        return document.body.querySelector("button[name=req_save]");
     }
     button_save_enable() {
-        this.button_save().prop("disabled", false);
+        this.button_save().disabled = false;
     }
     button_save_disable() {
-        this.button_save().prop("disabled", true);
+        this.button_save().disabled = true;
     }
     button_import() {
-        return $("button[name=req_import]");
+        return document.body.querySelector("button[name=req_import]");
     }
     button_import_enable() {
-        this.button_import().prop("disabled", false);
+        this.button_import().disabled = false;
     }
     button_import_disable() {
-        this.button_import().prop("disabled", true);
+        this.button_import().disabled = true;
     }
 
     static reset_textarea_caret(t) {
-        if (t.length <= 0) {
+        if (t.length == null) {
             return;
         }
-        t[0].setSelectionRange(0,0);
+        t.setSelectionRange(0,0);
     }
 
     /*!
@@ -89,36 +88,30 @@ class SettingBase {
      *  @param  cursor  カーソル(取得関数)
      */
     static update_cursor(t, cursor) {
-        if (t.length <= 0) {
-            cursor().hide();
+        const cur = cursor();
+        if (t == null) {
+            HTMLUtil.hide_element(cur);
             return;
         }
-        const t_elem = t[0];
         const word
             = text_utility.search_text_connected_by_new_line(
-                t_elem.selectionStart,
-                t.val());
+                t.selectionStart,
+                t.value);
         if (word == null) {
-            cursor().hide();
+            HTMLUtil.hide_element(cur);
             return;
         }
         // textareaと同じstyleのdivを用意し、実際にtextを流し込み
         // ブラウザにrenderingさせることで正確なY座標を得る
         // ※line-height*rowではズレる(丸め誤差)
-        let mirror = $("div#tbox_mirror");
-        if (mirror.length != 1) {
-            cursor().hide();
+        let mirror_div = document.body.querySelector("div#tbox_mirror");
+        if (mirror_div == null) {
+            HTMLUtil.hide_element(cur);
             return;
         } else
-        if (this.prev_textarea_name != t_elem.name) {
-            this.prev_textarea_name = t_elem.name
-            const style = window.getComputedStyle(t_elem);
-            const stylesToCopy = [
-                'fontFamily', 'fontSize', 'fontWeight', 'fontStyle',
-                'lineHeight', 'padding', 'border', 'boxSizing',
-                'whiteSpace', 'wordBreak', 'width'
-            ];
-            let mirror_div = mirror[0];
+        if (this.prev_textarea_name !== t.name) {
+            this.prev_textarea_name = t.name
+            const style = window.getComputedStyle(t);
             mirror_div.style.fontFamily = style.fontFamily;
             mirror_div.style.fontSize = style.fontSize;
             mirror_div.style.fontWeight = style.fontWeight;
@@ -133,26 +126,29 @@ class SettingBase {
             mirror_div.style.position = 'absolute';
             mirror_div.style.visibility = 'hidden';
             mirror_div.style.overflow = 'hidden';
-            mirror_div.style.height = 'auto';            
+            mirror_div.style.height = 'auto';
+            mirror_div.style.pointerEvent = 'none';
+            // 画面外に飛ばしておかないとWindow画面サイズに影響してしまう
+            mirror_div.style.left = '-9999px';
         }
-        let margin = -t_elem.scrollTop;
+        let margin = -t.scrollTop;
         {
             const r = HTMLUtil.get_text_before_caret_and_row(t);
             if (r.row != this.prev_textarea_caret_row) {
                 this.prev_textarea_caret_row = r.row;
-                mirror.text(r.text);
+                mirror_div.textContent = r.text;
                 const span = document.createElement('span');
                 span.textContent = '|';
-                mirror.append(span);
+                mirror_div.append(span);
                 margin += span.offsetTop;
             } else {
-                margin += $(mirror).find("span")[0].offsetTop;
+                margin += mirror_div.querySelector("span").offsetTop;
             }
         }
         //
         const font_size = parseInt(HTMLUtil.get_font_size(t));
-        const t_width = t_elem.clientWidth;
-        const t_height = t_elem.clientHeight;
+        const t_width = t.clientWidth;
+        const t_height = t.clientHeight;
         let height = font_size+2;
         // スクロール対応
         // - 上下にはみ出た分縮める
@@ -160,34 +156,40 @@ class SettingBase {
         if (margin < 0) {
             height += margin;
             if (height <= 0) {
-                cursor().hide();
+                HTMLUtil.hide_element(cur);
                 return;
             }
             margin = 0;
         } else if (margin > (t_height-height)) {
             height = t_height-margin;
             if (height <= 0) {
-                cursor().hide();
+                HTMLUtil.hide_element(cur);
                 return;
             }
         }
         //
         const width = t_width;
-        const sty = "top:" + margin + "px;"
-                    + "width:" + width + "px;"
-                    + "height:" + height +"px";
-        cursor().attr("style", sty);
+        const sty = `top:${margin}px;width:${width}px;height:${height}px`;
+        cur.setAttribute("style", sty);
     }
         
     updateTextarea() {
-        this.textarea_filter_channel().val(this.storage.ng_channel_text);
-        this.textarea_filter_channel_id().val(this.storage.ng_channel_id_text);
-        this.textarea_filter_title().val(this.storage.ng_title_text);
-        this.textarea_filter_comment_by_user().val(this.storage.ng_comment_by_user_text);
-        this.textarea_filter_comment_by_id().val(this.storage.ng_comment_by_id_text);
-        this.textarea_filter_comment_by_word().val(this.storage.ng_comment_by_word_text);
-        this.textarea_filter_comment_by_handle().val(
-                this.storage.ng_comment_by_handle_text);
+        this.textarea_filter_channel().value = this.storage.ng_channel_text;
+        this.textarea_filter_channel().selectionStart = 0;
+        this.textarea_filter_channel().selectionEnd = 0;
+        this.textarea_filter_channel_id().value = this.storage.ng_channel_id_text;
+        this.textarea_filter_channel_id().selectionStart = 0;
+        this.textarea_filter_channel_id().selectionEnd = 0;
+        this.textarea_filter_title().value = this.storage.ng_title_text;
+        this.textarea_filter_comment_by_user().value
+            = this.storage.ng_comment_by_user_text;
+        this.textarea_filter_comment_by_user().selectionStart = 0;
+        this.textarea_filter_comment_by_user().selectionEnd = 0;
+        this.textarea_filter_comment_by_id().value = this.storage.ng_comment_by_id_text;
+        this.textarea_filter_comment_by_word().value
+            = this.storage.ng_comment_by_word_text;
+        this.textarea_filter_comment_by_handle().value
+            = this.storage.ng_comment_by_handle_text;
         {
             const nlc = text_utility.new_line_code_lf();
             {
@@ -232,9 +234,9 @@ class SettingBase {
         this.storage.clear();
         {
             var filter
-                = text_utility.split_by_new_line(this.textarea_filter_channel().val());
+                = text_utility.split_by_new_line(this.textarea_filter_channel().value);
             for (const word of filter) {
-                if (word != "") {
+                if (word !== '') {
                     var ng_channel = {};
                     ng_channel.keyword = word;
                     if (word in this.ex_channel_buffer) {
@@ -259,9 +261,9 @@ class SettingBase {
         {
             var filter
                 = text_utility
-                  .split_by_new_line(this.textarea_filter_channel_id().val());
+                  .split_by_new_line(this.textarea_filter_channel_id().value);
             for (const channel_id of filter) {
-                if (channel_id != "") {
+                if (channel_id !== '') {
                     var ng_channel = {};
                     ng_channel.channel_id = channel_id;
                     if (channel_id in this.ex_channel_id_buffer) {
@@ -280,9 +282,9 @@ class SettingBase {
         }
         {
             var filter
-                = text_utility.split_by_new_line(this.textarea_filter_title().val());
+                = text_utility.split_by_new_line(this.textarea_filter_title().value);
             for (const word of filter) {
-                if (word != "") {
+                if (word !== '') {
                     this.storage.json.ng_title.push(word);
                 }
             }
@@ -290,9 +292,9 @@ class SettingBase {
         {
             var filter
                 = text_utility.split_by_new_line(
-                    this.textarea_filter_comment_by_user().val());
+                    this.textarea_filter_comment_by_user().value);
             for (const word of filter) {
-                if (word != "") {
+                if (word !== '') {
                     var ng_comment_by_user = {};
                     ng_comment_by_user.keyword = word;
                     if (word in this.ex_comment_user_buffer) {
@@ -315,9 +317,9 @@ class SettingBase {
         {
             var filter
                 = text_utility.split_by_new_line(
-                    this.textarea_filter_comment_by_id().val());
+                    this.textarea_filter_comment_by_id().value);
             for (const word of filter) {
-                if (word != "") {
+                if (word !== '') {
                     this.storage.json.ng_comment_by_id.push(word);
                 }
             }
@@ -325,9 +327,9 @@ class SettingBase {
         {
             var filter
                 = text_utility.split_by_new_line(
-                    this.textarea_filter_comment_by_word().val());
+                    this.textarea_filter_comment_by_word().value);
             for (const word of filter) {
-                if (word != "") {
+                if (word !== '') {
                     this.storage.json.ng_comment_by_word.push(word);
                 }
             }
@@ -335,9 +337,9 @@ class SettingBase {
         {
             var filter
                 = text_utility.split_by_new_line(
-                    this.textarea_filter_comment_by_handle().val());
+                    this.textarea_filter_comment_by_handle().value);
             for (const handle of filter) {
-                if (handle != "") {
+                if (handle !== '') {
                     this.storage.json.ng_comment_by_handle.push(handle);
                 }
             }
@@ -351,7 +353,6 @@ class SettingBase {
         this.storage.json.mute_shorts = this.get_flag_mute_shorts();
         this.storage.json.remove_suggestion = this.get_flag_remove_suggestion();
         this.storage.json.hidden_start = this.get_flag_hidden_start();
-        this.storage.json.disable_24feb_ui = this.get_flag_disable_24feb_ui();
         this.storage.save();
         MessageUtil.send_message_to_relative_tab(
             {command:MessageUtil.command_update_storage()});

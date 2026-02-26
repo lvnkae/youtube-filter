@@ -24,10 +24,10 @@ class HTMLUtil {
 
     static hide_element(e) {
         e.style.display = "none";
-    }    
+    }
     static show_element(e) {
         e.style.display = "";
-    }    
+    }
 
     /*!
      *  @brief  key要素を探す
@@ -57,7 +57,7 @@ class HTMLUtil {
             }
         }
         return null
-    }    
+    }
 
     static is_visible(e) {
         return e.checkVisibility();
@@ -74,7 +74,7 @@ class HTMLUtil {
             }
         }
         return null
-    }    
+    }
 
     static search_node(elem, key, func) {
         let e_ret = null;
@@ -87,25 +87,19 @@ class HTMLUtil {
         return e_ret;
     }
 
-    static collect_node(elem, key, func) {
+    static collect_node(tag, key, func) {
         let e_ret = [];
-        $(elem).find(key).each((inx, elem)=> {
-            if (func(elem)) {
-                e_ret.push(elem);
-            }
-        });
+        const elem = document.body.querySelector(tag);
+        if (elem != null) {
+            for (const e of elem.querySelectorAll(key)) {
+                if (func(e)) {
+                    e_ret.push(e);
+                }
+            };
+        }
         return e_ret;
     }
 
-    static search_upper_node(elem, func) {
-        while(elem.length > 0) {
-            if (func(elem[0])) {
-                return elem;
-            }
-            elem = elem.parent();
-        }
-        return {length:0};
-    }
     static search_parent_node(elem, func) {
         while(elem != null) {
             if (func(elem)) {
@@ -114,7 +108,7 @@ class HTMLUtil {
             elem = elem.parentNode;
         }
         return null;
-    }    
+    }
 
     static detach_lower_node(elem, tag) {
         const dt_node = elem.querySelector(tag);
@@ -141,7 +135,7 @@ class HTMLUtil {
             // childrenは減っていく
             elem.children[0].remove();
         }
-    }    
+    }
 
     /*!
      *  @brief  urlからqueryパラメータをカットする
@@ -156,12 +150,12 @@ class HTMLUtil {
      */
     static get_caret_row(elem) {
         let row = 0;
-        if (elem.length < 0) {
+        if (elem == null) {
             return row;
         }
-        let caret_pos = elem[0].selectionStart;
+        let caret_pos = elem.selectionStart;
         let t_len = 0;
-        const split_text = text_utility.split_by_new_line(elem.val());
+        const split_text = text_utility.split_by_new_line(elem.value);
         for (const word of split_text) {
             t_len += word.length + 1; // 1はsplit前改行
             if (caret_pos < t_len) {
@@ -179,13 +173,13 @@ class HTMLUtil {
      */
     static get_text_before_caret_and_row(elem) {
         let ret = { row:0, text:""};
-        if (elem.length < 0) {
+        if (elem == null) {
             return ret;
         }
-        let caret_pos = elem[0].selectionStart;
+        let caret_pos = elem.selectionStart;
         let t_len = 0;
         const NLC = text_utility.new_line_code_lf();
-        const split_text = text_utility.split_by_new_line(elem.val());
+        const split_text = text_utility.split_by_new_line(elem.value);
         for (const word of split_text) {
             t_len += word.length + 1; // 1はsplit前改行
             if (caret_pos < t_len) {
@@ -197,25 +191,25 @@ class HTMLUtil {
             }
         }
         return ret;
-    }    
+    }
 
     /*!
      *  @brief  elemのフォントサイズを得る
      *  @note   elem固有の指定がなければ根っこのcssを採用
      */
     static get_font_size(elem) {
-        const font_size = elem[0].style.fontSize;
+        const font_size = elem.style.fontSize;
         if (font_size != "") {
             return parseFloat(font_size);
         }
         let font_size_str
-            = window.getComputedStyle(elem[0]).getPropertyValue('font-size');
+            = window.getComputedStyle(elem).getPropertyValue('font-size');
         return parseFloat(font_size_str);
     }
 
     static get_selected_element(elements) {
         let ret_elem = null;
-        for (const elem of document.querySelectorAll(elements)) {
+        for (const elem of elements) {
             if (elem.className.indexOf("selected") >= 0) {
                 ret_elem = elem;
                 break;
