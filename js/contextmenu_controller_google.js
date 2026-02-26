@@ -18,21 +18,20 @@ class ContextMenuController_Google extends ContextMenuController {
      *  @param  element 右クリックされたelement
      */
     get_google_node(element) {
-        const nd_sub = HTMLUtil.search_upper_node($(element), (e)=> {
-            return (e.localName == 'g-inner-card' || e.localName == 'video-voyager') && 
-                   $(e).attr("channel_id") != null;
+        const nd_sub = HTMLUtil.search_parent_node(element, e=> {
+            return (e.localName === 'g-inner-card' || e.localName === 'video-voyager') &&
+                    e.hasAttribute("channel_id");
         });
-        if (nd_sub.length > 0) {
+        if (nd_sub != null) {
             return nd_sub;
         }
-        const nd_gs = HTMLUtil.search_upper_node($(element), (e)=> {
-            return e.localName == 'div' &&
-                   $(e).attr("channel_id") != null;
+        const nd_gs = HTMLUtil.search_parent_node(element, e=> {
+            return e.localName === 'div' && e.hasAttribute("channel_id");
         });
-        if (nd_gs.length > 0) {
+        if (nd_gs != null) {
             return nd_gs;
         }
-       return {length:0};
+       return null;
     }
 
     /*!
@@ -53,12 +52,12 @@ class ContextMenuController_Google extends ContextMenuController {
      *  @param  target  注目element
      */
     get_base_node(loc, element) {
-        const ret = { type:ContextMenuController.TYPE_NONE, base_node:{length:0}};
+        const ret = { type:ContextMenuController.TYPE_NONE, base_node:null};
         if (!loc.in_google()) {
             return ret;
         }
         const nd_ggl = this.get_google_node(element);
-        if (nd_ggl.length > 0) {
+        if (nd_ggl != null) {
             ret.type = ContextMenuController_Google.TYPE_CHANNEL;
             ret.base_node = nd_ggl;
             return ret;

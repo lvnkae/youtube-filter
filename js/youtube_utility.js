@@ -127,7 +127,7 @@ class YoutubeUtil {
         } else {
             return author[2];
         }
-    }    
+    }
     /*!
      *  @brief  YoutubeチャンネルリンクからIDを切り出す
      *  @retval null    channel_hrefが/channel/でない
@@ -259,13 +259,13 @@ class YoutubeUtil {
     }
     static get_lockup_vm_link_tag2() { /* 2025/08/28以降 */
         return "a.yt-lockup-view-model__content-image";
-    }    
+    }
     static get_lockup_vm_metadata_tag() {
         return "div.yt-content-metadata-view-model-wiz__metadata-row";
     }
     static get_lockup_vm_metadata_tag2() {/* 2025/08/28以降 */
         return "div.yt-content-metadata-view-model__metadata-row";
-    }    
+    }
     static get_lockup_vm_channel_tag() {
         return "a.yt-core-attributed-string__link";
     }
@@ -314,7 +314,7 @@ class YoutubeUtil {
     static get_channel_name_element(elem) {
         const ch_tag = YoutubeUtil.get_channel_name_tag();
         return HTMLUtil.find_first_appearing_element(elem, ch_tag);
-    } 
+    }
     /*!
      *  @brief  チャンネルリンクノードを得る
      *  @note   elem    基準ノード
@@ -357,7 +357,7 @@ class YoutubeUtil {
     }
     static clear_attribute_channel_name(elem) {
         elem.removeAttribute("channel_name");
-    }    
+    }
     /*!
      *  @brief  チャンネル名を得る
      *  @note   collabo-channelでYoutubeが使用
@@ -369,7 +369,7 @@ class YoutubeUtil {
         } else {
             return '';
         }
-    }    
+    }
 
     /*!
      *  @brief  複合チャンネル情報取得(home/sports/live)
@@ -407,18 +407,23 @@ class YoutubeUtil {
      *  @brief  channel主体の複合チャンネルか
      *  @param  channel     親チャンネル名
      *  @param  collabo_ch  複合チャンネル文字列
+     *  @retval result:true ch2nd:null  3ch以上の複合チャンネル
+     *  @retval result:true ch2nd:hoge  channelとhogeの複合チャンネル
+     *  @retval result:false            xxxxとyyyyの複合チャンネルor通常チャンネル   
      */    
     static is_collabo_channel(channel, collabo_ch) {
         let result = true;
+        let ch1st = channel;
         let ch2nd = null;
         if (COLLABO_EXTRACTOR.test(collabo_ch)) {
+            ch1st = cut_collabo_channel(collabo_ch);
             result = true;
         } else {
             ch2nd = cut_collabo_channel_2nd(channel, collabo_ch);
             result = ch2nd != null;
         }
-        return { result:result, ch2nd:ch2nd }
-    }    
+        return { result:result, ch1st:ch1st, ch2nd:ch2nd }
+    }
 
     /*!
      *  @brief  ショート動画(reel)のチャンネル名ノードを得る
@@ -459,7 +464,7 @@ class YoutubeUtil {
             return elem_link;
         } else {
             return elem.querySelector(YoutubeUtil.get_lockup_vm_link_tag());
-        }        
+        }
     }
     /*!
      *  @brief  動画タイトルノードを得る
@@ -524,7 +529,7 @@ class YoutubeUtil {
             return null;
         }
         return elem_link;
-    }    
+    }
     /*!
      *  @brief  チャンネル名を得る
      *  @note   25年07月以降の構成(lockup-view-model)用
@@ -673,7 +678,7 @@ class YoutubeUtil {
                 elem.remove();
             }
         }
-    }    
+    }
     static clearing_section_list_header() {
         // shorts(slim)
         const t_reel = YoutubeUtil.get_reel_shelf_header_tag();
@@ -731,7 +736,7 @@ class YoutubeUtil {
             const btn_core = btn.querySelector("div.ytp-autonav-toggle-button");
             if (btn_core == null) {
                 break;
-            } 
+            }
             if (btn.offsetParent == null) {
                 break; // 非表示中は操作できない
             }
@@ -945,7 +950,7 @@ class YoutubeUtil {
     }
     static set_filtered_marker(element, marker) {
         element.setAttribute("marker", marker);
-    }    
+    }
     static remove_filtered_marker(element) {
         element.removeAttribute("marker");
     }

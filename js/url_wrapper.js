@@ -79,7 +79,7 @@ class urlWrapper {
                this.subdir[0].indexOf('playlist?') >= 0;
     }
 
-    in_youtube_any_channnel_page() {
+    in_youtube_any_channel_page() {
         // sports/liveも含む全形式チャンネルページ
         return CHANNEL_EXTRACTOR.test(this.url);
     }
