@@ -87,9 +87,8 @@ class HTMLUtil {
         return e_ret;
     }
 
-    static collect_node(tag, key, func) {
+    static collect_node(elem, key, func) {
         let e_ret = [];
-        const elem = document.body.querySelector(tag);
         if (elem != null) {
             for (const e of elem.querySelectorAll(key)) {
                 if (func(e)) {
@@ -98,6 +97,10 @@ class HTMLUtil {
             };
         }
         return e_ret;
+    }
+    static collect_node_by_tag(tag, key, func) {
+        const elem = document.body.querySelector(tag);
+        return HTMLUtil.collect_node(elem, key, func);
     }
 
     static search_parent_node(elem, func) {
