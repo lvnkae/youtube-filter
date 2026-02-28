@@ -1,7 +1,7 @@
 /*!
  *  @brief  Google関連Utility
  */
-const YOUTUBE_TITLE_EXTRACTOR = /([^]+) \- YouTube$/;
+const YOUTUBE_TITLE_EXTRACTOR = /([^]+) - YouTube$/;
 class GoogleUtil {
 
     /*!

@@ -1191,7 +1191,6 @@ class YoutubeFilter extends FilterBase {
         this.video_info_accessor.kick();
         this.author_info_accessor.kick();
         this.channel_info_accessor.kick();
-        this.playlist_searcher.kick();
     }
 
     /*!
@@ -1414,11 +1413,12 @@ class YoutubeFilter extends FilterBase {
      *  @param  author_url      チャンネルURL
      *  @param  channel_name    チャンネル名
      */
-    post_proc_tell_search_video_html(video_id, author_url, channel_name) {
-        let obj = { video_id: video_id };
+    post_proc_tell_search_video_html(video_id, author_url, channel_name, channel_id) {
+        let obj = { video_id: video_id, channel_id:channel_id };
         const channel_code = YoutubeUtil.cut_channel_id(author_url);
         this.video_info_accessor.set_channel_name(video_id, channel_name);
         this.video_info_accessor.set_channel_code(video_id, author_url);
+        this.video_info_accessor.set_channel_id(video_id, channel_id);
         if (YoutubeUtil.is_channel_url(author_url)) {
             obj.channel_id = channel_code;
         } else if (YoutubeUtil.is_userpage_url(author_url)) {
@@ -1446,41 +1446,14 @@ class YoutubeFilter extends FilterBase {
     }
 
     /*!
-     *  @brief  プレイリスト検索結果(html)解析後処理
-     *  @param  list_id     リストID
-     *  @param  author_url  チャンネルURL
-     */
-    post_proc_parse_search_playlist_html(list_id, author_url) {
-        if (author_url == null) {
-            return; // 特殊チャンネル
-        }
-        let obj = { list_id: list_id };
-        const channel_code = YoutubeUtil.cut_channel_id(author_url);
-        this.playlist_searcher.set_channel_code(list_id, author_url);
-        if (YoutubeUtil.is_channel_url(author_url)) {
-            obj.channel_id = channel_code;
-        } else if (YoutubeUtil.is_userpage_url(author_url)) {
-            obj.username = channel_code;_            
-        } else if (YoutubeUtil.is_uniquepage_url(author_url)) {
-            obj.unique_name = channel_code;
-        } else {
-            return; // 何らかの不具合
-        }
-        this.post_proc_tell_get_video_json(obj);
-    }
-    /*!
      *  @brief  プレイリスト検索結果(html)取得完了通知
      *  @param  result  結果
      *  @param  list_id 動画ID
      *  @param  html    検索結果(html)
      */
     tell_search_playlist_html(result, list_id, html) {
-        if (result === "success") {
-            PlaylistSearcher
-                .parse_html(list_id,
-                             html,
-                             this.post_proc_parse_search_playlist_html.bind(this));
-        }
+        // 以前はrecommendのplaylistで使っていたが
+        // lockup-view-modelに変わったことで不要になった
     }
 
     /*!

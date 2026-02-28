@@ -151,55 +151,72 @@ class PlaylistSearcher {
      *  @param  post_func   後処理
      */
     static parse_html(list_id, html, post_func) {
-        const parser = new DOMParser();
-        const doc_html = parser.parseFromString(html, "text/html");
-        const elem_script = doc_html.getElementsByTagName('script');
-        if (elem_script.length == 0) {
-            return;
+        const playlist_test
+            = new RegExp(`"playlistId":"${list_id}"`, '');
+        // 検索結果からlist(lockup_view_model)を抽出
+        const lockup_vm_test = /lockupMetadataViewModel":{/g;
+        let lockup_vm_inx = [];
+        let i = 0;
+        while (lockup_vm_test.test(html)) {
+            if (i > 0) {
+                lockup_vm_inx[i-1].last = lockup_vm_test.lastIndex;
+            }
+            lockup_vm_inx.push({index:i, first:lockup_vm_test.lastIndex, last:-1});
+            i++;
         }
-        let author_url = "";
-        let channel_name = "";
-        const key_script_top = 'var ytInit';
-        const key_url = 'webCommandMetadata":{"url":"/';
-        const len_key_url = key_url.length;
-        const key_list_id = 'playlistRenderer":{"playlistId":"'
-        const key_channel_name = 'longBylineText":{"runs":[{"text":"';
-        const len_key_channel_name = key_channel_name.length;
-        $(elem_script).each((inx, elem)=>{
-            if (!elem.innerText.startsWith(key_script_top)) {
-                return true;
-            }
-            const search_top = elem.innerText.indexOf(key_list_id + list_id);
-            if (search_top < 0) {
-                return false; // 想定外のhtmlが来た
-            }
-            let cut_top = elem.innerText.indexOf(key_url + 'channel/', search_top);
-            if (cut_top < 0) {
-                cut_top = elem.innerText.indexOf(key_url + 'user/', search_top);
-                if (cut_top < 0) {
-                    cut_top = elem.innerText.indexOf(key_url + 'c/', search_top);
-                    if (cut_top < 0) {
-                        cut_top = elem.innerText.indexOf(key_url + '@', search_top);
-                    }
+        let target = -1;
+        for (const inx of lockup_vm_inx) {
+            playlist_test.lastIndex = inx.first;
+            if (playlist_test.test(html)) {
+                if (inx.last == -1 || playlist.lastIndex < ins.last) {
+                    target = inx.index;
+                    break;
                 }
             }
-            if (cut_top < 0) {
-                return false; // 想定外のhtmlが来た
-            }
-            const cut_end = elem.innerText.indexOf('"', cut_top + len_key_url);
-            author_url = elem.innerText.substring(cut_top + len_key_url -1, cut_end);
-            //
-            const cn_cut_top = elem.innerText.indexOf(key_channel_name, search_top);
-            if (cn_cut_top > 0) {
-                const cn_cut_end
-                    = elem.innerText.indexOf('"', cn_cut_top + len_key_channel_name);
-                channel_name
-                    = elem.innerText.substring(cn_cut_top + len_key_channel_name,
-                                               cn_cut_end);
-            }
-            return false;
-        });
-        post_func(list_id, author_url, channel_name);
+        }
+        if (target < 0) {
+            return;
+        }
+        //
+        const search_limit = lockup_vm_inx[target].last; // 検索範囲終端
+        //
+        const metadata_test = /"metadataParts":\[/g;
+        metadata_test.lastIndex = lockup_vm_inx[target].first;
+        if (!metadata_test.test(html)) {
+            return;
+        }
+        if (search_limit != -1 && metadata_test.lastIndex > search_limit) {
+            return;
+        }
+        //
+        const channel_match = /"content":"([^"]+)"/g;
+        channel_match.lastIndex = metadata_test.lastIndex;
+        const match_channel = channel_match.exec(html);
+        if (match_channel == null ||
+            (search_limit != -1 && match_channel.lastIndex > search_limit)) {
+            return;
+        }
+        const channel_name = match_channel[1];
+        //
+        const channel_id_match = /browseId":"(UC[a-zA-Z0-9_-]{22})"/g;
+        channel_id_match.lastIndex = metadata_test.lastIndex;
+        const match_channel_id = channel_id_match.exec(html);
+        if (match_channel_id == null ||
+            (search_limit != -1 && match_channel_id.lastIndex > search_limit)) {
+            return;
+        }
+        const channel_id = match_channel_id[1];
+        //
+        const author_match = /canonicalBaseUrl":"\/(@|user\/|channel\/|c\/)([^"]+)"/g;
+        author_match.lastIndex = metadata_test.lastIndex;
+        const match_author = author_match.exec(html);
+        if (match_author == null ||
+            (search_limit != -1 && match_channel_id.lastIndex > search_limit)) {
+            return;
+        }
+        const author_url = `/${match_author[1]}${match_author[2]}`;
+        //
+        post_func(list_id, author_url, channel_name, channel_id);
     }
 
     /*!
