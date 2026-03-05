@@ -4,20 +4,19 @@
  */
 class BGChannelHTMLAccessor extends BGMessageSender {
     //
-    constructor() {
+    constructor(callback) {
         super();
+        this.callback = callback;
     }
 
     /*!
      *  @brief  Youtube動画情報をJSONで得る
      *  @param  unique_name カスタムチャンネル名/ハンドル
-     *  @param  _fparam     未使用
      */
-    request_channel_html(unique_name, _fparam) {
-        const base_url =
-            'https://www.youtube.com/';
-        this.mark_reply_queue(unique_name);
-        fetch(base_url + unique_name + '/playlists', {
+    request_channel_html(unique_name) {
+        const base_url = 'https://www.youtube.com/';
+        super.mark_reply_queue(unique_name);
+        fetch(`${base_url}${unique_name}/playlists`, {
             method: "GET",
             credentials: "omit",
         })
@@ -27,18 +26,19 @@ class BGChannelHTMLAccessor extends BGMessageSender {
                 return response.text();
             } else {
                 const q = this.get_reply_queue(unique_name);
-                this.send_reply({command: MessageUtil.command_get_channel_html(),
-                                 result: "not_found",
-                                 unique_name: unique_name}, q.tab_ids);
+                this.callback({result: "not_found",
+                               author: unique_name,
+                               tab_ids: q.tab_ids});
             }
         })
         .then(text => {
             if (text != null) {
                 const q = this.get_reply_queue(unique_name);
-                this.send_reply({command: MessageUtil.command_get_channel_html(),
-                                 result: "success",
-                                 unique_name: unique_name,
-                                 html: text}, q.tab_ids);
+                this.callback({result: "success",
+                               author: unique_name,
+                               html: text,
+                               video_ids: q.video_ids,
+                               tab_ids: q.tab_ids});
             }
             super.update_reply_queue(unique_name,
                                      this.request_channel_html.bind(this));
@@ -46,23 +46,27 @@ class BGChannelHTMLAccessor extends BGMessageSender {
         .catch(err => {
             const q = this.get_reply_queue(unique_name);
             // [error]fetchエラー
-            this.send_reply({command: MessageUtil.command_get_channel_html(),
-                             result: "fail",
-                             unique_name: unique_name}, q.tab_ids);
+            this.callback({result:"fail", author:unique_name, tab_ids:q.tab_ids});
             super.update_reply_queue(unique_name,
                                      this.request_channel_html.bind(this));
         });
     }
 
-    /*!
-     *  @brief  onMessageコールバック
-     *  @param  request
-     *  @param  sender  送信者情報
-     */
-    on_message(request, sender) {
-        if (!super.can_http_request(request.unique_name, null, sender.tab.id)) {
-            return;
+    entry(tab_ids, author, video_id) {
+        if (super.can_http_request2(author, tab_ids)) {
+            const q = this.get_reply_queue(author);
+            BGMessageSender.set_video_id(q, video_id);
+            this.request_channel_html(author);
+        } else {
+            const q = this.get_reply_queue(author);
+            if (q != null) {
+                BGMessageSender.set_video_id(q, video_id);
+            } else {
+                const wq = this.get_wait_queue(author);
+                if (wq != null) {
+                    BGMessageSender.set_video_id(wq, video_id);
+                }
+            }
         }
-        this.request_channel_html(request.unique_name);
     }
 }

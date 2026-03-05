@@ -10,21 +10,15 @@ class YoutubeDataCounter {
      *  @param  author_url  チャンネルURL
      */
     get_channel_id_from_author_url_or_entry_request(author_url) {
-        const channel_code = YoutubeUtil.cut_channel_id(author_url);
         if (YoutubeUtil.is_channel_url(author_url)) {
             return YoutubeUtil.cut_channel_id(author_url);
-        } else if (YoutubeUtil.is_userpage_url(author_url)) {
-            const channel_id = this.author_info_accessor.get_channel_id(channel_code);
+        } else {
+            const author = YoutubeUtil.cut_channel_author(author_url);
+            const channel_id = this.channel_info_accessor.get_channel_id(author);
             if (channel_id != null) {
                 return channel_id;
             }
-            this.author_info_accessor.entry(channel_code);
-        } else if (YoutubeUtil.is_uniquepage_url(author_url)) {
-            const channel_id = this.channel_info_accessor.get_channel_id(channel_code);
-            if (channel_id != null) {
-                return channel_id;
-            }
-            this.channel_info_accessor.entry(channel_code);
+            this.channel_info_accessor.entry(author);
         }
         return null;
     }
@@ -75,10 +69,8 @@ class YoutubeDataCounter {
 
     /*!
      */
-    constructor(author_info_accessor, 
-                channel_info_accessor,
+    constructor(channel_info_accessor,
                 video_info_accessor) {
-        this.author_info_accessor = author_info_accessor;
         this.channel_info_accessor = channel_info_accessor;
         this.video_info_accessor = video_info_accessor;
     }

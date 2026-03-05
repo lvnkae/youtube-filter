@@ -5,11 +5,14 @@ class Background {
     //
     constructor() {
         this.extention_id = '';
-        this.video_json_accessor = new BGVideoJsonAccessor();
-        this.videos_xml_accessor = new BGVideosXmlAccessor();
-        this.channel_html_accessor = new BGChannelHTMLAccessor();
-        this.video_searcher = new BGVideoSearcher();
-        this.playlist_searcher = new BGPlaylistSearcher();
+        this.video_json_accessor
+            = new BGVideoJsonAccessor(this.tell_get_json.bind(this));
+        this.channel_html_accessor
+            = new BGChannelHTMLAccessor(this.tell_get_channel_html.bind(this));
+        this.video_searcher
+            = new BGVideoSearcher(this.tell_video_searched.bind(this));
+        this.playlist_searcher
+            = new BGPlaylistSearcher(this.tell_playlist_searched.bind(this));
         this.contextmenu_controller = new BGContextMenuController();
         //
         this.initialize();
@@ -22,12 +25,11 @@ class Background {
      */
     entry(extention_id, tab_id) {
         this.extention_id = extention_id;
-        this.video_json_accessor.entry(tab_id);
-        this.videos_xml_accessor.entry(tab_id);
-        this.channel_html_accessor.entry(tab_id);
-        this.video_searcher.entry(tab_id);
-        this.playlist_searcher.entry(tab_id);
-        this.contextmenu_controller.entry(tab_id);
+        this.video_json_accessor.entry_tab(tab_id);
+        this.channel_html_accessor.entry_tab(tab_id);
+        this.video_searcher.entry_tab(tab_id);
+        this.playlist_searcher.entry_tab(tab_id);
+        this.contextmenu_controller.entry_tab(tab_id);
         this.contextmenu_controller.create_menu(extention_id);
     }
     
@@ -38,20 +40,15 @@ class Background {
         chrome.runtime.onMessage.addListener(
             (request, sender, sendResponse)=> {
                 sendResponse();
-                if (request.command == MessageUtil.command_get_video_json()) {
-                    this.video_json_accessor.on_message(request, sender);
+                if (request.command === MessageUtil.command_video_id_to_channel_info()) {
+                    this.video_id_to_channel_info(sender.tab.id, request.video_id);
                 } else
-                if (request.command == MessageUtil.command_get_videos_xml()) {
-                    this.videos_xml_accessor.on_message(request, sender);
+                if (request.command === MessageUtil.command_author_to_channel_info()) {
+                    const tab_ids = BGMessageSender.create_tab_ids(sender.tab.id);
+                    this.author_to_channel_info(tab_ids, request.unique_name);
                 } else
-                if (request.command == MessageUtil.command_get_channel_html()) {
-                    this.channel_html_accessor.on_message(request, sender);
-                } else
-                if (request.command == MessageUtil.command_search_video()) {
-                    this.video_searcher.on_message(request, sender);
-                } else
-                if (request.command == MessageUtil.command_search_playlist()) {
-                    this.playlist_searcher.on_message(request, sender);
+                if (request.command === MessageUtil.command_search_playlist()) {
+                    this.playlist_searcher.entry(sender.tab.id, request.list_id);
                 } else
                 if (request.command == MessageUtil.command_update_contextmenu()) {
                     this.contextmenu_controller.on_message(request);
@@ -62,6 +59,166 @@ class Background {
                 return true;
             }
         );
+    }
+
+    /*! 
+     *  @brief  動画idからチャンネル情報を得る
+     *  @param  tab_id  要求者(tab)のID
+     */
+    video_id_to_channel_info(tab_id, video_id) {
+        (async()=> {
+            const author = await BGSessionAccessor.video_id_to_author(video_id);
+            if (author != null) {
+                const tab_ids = BGMessageSender.create_tab_ids(tab_id);
+                const channel_info
+                    = await BGSessionAccessor.author_to_channel_info(author);
+                if (channel_info != null) {
+                    const command = MessageUtil.command_video_id_to_channel_info();
+                    BGMessageSender.send_reply({command: command,
+                                                result: "success",
+                                                video_id: video_id,
+                                                channel_info: channel_info},
+                                                tab_ids);
+                } else {
+                    this.author_to_channel_info(tab_ids, author, video_id);
+                }
+            } else {
+                // Youtubeからjsonを得る
+                this.video_json_accessor.entry(tab_id, video_id);
+            }
+        })();
+    }
+
+    tell_get_json(result) {
+        const command = MessageUtil.command_video_id_to_channel_info();
+        const tab_ids = result.tab_ids;
+        const video_id = result.video_id;
+        if (result.result === "unauthorized") {
+            this.video_searcher.entry(tab_ids, video_id);
+        } else
+        if (result.result === "success") {
+            (async()=> {
+                const ret = BGParser.parse_json(result.json);
+                if (!ret.result) {
+                    BGMessageSender.send_reply({command: command,
+                                                result: "error",
+                                                video_id: video_id}, tab_ids);
+                }
+                const author = ret.author;
+                await BGSessionAccessor.set_channel_author(video_id, author);
+                if (author.startsWith("channel/")) {
+                    const channel_info = { author: author,
+                                           name: ret.name,
+                                           id:ret.id};
+                    await BGSessionAccessor.set_channel_info(author, channel_info);
+                    BGMessageSender.send_reply({command: command,
+                                                result: "success",
+                                                video_id: video_id,
+                                                channel_info: channel_info}, tab_ids);
+                } else {
+                    this.author_to_channel_info(tab_ids, author, video_id);
+                }
+            })();
+        } else {
+            BGMessageSender.send_reply({command: command,
+                                        result: result.result,
+                                        video_id: video_id}, tab_ids);
+
+        }
+    }
+
+    /*! 
+     *  @brief  authorからチャンネル情報を得る
+     *  @param  tab_ids     要求者(tab)のID群
+     *  @param  author      c/custum_channel or handle
+     *  @param  video_id    動画ID(json経由時以外はnull)
+     */
+    author_to_channel_info(tab_ids, author, video_id) {
+        (async()=> {
+            const channel_info = await BGSessionAccessor.author_to_channel_info(author);
+            if (channel_info != null) {
+                const command = MessageUtil.command_author_to_channel_info();
+                const video_ids
+                    = BGMessageSender.conv_video_ids(
+                            BGMessageSender.create_video_ids(video_id));
+                BGMessageSender.send_reply({command: command,
+                                            result: "success",
+                                            channel_info: channel_info,
+                                            video_ids: video_ids}, tab_ids);
+            } else {
+                // Youtubeからchannelページhtmlを得る
+                this.channel_html_accessor.entry(tab_ids, author, video_id);
+            }
+        })();
+    }
+
+    tell_get_channel_html(result) {
+        (async()=> {
+            const command = MessageUtil.command_author_to_channel_info();
+            const tab_ids = result.tab_ids;
+            const video_ids = BGMessageSender.conv_video_ids(result.video_ids);
+            const author = result.author;
+            if (result.result === "success") {
+                const ret = BGParser.parse_channel_html(result.html);
+                const channel_info = { author:author, name:ret.name, id:ret.id};
+                await BGSessionAccessor.set_channel_info(author, channel_info);
+                BGMessageSender.send_reply({command: command,
+                                            result: "success",
+                                            channel_info: channel_info,
+                                            video_ids: video_ids}, tab_ids);
+            } else {
+                BGMessageSender.send_reply({command: command,
+                                            result: result.result,
+                                            author: author}, tab_ids);
+            }
+        })();
+    }
+
+    tell_video_searched(result) {
+        const command = MessageUtil.command_video_id_to_channel_info();
+        const tab_ids = result.tab_ids;
+        const video_id = result.video_id;
+        if (result.result === "success") {
+            const ret = BGParser.parse_searched_video_html(video_id, result.html);
+            if (ret.success) {
+                const author = ret.author;
+                const channel_info = { author:author, name:ret.name, id:ret.id };
+                (async()=> {
+                    await BGSessionAccessor.set_channel_author(video_id, author);
+                    await BGSessionAccessor.set_channel_info(author, channel_info);
+                    BGMessageSender.send_reply({command: command,
+                                                result: "success",
+                                                video_id: video_id,
+                                                channel_info: channel_info}, tab_ids);
+                })();
+            } else {
+                // Google検索(video-id)予定地
+            }
+        } else {
+            BGMessageSender.send_reply({command: command,
+                                        result: result.result,
+                                        video_id: video_id}, tab_ids);
+        }
+    }
+
+    tell_playlist_searched(result) {
+        const command = MessageUtil.command_search_playlist();
+        const tab_ids = result.tab_ids;
+        const list_id = result.list_id;
+        if (result.result === "success") {
+            const ret = BGParser.parse_searched_playlist_html(list_id, result.html);
+            if (ret.success) {
+                const channel_info = { author:ret.author, name:ret.name, id:ret.id };
+                BGMessageSender.send_reply({command: command,
+                                            result: "success",
+                                            list_id: list_id,
+                                            channel_info: channel_info}, tab_ids);
+            }
+        } else {
+            BGMessageSender.send_reply({command: command,
+                                        result: result.result,
+                                        list_id: list_id}, tab_ids);
+        }
     }
 }
 

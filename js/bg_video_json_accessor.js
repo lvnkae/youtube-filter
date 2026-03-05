@@ -4,8 +4,9 @@
  */
 class BGVideoJsonAccessor extends BGMessageSender {
     //
-    constructor() {
+    constructor(callback) {
         super();
+        this.callback = callback;
     }
 
     /*!
@@ -17,7 +18,7 @@ class BGVideoJsonAccessor extends BGMessageSender {
         const base_url =
             'https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=';
         this.mark_reply_queue(video_id);
-        fetch(base_url + video_id + '&format=json', {
+        fetch(`${base_url}${video_id}&format=json`, {
             method: "GET",
             credentials: "omit",
         })
@@ -28,24 +29,24 @@ class BGVideoJsonAccessor extends BGMessageSender {
                 return response.json();
             } else if (response.status == STS_UNAUTHORIZED) {
                 const q = this.get_reply_queue(video_id);
-                this.send_reply({command: MessageUtil.command_get_video_json(),
-                                 result: "unauthorized",
-                                 video_id: video_id}, q.tab_ids);
+                this.callback({result: "unauthorized",
+                               video_id: video_id,
+                               tab_ids: q.tab_ids});
                 return null;
             } else {
                 const q = this.get_reply_queue(video_id);
-                this.send_reply({command: MessageUtil.command_get_video_json(),
-                                 result: "not_found",
-                                 video_id: video_id}, q.tab_ids);
+                this.callback({result: "not_found",
+                               video_id: video_id,
+                               tab_ids: q.tab_ids});
             }
         })
         .then(json => {
             if (json != null) {
                 const q = this.get_reply_queue(video_id);
-                this.send_reply({command: MessageUtil.command_get_video_json(),
-                                 result: "success",
-                                 video_id: video_id,
-                                 json: json}, q.tab_ids);
+                this.callback({result: "success",
+                               video_id: video_id,
+                               json: json,
+                               tab_ids: q.tab_ids});
             }
             super.update_reply_queue(video_id,
                                      this.request_video_json.bind(this));
@@ -53,23 +54,15 @@ class BGVideoJsonAccessor extends BGMessageSender {
         .catch(err => {
             const q = this.get_reply_queue(video_id);
             // [error]fetchエラー
-            this.send_reply({command: MessageUtil.command_get_video_json(),
-                             result: "fail",
-                             video_id: video_id}, q.tab_ids);
+            this.callback({result: "fail", video_id: video_id, tab_ids: q.tab_ids});
             super.update_reply_queue(video_id,
                                      this.request_video_json.bind(this));
         });
     }
 
-    /*!
-     *  @brief  onMessageコールバック
-     *  @param  request
-     *  @param  sender  送信者情報
-     */
-    on_message(request, sender) {
-        if (!super.can_http_request(request.video_id, null, sender.tab.id)) {
-            return;
+    entry(tab_id, video_id) {
+        if (super.can_http_request(video_id, tab_id)) {
+            this.request_video_json(video_id);
         }
-        this.request_video_json(request.video_id);
     }
 }

@@ -8,43 +8,25 @@ class Content {
         chrome.runtime.onMessage.addListener(
             (request, sender, sendResponce)=> {
                 sendResponce();
-                if (request.command == MessageUtil.command_update_storage()) {
+                if (request.command === MessageUtil.command_update_storage()) {
                     this.storage.load().then();
                 } else
-                if (request.command == MessageUtil.command_get_video_json()) {
+                if (request.command === MessageUtil.command_video_id_to_channel_info()) {
                     if (this.filter_instance) {
                         this
                         .filter_instance
-                        .tell_get_video_json(request.result,
-                                             request.video_id,
-                                             request.json);
+                        .tell_video_id_to_channel_info(request.result,
+                                                       request.video_id,
+                                                       request.channel_info);
                     }
                 } else
-                if (request.command == MessageUtil.command_get_videos_xml()) {
+                if (request.command === MessageUtil.command_author_to_channel_info()) {
                     if (this.filter_instance) {
                         this
                         .filter_instance
-                        .tell_get_videos_xml(request.result,
-                                             request.username,
-                                             request.xml);
-                    }
-                } else
-                if (request.command == MessageUtil.command_get_channel_html()) {
-                    if (this.filter_instance) {
-                        this
-                        .filter_instance
-                        .tell_get_channel_html(request.result,
-                                               request.unique_name,
-                                               request.html);
-                    }
-                } else
-                if (request.command == MessageUtil.command_search_video()) {
-                    if (this.filter_instance) {
-                        this
-                        .filter_instance
-                        .tell_search_video_html(request.result,
-                                                request.video_id,
-                                                request.html);
+                        .tell_author_to_channel_info(request.result,
+                                                     request.channel_info,
+                                                     request.video_ids);
                     }
                 } else
                 if (request.command == MessageUtil.command_search_playlist()) {
@@ -53,7 +35,7 @@ class Content {
                         .filter_instance
                         .tell_search_playlist_html(request.result,
                                                    request.list_id,
-                                                   request.html);
+                                                   request.channel_info);
                     }
                 } else
                 if (request.command == MessageUtil.command_mute_channel_id()) {

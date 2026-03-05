@@ -38,7 +38,7 @@ class ChannelInfoAccessor {
             return;
         } else {
             // 新規登録
-            var obj = {};
+            let obj = {};
             obj.unique_name = unique_name;
             obj.busy = false;
             this.channel_info_map[unique_name] = obj;
@@ -56,7 +56,7 @@ class ChannelInfoAccessor {
                 obj.busy = true;
                 // content_script内で他domainへアクセスするとCORBされるためbgへ移譲
                 MessageUtil.send_message(
-                    {command:MessageUtil.command_get_channel_html(),
+                    {command:MessageUtil.command_author_to_channel_info(),
                      unique_name: unique_name});
             }
         }
@@ -64,20 +64,17 @@ class ChannelInfoAccessor {
 
     /*!
      *  @brief  チャンネル情報取得完了通知
-     *  @param  unique_name カスタムチャンネル名/ハンドル
-     *  @param  html        チャンネル情報(html)
-     *  @param  post_func   後処理
      *  @note   channel_nameが存在しない事が稀にある→handle入れとく
      */
-    tell_get_html(unique_name, html, post_func) {
-        const name_match = html.match(/"pageTitle":"([^"]+)"/i);
-        const id_match = html.match(/"(?:channelId|browseId)":"(UC[a-zA-Z0-9_-]{22})"/i);
-        if (unique_name in this.channel_info_map) {
-            var obj = this.channel_info_map[unique_name];
-            obj.channel_id = (id_match != null) ?id_match[1] :null;
-            obj.channel_name = (name_match != null) ?name_match[1] :unique_name;
+    tell_get_channel_info(author, channel_info) {
+        if (author in this.channel_info_map) {
+            let obj = this.channel_info_map[author];
+            obj.channel_id = channel_info.id;
+            obj.channel_name = channel_info.name;
+            if (obj.channel_name == null) {
+                obj.channel_name = author;
+            }
             obj.busy = false;
-            post_func(obj);
         }
     }
 }

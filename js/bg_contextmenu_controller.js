@@ -52,9 +52,9 @@ class BGContextMenuController extends BGMessageSender {
                 const click_command = this.menu_param.click_command;
                 if (click_command == MessageUtil.command_mute_channel_id() ||
                     click_command == MessageUtil.command_mute_comment_id()) {
-                    this.send_reply({command: click_command,
-                                     channel_id: this.menu_param.channel_id,
-                                     channel: this.menu_param.channel});
+                    this.super_send_reply({command: click_command,
+                                           channel_id: this.menu_param.channel_id,
+                                           channel: this.menu_param.channel});
                 }
             }
         });
@@ -72,8 +72,8 @@ class BGContextMenuController extends BGMessageSender {
                 chrome.contextMenus.update(this.context_menu_item_id, {
                     "visible": false
                 });
-                this.send_reply({command: MessageUtil.command_reset_contextmenu()},
-                                null, true);
+                this.super_send_reply(
+                        {command: MessageUtil.command_reset_contextmenu()}, true);
             }
         });
     }

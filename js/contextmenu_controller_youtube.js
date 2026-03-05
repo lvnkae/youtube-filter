@@ -169,7 +169,7 @@ class ContextMenuController_Youtube extends ContextMenuController {
         let channel
             = text_utility.remove_blank_line_and_head_space(nd_channel_id.textContent);
         const author_url = nd_channel_id.href;
-        const author = YoutubeUtil.cut_channel_author(author_url);
+        const author = YoutubeUtil.match_channel_author(author_url);
         if (author == null) {
             return false;
         }
