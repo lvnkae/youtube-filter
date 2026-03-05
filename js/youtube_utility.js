@@ -86,55 +86,30 @@ class YoutubeUtil {
     }
 
     /*!
-     *  @brief  YoutubeチャンネルリンクからIDを切り出す
-     */
-    static cut_channel_id(channel_href) {
-        const sp_href = channel_href.split("/");
-        for (var inx = 0; inx < sp_href.length-1; inx++) {
-            if (sp_href[inx] == 'user' ||
-                sp_href[inx] == 'channel') {
-                return sp_href[inx+1];
-            } else
-            if (sp_href[inx] == 'c') {
-                return 'c/' + decodeURI(sp_href[inx+1]);
-            }
-        }
-        for (var inx = 1; inx < sp_href.length; inx++) {
-            if (sp_href[inx].startsWith('@')) {
-                return sp_href[inx];
-            }
-        }
-        return null;
-    }
-    /*!
      *  @brief  Youtubeチャンネルリンクから主を切り出す
      *  @retval ret[1] '@'          / ret[0] handle
-     *  @retval ret[0] 'c/'         / ret[2] custom-channel
-     *  @retval ret[0] 'user/'      / ret[2] username
+     *  @retval ret[1] 'c/'         / ret[2] custom-channel
+     *  @retval ret[1] 'user/'      / ret[2] username
      *  @retval ret[1] 'channel/'   / ret[2] channel-id
      *  @note   正規表現高速化版
      */
-    static cut_channel_author(channel_href) {
+    static match_channel_author(channel_href) {
         return channel_href.match(AUTHOR_EXTRACTOR);
     }
-    static cut_channel_author2(channel_href) {
-        const author = YoutubeUtil.cut_channel_author(channel_href);
+    static cut_channel_author(channel_href) {
+        const author = YoutubeUtil.match_channel_author(channel_href);
         if (author == null) {
             return null;
         }
-        if (YoutubeUtil.is_handle_author(author)) {
-            return author[0];
-        } else {
-            return author[2];
-        }
+        return `${author[1]}${author[2]}`
     }
     /*!
      *  @brief  YoutubeチャンネルリンクからIDを切り出す
      *  @retval null    channel_hrefが/channel/でない
      */
-    static cut_channel_id2(channel_href) {
+    static cut_channel_id(channel_href) {
         if (channel_href != null) {
-            const ret = YoutubeUtil.cut_channel_author(channel_href);
+            const ret = YoutubeUtil.match_channel_author(channel_href);
             if (ret != null) {
                 if (ret[1] === "channel/") {
                     return ret[2];
@@ -568,7 +543,7 @@ class YoutubeUtil {
                     if (attr_dir != null && attr_dir === "auto") {
                         const elem_a = ch.querySelector("a");
                         if (elem_a != null) {
-                            ret.reply_id = YoutubeUtil.cut_channel_id2(elem_a.href);
+                            ret.reply_id = YoutubeUtil.cut_channel_id(elem_a.href);
                         }
                     } else if (ch.className.indexOf("string--inline") > 0) {
                         const elem_img = ch.querySelector("img");

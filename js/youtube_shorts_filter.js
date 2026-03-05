@@ -624,7 +624,7 @@ class YoutubeShortsFilter {
         let channel_id = null;
         let video_id = null;
         if (!b_collabo) {
-            const channel_code = YoutubeUtil.cut_channel_id(author_url);
+            const channel_code = YoutubeUtil.cut_channel_author(author_url);
             channel = this.data_counter.get_channel_name(channel_code);
         } else {
             video_id = YoutubeShortsFilter.s_get_video_id_from_title(act_reel);
@@ -681,7 +681,7 @@ class YoutubeShortsFilter {
         if (!chk_func(author_url)) {
             return;
         }
-        if (channel_code !== YoutubeUtil.cut_channel_id(author_url)) {
+        if (channel_code !== YoutubeUtil.cut_channel_author(author_url)) {
             return;
         }
         if (this.storage.channel_id_filter(channel_id, title)) {

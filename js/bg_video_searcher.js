@@ -4,8 +4,9 @@
  */
 class BGVideoSearcher extends BGMessageSender {
     //
-    constructor() {
+    constructor(callback) {
         super();
+        this.callback = callback;
     }
 
     /*!
@@ -14,10 +15,9 @@ class BGVideoSearcher extends BGMessageSender {
      *  @param  fparam      未使用
      */
     request_search_video(video_id, fparam) {
-        const base_url =
-            'https://www.youtube.com/results?search_query="';
+        const base_url = 'https://www.youtube.com/results?search_query="';
         this.mark_reply_queue(video_id);
-        fetch(base_url + video_id + '"&sp=EgIQAQ%253D%253D', {
+        fetch(`${base_url}${video_id}&sp=EgIQAQ%253D%253D`, {
             method: "GET",
             credentials: "omit",
         })
@@ -27,20 +27,18 @@ class BGVideoSearcher extends BGMessageSender {
                 return response.text();
             } else {
                 const q = this.get_reply_queue(video_id);
-                BGMessageSender.send_reply(
-                    {command: MessageUtil.command_search_video(),
-                     result: "not_found",
-                     video_id: video_id}, q.tab_ids);
+                this.callback({result: "not_found",
+                               video_id: video_id,
+                               tab_ids: q.tab_ids});
             }
         })
         .then(text => {
             if (text != null) {
                 const q = this.get_reply_queue(video_id);
-                BGMessageSender.send_reply(
-                    {command: MessageUtil.command_search_video(),
-                     result: "success",
-                     video_id: video_id,
-                     html: text}, q.tab_ids);
+                this.callback({result: "success",
+                               video_id: video_id,
+                               html: text,
+                               tab_ids: q.tab_ids});
             }
             super.update_reply_queue(video_id,
                                      this.request_search_video.bind(this));
@@ -48,23 +46,15 @@ class BGVideoSearcher extends BGMessageSender {
         .catch(err => {
             const q = this.get_reply_queue(video_id);
             // [error]fetchエラー
-            BGMessageSender.send_reply({command: MessageUtil.command_search_video(),
-                                        result: "fail",
-                                        video_id: video_id}, q.tab_ids);
+            this.callback({result:"fail", video_id:video_id, tab_ids:q.tab_ids});
             super.update_reply_queue(video_id,
                                      this.request_search_video.bind(this));
         });
     }
 
-    /*!
-     *  @brief  onMessageコールバック
-     *  @param  request
-     *  @param  sender  送信者情報
-     */
-    on_message(request, sender) {
-        if (!super.can_http_request(request.video_id, null, sender.tab.id)) {
-            return;
+    entry(tab_ids, video_id) {
+        if (super.can_http_request2(video_id, tab_ids)) {
+            this.request_search_video(video_id);
         }
-        this.request_search_video(request.video_id);
-    }
+    }    
 }

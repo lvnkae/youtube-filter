@@ -26,8 +26,7 @@ class BGMessageSender {
                     continue;
                 }
                 if (tab_ids) {
-                    if (tab.id in tab_ids) {
-                    } else {
+                    if (!tab_ids.has(tab.id)) {
                         continue;
                     }
                 }
@@ -43,6 +42,32 @@ class BGMessageSender {
                 });
             }
         });
+    }
+
+    static create_video_ids(video_id) {
+        if (video_id == null) {
+            return null;
+        } else {
+            const video_ids = new Set();
+            video_ids.add(video_id);
+            return video_ids;
+        }
+    }
+    static set_video_id(q, video_id) {
+        if (video_id == null) {
+            return;
+        }
+        if (q.video_ids == null) {
+            q.video_ids = BGMessageSender.create_video_ids(video_id);
+        } else {
+            q.video_ids.add(video_id);
+        }
+    }
+    static conv_video_ids(video_ids) {
+        if (video_ids == null) {
+            return null;
+        }
+        return [...video_ids];
     }
 
     /*!
@@ -76,24 +101,43 @@ class BGMessageSender {
     }
 
     /*!
-     *  @brief  queue登録用obj生成
-     *  @param  fparam  フリーパラメータ
-     *  @param  tab_id  送信者tab_id(=返信先)
+     *  @brief  発行待ちキューを得る
+     *  @param  key 登録キー
      */
-    static create_queue_obj(fparam, tab_id) {
-        var q = {tab_ids: []};
-        q.tab_ids[tab_id] = fparam;
-        return q;
+    get_wait_queue(key) {
+        for (const queue of this.wait_queue) {
+            if (key in queue.queue) {
+                return queue.queue[key];
+            }
+        }
+        return null;
     }
 
+
     /*!
-     *  @brief  queueからフリーパラメータを得る
-     *  @param  q       queue登録用obj
+     *  @brief  tab_id群生成
+     *  @param  tab_id  送信者tab_id(=返信先)
      */
-    static get_queue_freeparam(q) {
-        for (const q_key in q.tab_ids) {
-            return q.tab_ids[q_key];
-        }
+    static create_blank_tab_ids() {
+        return new Set();
+    }
+    static create_tab_ids(tab_id) {
+        let tab_ids = BGMessageSender.create_blank_tab_ids();
+        tab_ids.add(tab_id);
+        return tab_ids;    
+    }
+    /*!
+     *  @brief  queue登録用obj生成
+     *  @param  tab_id  送信者tab_id(=返信先)
+     */
+    static create_blank_queue_obj() {
+        const q = {tab_ids: BGMessageSender.create_blank_tab_ids()};
+        return q;
+    }
+    static create_queue_obj(tab_id) {
+        let q = BGMessageSender.create_blank_queue_obj();
+        q.tab_ids.add(tab_id);
+        return q;
     }
 
     /*!
@@ -135,39 +179,58 @@ class BGMessageSender {
     }
 
     /*!
-     *  @brief  http_request発行待ちキューに詰み直す
-     *  @param  key     登録キー
-     *  @param  q       queue登録用obj
-     *  @note   リトライ用
-     */
-    reentry_wait_queue(key, q) {
-        var cq = {tab_ids: []};
-        cq.tab_ids = Object.create(q.tab_ids);
-        this.entry_wait_queue(key, cq);
-    }
-
-    /*!
      *  @brief  http_requestを発行して良いか
      *  @param  key     登録キー
-     *  @param  fparam  フリーパラメータ
      *  @param  tab_id  送信者tab_id(=返信先)
      *  @retval true    発行してよし
      */
-    can_http_request(key, fparam, tab_id) {
+    can_http_request(key, tab_id) {
         // 既にキューに積まれてるか
         if (key in this.reply_queue.queue) {
             // 応答待ちキューに積まれてる
-            this.reply_queue.queue[key].tab_ids[tab_id] = fparam;
+            this.reply_queue.queue[key].tab_ids.add(tab_id);
             return false;
         }
         for (var queue of this.wait_queue) {
             if (key in queue.queue) {
                 // 発行待ちキューに積まれてる
-                this.wait_queue.queue[key].tab_ids[tab_id] = fparam;
+                queue.queue[key].tab_ids.add(tab_id);
                 return false;
             }
         }
-        const q = BGMessageSender.create_queue_obj(fparam, tab_id);
+        const q = BGMessageSender.create_queue_obj(tab_id);
+        // 即時request可？
+        if (BGMessageSender.entry_queue(this.reply_queue, key, q, this.MAX_HTTPREQUEST_PALLAREL)) {
+            return true;
+        }
+        //
+        this.entry_wait_queue(key, q);
+        return false;
+    }
+    can_http_request2(key, tab_ids) {
+        // 既にキューに積まれてるか
+        if (key in this.reply_queue.queue) {
+            // 応答待ちキューに積まれてる
+            const queue = this.reply_queue.queue[key];
+            tab_ids.forEach(id=>{
+                queue.tab_ids.add(id);
+            });
+            return false;
+        }
+        for (var queue of this.wait_queue) {
+            if (key in queue.queue) {
+                // 発行待ちキューに積まれてる
+                const wqueue = queue.queue[key];
+                tab_ids.forEach(id=>{
+                    wqueue.tab_ids.add(id);
+                });
+                    return false;
+            }
+        }
+        const q = BGMessageSender.create_blank_queue_obj();
+        tab_ids.forEach(id=> {
+            q.tab_ids.add(id);
+        });
         // 即時request可？
         if (BGMessageSender.entry_queue(this.reply_queue, key, q, this.MAX_HTTPREQUEST_PALLAREL)) {
             return true;
@@ -209,7 +272,7 @@ class BGMessageSender {
                 if (q.send) {
                     continue;
                 }
-                http_request_func(key, BGMessageSender.get_queue_freeparam(q));
+                http_request_func(key);
             }
             clearTimeout(this.http_request_timer);
             this.http_request_timer = null;

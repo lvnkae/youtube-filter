@@ -4,20 +4,19 @@
  */
 class BGPlaylistSearcher extends BGMessageSender {
     //
-    constructor() {
+    constructor(callback) {
         super();
+        this.callback = callback;
     }
 
     /*!
      *  @brief  Youtubeプレイリスト検索
      *  @param  list_id リストID
-     *  @param  fparam  未使用
      */
-    request_search_list(list_id, fparam) {
-        const base_url =
-            'https://www.youtube.com/results?search_query=';
+    request_search_list(list_id) {
+        const base_url = 'https://www.youtube.com/results?search_query=';
         this.mark_reply_queue(list_id);
-        fetch(base_url + list_id + '&sp=EgIQAw%253D%253D', {
+        fetch(`${base_url}${list_id}&sp=EgIQAw%253D%253D`, {
             method: "GET",
             credentials: "omit",
         })
@@ -27,20 +26,16 @@ class BGPlaylistSearcher extends BGMessageSender {
                 return response.text();
             } else {
                 const q = this.get_reply_queue(list_id);
-                BGMessageSender.send_reply(
-                    {command: MessageUtil.command_search_playlist(),
-                     result: "not_found",
-                     list_id: list_id}, q.tab_ids);
+                this.callback({result:"not_found", list_id:list_id, tab_ids:q.tab_ids});
             }
         })
         .then(text => {
             if (text != null) {
                 const q = this.get_reply_queue(list_id);
-                BGMessageSender.send_reply(
-                    {command: MessageUtil.command_search_playlist(),
-                     result: "success",
-                     list_id: list_id,
-                     html: text}, q.tab_ids);
+                this.callback({result: "success",
+                               list_id: list_id,
+                               html: text,
+                               tab_ids: q.tab_ids});
             }
             super.update_reply_queue(list_id,
                                      this.request_search_list.bind(this));
@@ -48,23 +43,15 @@ class BGPlaylistSearcher extends BGMessageSender {
         .catch(err => {
             const q = this.get_reply_queue(list_id);
             // [error]fetchエラー
-            BGMessageSender.send_reply({command: MessageUtil.command_search_playlist(),
-                                        result: "fail",
-                                        list_id: list_id}, q.tab_ids);
+            this.callback({result:"fail", list_id:list_id, tab_ids:q.tab_ids});
             super.update_reply_queue(list_id,
                                      this.request_search_list.bind(this));
         });
     }
 
-    /*!
-     *  @brief  onMessageコールバック
-     *  @param  request
-     *  @param  sender  送信者情報
-     */
-    on_message(request, sender) {
-        if (!super.can_http_request(request.list_id, null, sender.tab.id)) {
-            return;
+    entry(tab_id, list_id) {
+        if (super.can_http_request(list_id, tab_id)) {
+            this.request_search_list(list_id);
         }
-        this.request_search_list(request.list_id);
     }
 }

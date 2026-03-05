@@ -78,7 +78,7 @@ function filtering_unit(wait_map, elem, channel_info_accessor, storage) {
     }
     let handle = null;
     let userid = null;
-    const author = YoutubeUtil.cut_channel_author(author_url);
+    const author = YoutubeUtil.match_channel_author(author_url);
     if (author == null) {
         return ret;
     }

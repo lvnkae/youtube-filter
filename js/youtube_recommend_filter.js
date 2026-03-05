@@ -44,7 +44,7 @@ function filtering_video(renderer_root, storage, video_info_accessor) {
         if (ret.result) {
             if (storage.channel_filter(channel_info.name, title)) {
                 detach_video(renderer_root);
-                return;    
+                return;
             }
             if (ret.ch2nd != null) {
                 if (storage.channel_filter(ret.ch2nd, title)) {
@@ -58,7 +58,7 @@ function filtering_video(renderer_root, storage, video_info_accessor) {
                 detach_video(renderer_root);
                 return;
             }
-        }            
+        }
         channel_id = channel_info.id;
     }
     if (channel_id == null) {
@@ -105,7 +105,7 @@ function filtering_video_by_channel_id(renderer_root, video_id, channel_id, chan
     if (ret.result) {
         if (storage.channel_filter(channel, title)) {
             detach_video(renderer_root);
-            return;    
+            return;
         }
         if (ret.ch2nd != null) {
             if (storage.channel_filter(ret.ch2nd, title)) {
@@ -121,14 +121,14 @@ function filtering_video_by_channel_id(renderer_root, video_id, channel_id, chan
 
 
 /*!
- *  @brief  おすすめ(動画/プレイリスト)フィルタ
+ *  @brief  おすすめフィルタ
  *  @param  elem        コンテンツノード
- *  @param  content_id  ID(動画ID/プレイリストID)
+ *  @param  content_id  コンテンツID
  *  @param  channel_id  チャンネルID
  *  @param  channel     チャンネル名
  *  @param  storage     StorageDataクラスインスタンス
  *  @note   channel_id取得コールバック
- *  @note   25年07月以降の構成(lockup-view-model)に対応
+ *  @note   25年07月以降の構成(lockup-view-model)に対応/26年3月現在動画のみ
  */
 function filtering_content_lvm_by_channel_id(elem, content_id, channel_id, channel,
                                              storage) {
@@ -184,6 +184,43 @@ function filtering_content_lvm_by_channel_id(elem, content_id, channel_id, chann
     YoutubeFilteringUtil.completed(renderer_root);
     YoutubeUtil.set_renderer_node_channel_id(renderer_root, channel_id);
 }
+/*!
+ *  @brief  おすすめフィルタ
+ *  @param  elem        コンテンツノード
+ *  @param  author      対象チャンネルauthor
+ *  @param  channel_id  チャンネルID
+ *  @param  storage     StorageDataクラスインスタンス
+ *  @note   channel_id取得コールバック
+ *  @note   25年07月以降の構成(lockup-view-model)に対応/26年03月現在playlistのみ
+ */
+function filtering_lockup_vm_by_channel_id(elem, author, channel_id, storage) {
+    const renderer_root = YoutubeUtil.search_renderer_root(elem);
+    if (renderer_root == null) {
+        return;
+    }
+    const elem_channel = YoutubeRecommendFilter.get_lookup_vm_list_channel_element(elem);
+    if (elem_channel == null) {
+        return;
+    }
+    const author_url = elem_channel.href;
+    if (author !== YoutubeUtil.cut_channel_author(author_url)) {
+        return;
+    }
+    const elem_title = YoutubeUtil.get_lockup_vm_title_elem(elem);
+    if (elem_title == null) {
+        return;
+    }
+    const detach_func = YoutubeFilteringUtil.detach_lower_lockup_vm_node;
+    const title
+        = text_utility.remove_blank_line_and_head_space(elem_title.textContent);
+    if (storage.channel_id_filter(channel_id, title)) {
+        detach_func(renderer_root);
+        return;
+    }
+    YoutubeFilteringUtil.completed(renderer_root);
+    YoutubeUtil.set_renderer_node_channel_id(renderer_root, channel_id);
+}
+
 
 
 /*!
@@ -305,12 +342,12 @@ class YoutubeRecommendFilter {
                     }
                 }
                 channel_id = channel_info.id;
-            }            
+            }
             if (channel_id == null) {
                 YoutubeFilteringUtil.set_wait(renderer_root);
                 dc.entry_channel_id_request(video_id);
                 return false;
-            }            
+            }
          }
          return YoutubeFilteringUtil.filtering_renderer_node_by_channel_id(renderer_root,
                                                                            channel_id,
@@ -354,15 +391,17 @@ class YoutubeRecommendFilter {
             }, e_parent);
         });
     }
-    filtering_playlists_by_channel_id(list_id, channel_id) {
+    tell_get_channel_id(author, channel_id) {
+        // endscreen用にchannel_idを繋いでおく
+        this.playlist_searcher.tell_get_channel_id_by_unique_channel(author, channel_id);
+        //
         const storage = this.storage;
         this.call_contents_filter((e_parent)=> {
             YoutubeFilteringUtil.each_lockup_view_model_wait((elem)=>{
-                filtering_content_lvm_by_channel_id(elem,
-                                                    list_id,
-                                                    channel_id,
-                                                    null,
-                                                    storage);
+                filtering_lockup_vm_by_channel_id(elem,
+                                                  author,
+                                                  channel_id,
+                                                  storage);
             }, e_parent);
         });
     }

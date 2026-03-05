@@ -20,14 +20,11 @@ class FilterBase {
      */
     constructor(storage) {
         this.storage = storage;
-        this.author_info_accessor = new AuthorInfoAccessor();
         this.video_info_accessor = new VideoInfoAccessor();
         this.channel_info_accessor = new ChannelInfoAccessor();
-        this.video_searcher = new VideoSearcher();
         this.playlist_searcher = new PlaylistSearcher();
         //
-        this.data_counter = new YoutubeDataCounter(this.author_info_accessor,
-                                                   this.channel_info_accessor,
+        this.data_counter = new YoutubeDataCounter(this.channel_info_accessor,
                                                    this.video_info_accessor);
         //
         this.current_location = new urlWrapper(location.href);
