@@ -69,57 +69,12 @@ class ChannelInfoAccessor {
      *  @param  post_func   後処理
      */
     tell_get_html(unique_name, html, post_func) {
-        const parser = new DOMParser();
-        const doc_html = parser.parseFromString(html, "text/html");
-        const elem_meta = doc_html.getElementsByTagName('meta');
-        if (elem_meta.length == 0) {
-            return;
-        }
-        let channel_id = null;
-        let channel_name = null;
-        $(elem_meta).each((inx, elem)=>{
-            const prop = $(elem).attr('itemprop');
-            if (prop == null) {
-                return true;
-            }
-            if (prop == 'channelId') {
-                channel_id = $(elem).attr('content');
-            } else
-            if (prop == 'name') {
-                channel_name = $(elem).attr('content');
-            }
-            if (channel_id != null && channel_name != null) {
-                return false;
-            } else {
-                return true;
-            }
-        });
-        if (channel_id == null) {
-            const elem_script = doc_html.getElementsByTagName('script');
-            if (elem_script.length == 0) {
-                return;
-            }
-            const key_script_top = 'var ytInit';
-            const key_channel_id = '"externalId":"'
-            const len_key_url = key_channel_id.length;
-            $(elem_script).each((inx, elem)=>{
-                if (elem.innerText.indexOf(key_script_top) != 0) {
-                    return true;
-                }
-                const cut_top = elem.innerText.indexOf(key_channel_id);
-                if (cut_top < 0) {
-                    return false; // 想定外のhtmlが来た
-                }
-                const cut_end = elem.innerText.indexOf('"', cut_top + len_key_url);
-                channel_id
-                    = elem.innerText.substring(cut_top + len_key_url, cut_end);
-                return false;
-            });
-        }            
+        const name_match = html.match(/<meta itemprop="name" content="([^"]+)">/i);
+        const id_match = html.match(/"(?:channelId|browseId)":"(UC[a-zA-Z0-9_-]{22})"/i);
         if (unique_name in this.channel_info_map) {
             var obj = this.channel_info_map[unique_name];
-            obj.channel_id = channel_id;
-            obj.channel_name = channel_name;
+            obj.channel_id = id_match ?id_match[1] :null;
+            obj.channel_name = name_match ?name_match[1] :null;
             obj.busy = false;
             post_func(obj);
         }

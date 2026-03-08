@@ -39,10 +39,6 @@ class FilterBase {
     }
 
     /*!
-     *  @brief  子iframeに右クリック監視を追加
-     */
-    add_iframe_onmouse_monitoring() {}
-    /*!
      *  @brief  キー要素observer準備完了callback
      */
     callback_ready_element_observer() {}
@@ -111,7 +107,6 @@ class FilterBase {
                     this.filtering_timer = null;
                 }
                 this.filtering();
-                this.add_iframe_onmouse_monitoring();
             } else {
                 // 短時間の連続追加はまとめて処理したい気持ち
                 if (this.filtering_timer == null) {
@@ -119,7 +114,6 @@ class FilterBase {
                         this.filtering();
                         clearTimeout(this.filtering_timer);
                         this.filtering_timer = null;
-                        this.add_iframe_onmouse_monitoring();
                     }, 200); /* 1/5sec */
                 }
             }
@@ -149,14 +143,12 @@ class FilterBase {
             // intervalTimerで生成を待ってobserver登録する
             this.observer_timer = setInterval(()=> {
                 if (this.ready_element_observer()) {
-                    this.add_iframe_onmouse_monitoring();
                     this.callback_ready_element_observer();
                     clearInterval(this.observer_timer);
                     this.observer_timer = null;
                 }
             }, 33); /* 1/30sec */
         } else {
-            this.add_iframe_onmouse_monitoring();
             this.callback_ready_element_observer();
         }
     }
