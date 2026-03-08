@@ -198,7 +198,7 @@ class YoutubeShortsFilter {
                 return;
             }
             YoutubeUtil.remove_filtered_marker(elem);
-            //    
+            //
             const renderer_root = YoutubeShortsFilter.search_renderer_root(elem);
             if (renderer_root == null) {
                 return;
@@ -664,11 +664,10 @@ class YoutubeShortsFilter {
      *  @brief  short動画フィルタ(チャンネルコード)
      *  @param  channel_code    ユーザ名/カスタムチャンネル名/ハンドル
      *  @param  channel_id      チャンネルID
-     *  @param  chk_func        チャンネル判別関数
      *  @note   動画更新情報(xml)またはチャンネル情報(html)↓
      *  @note   取得完了通知後処理から呼ばれる
      */
-    filtering_video_by_channel_code(channel_code, channel_id, chk_func) {
+    filtering_video_by_channel_code(channel_code, channel_id) {
         const act_reel = YoutubeShortsFilter.s_get_active_reel();
         if (act_reel == null) {
             return;
@@ -676,9 +675,6 @@ class YoutubeShortsFilter {
         const author_url = YoutubeShortsFilter.get_author_url(act_reel);
         const title = YoutubeShortsFilter.get_title(act_reel);
         if (author_url == null || author_url === "" || title === "") {
-            return;
-        }
-        if (!chk_func(author_url)) {
             return;
         }
         if (channel_code !== YoutubeUtil.cut_channel_author(author_url)) {
@@ -717,7 +713,7 @@ class YoutubeShortsFilter {
             HTMLUtil.show_element(pl_container);
             HTMLUtil.recalculation();
         }
-    }    
+    }
     show_video() {
         this.show_video_container(YoutubeShortsFilter.get_active_player_container());
     }
@@ -1330,7 +1326,7 @@ class YoutubeShortsFilter {
     }
     callback_resize_window() {
         this.resize_window = true;
-    }    
+    }
 
     callback_domloaded() {
         this.call_fill_in_thumbnail();

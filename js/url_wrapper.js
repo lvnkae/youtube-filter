@@ -6,6 +6,7 @@ const CHANNEL_EXTRACTOR = /\/(?:@|user\/|channel\/|c\/)[^\/\?#]+\/?/;
 const CHANNEL_SEARCH_EXTRACTOR = /\/(?:@|user\/|channel\/|c\/)[^\/\?#]+\/search/;
 const CHANNEL_NOMUTEMENU_EXTRACTOR = /\/(?:@|user\/|channel\/|c\/)[^\/\?#]+\/(playlists|search|videos|shorts|streams|releases)/;
 const CHANNEL_SPORTSLIVE_EXTRACTOR = /\/channel\/UC(Egdi0XIXXZ-qJOFPf4JSKw|4R8DWoMoI7CAwX8_LjQHig)\/?/;
+const SHORTEND_WATCH_EXTRACTOR = /youtu.be\/([a-zA-Z0-9_-]{11})/;
 
 class urlWrapper {
 
@@ -48,8 +49,9 @@ class urlWrapper {
     in_google_searched_youtube()
     {
         return this.in_youtube() ||
-                    this.domain.indexOf("m.youtube.com") >= 0 ||
-                    this.domain.indexOf("gaming.youtube.com") >= 0;
+                    this.domain === "m.youtube.com" ||
+                    this.domain === "gaming.youtube.com" ||
+                    this.domain === "youtu.be";
     }
     /*!
      *  @brief  Home亜種
@@ -73,6 +75,13 @@ class urlWrapper {
                (this.subdir[0].indexOf('watch?') >= 0 ||
                 this.subdir[0] === 'live');
     }
+    static is_youtube_shortend_movie_page(url) {
+        return SHORTEND_WATCH_EXTRACTOR.test(url);
+    }
+    in_youtube_shortend_movie_page()
+    {
+        return urlWrapper.is_youtube_shortend_movie_page(this.url);
+    }
     in_youtube_playlist_page()
     {
         return this.subdir.length >=1 &&
@@ -88,7 +97,7 @@ class urlWrapper {
     }
     in_youtube_channel_search() {
         return CHANNEL_SEARCH_EXTRACTOR.test(this.url);
-    }    
+    }
     in_youtube_channel_page()
     {
         // news/sports/liveだけ構造が違うので除外
@@ -152,7 +161,7 @@ class urlWrapper {
     {
         return (this.subdir.length >=1 && this.subdir[0] === 'shorts');
     }
-    in_youtube_feeds() 
+    in_youtube_feeds()
     {
         return this.subdir.length >=2 &&
                this.subdir[0] === 'feed' &&

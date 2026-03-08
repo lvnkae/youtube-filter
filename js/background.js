@@ -4,6 +4,8 @@
 class Background {
     //
     constructor() {
+        this.session_accessor = new BGSessionAccessor();
+        //
         this.video_json_accessor
             = new BGVideoJsonAccessor(this.tell_get_json.bind(this));
         this.channel_html_accessor
@@ -15,14 +17,17 @@ class Background {
         //
         this.initialize();
     }
-    
+
     /*!
      *
      */
     initialize() {
         chrome.runtime.onMessage.addListener(
             (request, sender, sendResponse)=> {
-                sendResponse();
+                (async() => {
+                    await this.session_accessor.ready;
+                    sendResponse();
+                })();
                 if (request.command === MessageUtil.command_video_id_to_channel_info()) {
                     this.video_id_to_channel_info(sender.tab.id, request.video_id);
                 } else
@@ -46,7 +51,7 @@ class Background {
         BGContextMenuController.add_listener();
     }
 
-    /*! 
+    /*!
      *  @brief  動画idからチャンネル情報を得る
      *  @param  tab_id  要求者(tab)のID
      */
@@ -79,6 +84,7 @@ class Background {
         const tab_ids = result.tab_ids;
         const video_id = result.video_id;
         if (result.result === "unauthorized") {
+            // Youtubeで動画ID検索
             this.video_searcher.entry(tab_ids, video_id);
         } else
         if (result.result === "success") {
@@ -90,12 +96,12 @@ class Background {
                                                 video_id: video_id}, tab_ids);
                 }
                 const author = ret.author;
-                await BGSessionAccessor.set_channel_author(video_id, author);
+                await this.session_accessor.set_channel_author(video_id, author);
                 if (author.startsWith("channel/")) {
                     const channel_info = { author: author,
                                            name: ret.name,
                                            id:ret.id};
-                    await BGSessionAccessor.set_channel_info(author, channel_info);
+                    await this.session_accessor.set_channel_info(author, channel_info);
                     BGMessageSender.send_reply({command: command,
                                                 result: "success",
                                                 video_id: video_id,
@@ -112,7 +118,7 @@ class Background {
         }
     }
 
-    /*! 
+    /*!
      *  @brief  authorからチャンネル情報を得る
      *  @param  tab_ids     要求者(tab)のID群
      *  @param  author      c/custum_channel or handle
@@ -146,7 +152,7 @@ class Background {
             if (result.result === "success") {
                 const ret = BGParser.parse_channel_html(result.html);
                 const channel_info = { author:author, name:ret.name, id:ret.id};
-                await BGSessionAccessor.set_channel_info(author, channel_info);
+                await this.session_accessor.set_channel_info(author, channel_info);
                 BGMessageSender.send_reply({command: command,
                                             result: "success",
                                             channel_info: channel_info,
@@ -169,15 +175,18 @@ class Background {
                 const author = ret.author;
                 const channel_info = { author:author, name:ret.name, id:ret.id };
                 (async()=> {
-                    await BGSessionAccessor.set_channel_author(video_id, author);
-                    await BGSessionAccessor.set_channel_info(author, channel_info);
+                    await this.session_accessor.set_channel_author(video_id, author);
+                    await this.session_accessor.set_channel_info(author, channel_info);
                     BGMessageSender.send_reply({command: command,
                                                 result: "success",
                                                 video_id: video_id,
                                                 channel_info: channel_info}, tab_ids);
                 })();
             } else {
-                // Google検索(video-id)予定地
+                // 動画検索も無理なら諦める
+                BGMessageSender.send_reply({command: command,
+                                            result: "not_found",
+                                            video_id: video_id}, tab_ids);
             }
         } else {
             BGMessageSender.send_reply({command: command,

@@ -127,6 +127,14 @@ class YoutubeUtil {
         const sp_href_no_opt = sp_href[sp_href.length-1].split("&");
         return sp_href_no_opt[0];
     }
+    static cut_shortened_movie_hash(link) {
+        const match = link.match(SHORTEND_WATCH_EXTRACTOR)
+        if (match != null) {
+            return match[1];
+        } else {
+            return "";
+        }
+    }
     static cut_live_hash(link) {
         const sp_href = link.split("/");
         const sp_href_no_opt = sp_href[sp_href.length-1].split("?");
@@ -246,6 +254,13 @@ class YoutubeUtil {
     }
     static get_lockup_vm_channel_tag() {
         return "a.yt-core-attributed-string__link";
+    }
+
+    static remove_title_href(elem, tag_title) {
+        const elem_title = elem.querySelector(tag_title);
+        if (elem_title != null) {
+            elem_title.removeAttribute("href");
+        }
     }
 
     /*!

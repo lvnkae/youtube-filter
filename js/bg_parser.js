@@ -7,9 +7,6 @@
  */
 const AUTHOR_EXTRACTOR = /(@|user\/|channel\/|c\/)([^/?#]+)/;
 //
-const XML_CHANNEL_NAME_EXTRACTOR = /\<name\>([^"]+)\<\/name\>/;
-const XML_CHANNEL_ID_EXTRACTOR = /\<yt:channelId\>(UC[a-zA-Z0-9_-]{22})\<\/yt:channelId\>/;
-//
 const CHANNEL_NAME_EXTRACTOR = /"pageTitle":"([^"]+)"/;
 const CHANNEL_ID_EXTRACTOR = /"(?:channelId|browseId)":"(UC[a-zA-Z0-9_-]{22})"/;
 
@@ -32,15 +29,6 @@ class BGParser {
         ret.author = `${author[1]}${author[2]}`;
         ret.result = true;
         return ret;
-    }
-
-    static parse_feeds_xml(xml) {
-        const name_match = xml.match(XML_CHANNEL_NAME_EXTRACTOR);
-        const id_match = xml.match(XML_CHANNEL_ID_EXTRACTOR);
-        return { 
-            name: (name_match != null) ?name_match[1] :'',
-            id: (id_match != null) ?id_match[1] :null
-        };
     }
 
     static parse_searched_video_html(video_id, html) {
@@ -87,7 +75,7 @@ class BGParser {
     static parse_channel_html(html) {
         const name_match = html.match(CHANNEL_NAME_EXTRACTOR);
         const id_match = html.match(CHANNEL_ID_EXTRACTOR);
-        return { 
+        return {
             name: (name_match != null) ?name_match[1] :'',
             id: (id_match != null) ?id_match[1] :null
         };

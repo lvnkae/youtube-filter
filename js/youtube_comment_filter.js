@@ -69,7 +69,7 @@ function filtering_unit(wait_map, elem, channel_info_accessor, storage) {
         return ret;
     }
     const author_url = elem_author.href;
-    if (author_url == null) {
+    if (author_url == null || author_url === "") {
         return ret;
     }
     const elem_comment = get_content_text_node(elem);
@@ -113,7 +113,7 @@ function filtering_unit(wait_map, elem, channel_info_accessor, storage) {
                 ret.state = YoutubeFilteringUtil.STATE_COMPLETE;
             }
         }
-    } else 
+    } else
     if (handle != null) {
         ret = storage.comment_filter_without_id(handle, comment_info.comment);
         if (!ret.result) {
@@ -150,9 +150,9 @@ function filtering_comment_calling(wait_map, candidate_additional_ng_id,
                 }
             } else {
                 filtering_replies(wait_map, candidate_additional_ng_id,
-                                comment_root, state_func,
-                                channel_info_accessor, storage);
-            } 
+                                  comment_root, state_func,
+                                  channel_info_accessor, storage);
+            }
             if (ret.state != null) {
                 YoutubeFilteringUtil.set_state(comment_root, ret.state);
             }
@@ -161,7 +161,7 @@ function filtering_comment_calling(wait_map, candidate_additional_ng_id,
         filtering_replies(wait_map, candidate_additional_ng_id,
                           comment_root, state_func,
                           channel_info_accessor, storage);
-    }                                    
+    }
 }
 /*!
  *  @brief  リプライコメント群フィルタ
@@ -192,7 +192,7 @@ function filtering_replies(wait_map, candidate_additional_ng_id,
         filtering_comment_calling(wait_map, candidate_additional_ng_id,
                                   comment_root, state_func,
                                   channel_info_accessor, storage);
-    }        
+    }
 }
 /*!
  *  @brief  リプライコメント群stateクリア
@@ -245,7 +245,7 @@ class YoutubeCommentFilter {
             this.storage.save();
             MessageUtil.send_message({command:MessageUtil.command_add_mute_id()});
         }
-    }           
+    }
     /*!
      *  @brief  コメント群フィルタリング
      */
@@ -312,7 +312,7 @@ class YoutubeCommentFilter {
 
     /*!
      *  @brief  全コメントstate削除
-     *  @note   shorts用/コメント使いまわしによる弊害を回避
+     *  @note   sort時コメント使いまわしによる弊害を回避
      */
     remove_comments_state(e_contents) {
         if (e_contents == null) {
@@ -327,19 +327,46 @@ class YoutubeCommentFilter {
             remove_author_text(e);
             remove_replies_state(e);
         }
-    }    
+    }
+    /*!
+     *  @brief  全コメント削除
+     *  @note   shorts用/コメント使いまわしによる弊害を回避
+     */
+    remove_comments_node(e_contents) {
+        if (e_contents == null) {
+            return;
+        }
+        HTMLUtil.remove_children_all(e_contents);
+    }
 
     /*!
     *  @brief  コメントエリアclick-callback
     */
     click_comment_area(e, tag) {
         // 並び替えdropdown-menu監視
-        const dmenu = e.target.closest('a.yt-simple-endpoint.style-scope.yt-dropdown-menu');
+        const tag_menu = 'a.yt-simple-endpoint.style-scope.yt-dropdown-menu';
+        const dmenu = e.target.closest(tag_menu);
+        if (this.prev_dmenu == null) {
+            for (const menu of document.body.querySelectorAll(tag_menu)) {
+                if (menu.getAttribute("tabindex") === "0") {
+                    this.prev_dmenu = menu;
+                    break;
+                }
+            }
+        }
         if (dmenu != null) {
             const e_root = this.click_listener[tag].root;
             const tag_comment_contents = "div#contents.style-scope.ytd-item-section-renderer";
             const e_contents = e_root.querySelector(tag_comment_contents);
-            this.remove_comments_state(e_contents);
+            const tab_index = dmenu.getAttribute("tabindex");
+            console.log("tab_index:" + tab_index);
+            if (dmenu != this.prev_dmenu) {
+                this.remove_comments_state(e_contents);
+                this.prev_dmenu = dmenu;
+            } else {
+                // 現在と同じsort条件が選ばれたら全消し
+                this.remove_comments_node(e_contents);
+            }
         }
     }
     add_click_listener(tags, tag_parent) {
@@ -431,7 +458,7 @@ class YoutubeCommentFilter {
                 const tags = ["ytd-comments#comments", "div#panels"];
                 this.required_listener = tags.length;
                 this.add_click_listener(tags);
-            } else 
+            } else
             if (urlw.in_youtube_channel_post()) {
                 const tags = [TAG_COMMMENT_SECTION];
                 this.required_listener = tags.length;
@@ -481,6 +508,7 @@ class YoutubeCommentFilter {
         }
         this.click_listener = [];
         this.required_listener = -1
+        this.prev_dmenu = null;
         // 使い回されるのでstateは消す
         for (const e_parent of renderer_parent) {
             const e_contents = HTMLUtil.search_children(e_parent, is_contents);
@@ -499,10 +527,12 @@ class YoutubeCommentFilter {
             renderer_parent.push(obj.elem);
         }
         this.renderer_observer = [];
-        // 使い回されるのでstateは消す
+        // 使い回し対策
+        // state削除では対処しきれないのでnode削除する
+        // ※author更新済み&コメント未更新の状態が存在し得る
         for (const e_parent of renderer_parent) {
             const e_contents = HTMLUtil.search_children(e_parent, is_contents);
-            this.remove_comments_state(e_contents);
+            this.remove_comments_node(e_contents);
         }
     }
 
@@ -513,6 +543,7 @@ class YoutubeCommentFilter {
         if (array == null) {
             return;
         }
+        let candidate_additional_ng_id = [];
         const channel_info_accessor = this.channel_info_accessor;
         const storage = this.storage;
         for (const it of array) {
@@ -521,6 +552,9 @@ class YoutubeCommentFilter {
             });
             const ret = filtering_unit(wait_map, it, channel_info_accessor, storage);
             if (ret.result) {
+                if (ret.add_ng_id) {
+                    candidate_additional_ng_id.push(ret.userid);
+                }
                 remove_comment(comment_root);
             }
             if (ret.state !== YoutubeFilteringUtil.STATE_WAIT) {
@@ -528,6 +562,7 @@ class YoutubeCommentFilter {
             }
         }
         wait_map.delete(unique_name);
+        this.add_ng_id_to_storage(candidate_additional_ng_id);
     }
 
     /*!
@@ -542,5 +577,6 @@ class YoutubeCommentFilter {
         this.wait_comment_map = new Map();
         this.click_listener = [];
         this.required_listener = -1;
+        this.prev_dmenu = null;
     }
 }
