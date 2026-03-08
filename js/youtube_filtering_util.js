@@ -1,7 +1,18 @@
 /*!
  *  @brief  YoutubeフィルタUtil
  */
+const ATTR_STATE = "state";
 class YoutubeFilteringUtil {
+
+    static set_wait(renderer_node) {
+        renderer_node.setAttribute(ATTR_STATE, "wait");
+    }
+    static completed(renderer_node) {
+        renderer_node.setAttribute(ATTR_STATE, "complete");
+    }
+    static removed(renderer_node) {
+        renderer_node.setAttribute(ATTR_STATE, "remove");
+    }
 
     /*!
      *  @brief  lockup-view-modelのdetach
@@ -9,8 +20,9 @@ class YoutubeFilteringUtil {
      *  @note   24年11月以降のrecommend用
      */
     static detach_lower_lockup_vm_node(base_node) {
-        HTMLUtil.detach_lower_node(base_node, "div.yt-lockup-view-model");
-        HTMLUtil.detach_lower_node(base_node, "div.yt-lockup-view-model-wiz");
+        HTMLUtil.detach_lower_node2(base_node, "div.yt-lockup-view-model");
+        HTMLUtil.detach_lower_node2(base_node, "div.yt-lockup-view-model-wiz");
+        YoutubeFilteringUtil.removed(base_node);
     }
 
     /*!
@@ -103,19 +115,40 @@ class YoutubeFilteringUtil {
     }    
 
     /*!
+     */
+    static each_element(func, p_parent, tag) {
+        if (p_parent != null) {
+            p_parent.querySelectorAll(tag).forEach((elem)=> {
+                return func(elem);
+            });
+        } else {
+            document.querySelectorAll(tag).forEach((elem)=> {
+                return func(elem);
+            });
+        }
+    }
+    /*!
      *  @brief  <yt-lockup-view-model>ごとの処理
      *  @note   プレイ/MIXリスト用(24年11月時点)
      */
     static each_lockup_view_model(func, p_parent) {
-        if (p_parent != null) {
-            p_parent.querySelectorAll("yt-lockup-view-model").forEach((elem)=> {
-                return func(elem);
-            });
-        } else {
-            document.querySelectorAll("yt-lockup-view-model").forEach((elem)=> {
-                return func(elem);
-            });
-        }
+        YoutubeFilteringUtil.each_element(func, p_parent, "yt-lockup-view-model");
+    }
+    /*!
+     *  @brief  <yt-lockup-view-model>ごとの処理
+     *  @note   未処理のものだけ
+     */
+    static each_lockup_view_model_fresh(func, p_parent) {
+        const tag = 'yt-lockup-view-model:not([state])';
+        YoutubeFilteringUtil.each_element(func, p_parent, tag);
+    }
+    /*!
+     *  @brief  <yt-lockup-view-model>ごとの処理
+     *  @note   問い合わせ待ちのものだけ
+     */    
+    static each_lockup_view_model_wait(func, p_parent) {
+        const tag = 'yt-lockup-view-model[state="wait"]';
+        YoutubeFilteringUtil.each_element(func, p_parent, tag);
     }
 
     /*!
@@ -142,6 +175,7 @@ class YoutubeFilteringUtil {
                 }
                 return true;
             } else {
+                YoutubeFilteringUtil.completed(renderer_node);
                 YoutubeUtil.set_renderer_node_channel_id(renderer_node, channel_id);
             }
         }
