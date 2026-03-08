@@ -78,32 +78,19 @@ class YoutubeFilteringUtil {
     }
 
     /*!
-     *  @brief  検索結果>プレイリストごとの処理
-     */
-    static each_searched_playlists(func) {
-        const tag = "a.yt-simple-endpoint.style-scope.ytd-playlist-renderer";
-        for (const elem of document.body.querySelectorAll(tag)) {
-            func(elem);
-        }
-    }
-    /*!
      *  @brief  おすすめ>動画ごとの処理
-     *  @note   25年07月までの構成用
+     *  @note   26年現在video形式shortでのみ使用
+     *  
      */
-    static each_recommend_videos(e_parent, func) {
-        const tag_link = "a.yt-simple-endpoint.style-scope.ytd-compact-video-renderer";
-        for (const elem of e_parent.querySelectorAll(tag_link)) {
+    static each_recommend_videos_fresh(e_parent, func) {
+        const tag = "ytd-compact-video-renderer:not([state])";
+        for (const elem of e_parent.querySelectorAll(tag)) {
             func(elem);
         }
     }
-    /*!
-     *  @brief  おすすめ>プレイリストごとの処理
-     *  @note   24年10月までの構成用
-     */
-    static each_recommend_playlists(e_parent, func) {
-        const tag_link
-            = "a.yt-simple-endpoint.style-scope.ytd-compact-playlist-renderer";
-        for (const elem of e_parent.querySelectorAll(tag_link)) {
+    static each_recommend_videos_wait(e_parent, func) {
+        const tag = 'ytd-compact-video-renderer[state="wait"]';
+        for (const elem of e_parent.querySelectorAll(tag)) {
             func(elem);
         }
     }
