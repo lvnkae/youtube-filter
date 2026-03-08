@@ -31,6 +31,16 @@ class VideoInfoAccessor {
         }
         return null;
     }
+    /*!
+     *  @brief  動画IDからチャンネル名を得る
+     *  @param  video_id    動画ID
+     */
+    get_channel_name(video_id) {
+        if (video_id in this.video_info_map) {
+            return this.video_info_map[video_id].channel_name;
+        }
+        return null;
+    }    
 
     /*!
      *  @brief  動画IDにチャンネルIDを紐付ける

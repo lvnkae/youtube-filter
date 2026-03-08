@@ -2,10 +2,15 @@
  *  @brief  urlWrapper
  *  @note   urlを扱いやすくしたもの
  */
+const CHANNEL_EXTRACTOR = /\/(?:@|user\/|channel\/|c\/)[^\/\?#]+\/?/;
+const CHANNEL_SEARCH_EXTRACTOR = /\/(?:@|user\/|channel\/|c\/)[^\/\?#]+\/search/;
+const CHANNEL_NOMUTEMENU_EXTRACTOR = /\/(?:@|user\/|channel\/|c\/)[^\/\?#]+\/(playlists|search|videos|shorts|streams|releases)/;
+const CHANNEL_SPORTSLIVE_EXTRACTOR = /\/channel\/UC(Egdi0XIXXZ-qJOFPf4JSKw|4R8DWoMoI7CAwX8_LjQHig)\/?/;
+
 class urlWrapper {
 
     constructor(url) {
-        var href_div = (function() {
+        const href_div = (function() {
             const href_header = [
                 'http://',
                 'https://'
@@ -73,13 +78,25 @@ class urlWrapper {
         return this.subdir.length >=1 &&
                this.subdir[0].indexOf('playlist?') >= 0;
     }
+
+    in_youtube_any_channnel_page() {
+        // sports/liveも含む全形式チャンネルページ
+        return CHANNEL_EXTRACTOR.test(this.url);
+    }
+    in_youtube_channel_nomutemenu() {
+        return CHANNEL_NOMUTEMENU_EXTRACTOR.test(this.url);
+    }
+    in_youtube_channel_search() {
+        return CHANNEL_SEARCH_EXTRACTOR.test(this.url);
+    }    
     in_youtube_channel_page()
     {
-        // sports/liveだけ構造が違うので除外
+        // news/sports/liveだけ構造が違うので除外
         return this.subdir.length >=2 &&
                this.subdir[0] === 'channel' &&
+               this.subdir[1] !== 'UCYfdidRxbB8Qhf0Nx7ioOYw' &&
                this.subdir[1] !== 'UC4R8DWoMoI7CAwX8_LjQHig' &&
-               this.subdir[1] !== 'UCEgdi0XIXXZ-qJOFPf4JSKw';
+               this.subdir[1] !== 'UCEgdi0XIXXZ-qJOFPf4JSKw'
     }
     in_youtube_user_page()
     {
@@ -89,17 +106,9 @@ class urlWrapper {
     {
         return (this.subdir.length >=1 && this.subdir[0] === 'c');
     }
-    in_youtube_channel_playlists() {
-        // in_youtube_(channel|user|custom_channel)_pageの後に使う(単体NG)
-        return (this.subdir.length == 3 && this.subdir[2] === 'playlists');
-    }    
     in_youtube_handle_page()
     {
         return (this.subdir.length >=1 && this.subdir[0].startsWith('@'));
-    }
-    in_youtube_handle_playlists() {
-        // in_youtube_handle_pageの後に使う(単体NG)
-        return (this.subdir.length == 2 && this.subdir[1] === 'playlists');
     }
     in_youtube_search_page()
     {
@@ -118,30 +127,22 @@ class urlWrapper {
     in_youtube_gaming()
     {
         if (this.subdir.length >=1 && this.subdir[0] === 'gaming') {
-            return true; /* ゲーム */
+            return true;
         }
+    }
+    in_youtube_sports_or_live() {
+        // 専用URLにしてほしい…
+        return CHANNEL_SPORTSLIVE_EXTRACTOR.test(this.url);
     }
     in_youtube_news()
     {
-        if (this.subdir.length >=2 &&
-            this.subdir[0] === 'feed' &&
-            this.subdir[1] === 'news_destination') {
-            return true; /* ニュース */
+        if (this.subdir.length >=2) {
+            return (this.subdir[0] === 'feed' &&
+                    this.subdir[1] === 'news_destination') ||
+                   (this.subdir[0] === 'channel' &&
+                    this.subdir[1] !== 'UCYfdidRxbB8Qhf0Nx7ioOYw');
         }
         return false;
-    }
-    in_youtube_sports()
-    {
-        // 専用URLにしてほしい…
-        return this.subdir.length >=2 &&
-               this.subdir[0] === 'channel' &&
-               this.subdir[1] === 'UCEgdi0XIXXZ-qJOFPf4JSKw';
-    }
-    in_youtube_live() {
-        // 専用URLにしてほしい…
-        return this.subdir.length >=2 &&
-               this.subdir[0] === 'channel' &&
-               this.subdir[1] === 'UC4R8DWoMoI7CAwX8_LjQHig';
     }
     in_youtube_hashtag()
     {
