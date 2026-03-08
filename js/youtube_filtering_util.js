@@ -85,6 +85,12 @@ class YoutubeFilteringUtil {
      *  @brief  <ytd-video-renderer>ごとの処理
      *  @note   チャンネルページ>検索
      */
+    static each_video_renderer(func, e_parent) {
+        const tag = "ytd-video-renderer";
+        for (const elem of e_parent.getElementsByTagName(tag)) {
+            func(elem);
+        }
+    }
     static each_video_renderer_fresh(func, e_parent) {
         const tag = "ytd-video-renderer:not([state])";
         for (const elem of e_parent.querySelectorAll(tag)) {
@@ -101,12 +107,18 @@ class YoutubeFilteringUtil {
      *  @brief  <ytd-playlist-renderer>ごとの処理
      *  @note   チャンネルページ>検索
      */
+    static each_playlist_renderer(func, e_parent) {
+        const tag = "ytd-playlist-renderer";
+        for (const elem of e_parent.getElementsByTagName(tag)) {
+            func(elem);
+        }
+    }
     static each_playlist_renderer_fresh(func, e_parent) {
         const tag = "ytd-playlist-renderer:not([state])";
         for (const elem of e_parent.querySelectorAll(tag)) {
             func(elem);
         }
-    }    
+    }
     static each_playlist_renderer_wait(func, e_parent) {
         const tag = 'ytd-playlist-renderer[state="wait"]'
         for (const elem of e_parent.querySelectorAll(tag)) {
@@ -117,7 +129,6 @@ class YoutubeFilteringUtil {
     /*!
      *  @brief  おすすめ>動画ごとの処理
      *  @note   26年現在video形式shortでのみ使用
-     *  
      */
     static each_recommend_videos_fresh(e_parent, func) {
         const tag = "ytd-compact-video-renderer:not([state])";
@@ -174,7 +185,7 @@ class YoutubeFilteringUtil {
         for (const e_grid of document.body.querySelectorAll(tag_grid)) {
             do_func(e_grid, tag_title);
         }
-    }    
+    }
 
     /*!
      */
@@ -208,14 +219,14 @@ class YoutubeFilteringUtil {
     }
     /*!
      *  @note   問い合わせ待ちのものだけ
-     */    
+     */
     static each_lockup_view_model_wait(func, p_parent) {
         const tag = 'yt-lockup-view-model[state="wait"]';
         YoutubeFilteringUtil.each_element(func, p_parent, tag);
     }
     /*!
      *  @note   問い合わせ待ちのものだけ(collabo)
-     */    
+     */
     static each_lockup_view_model_collabo(func, p_parent) {
         const tag = 'yt-lockup-view-model[state="collabo"]';
         YoutubeFilteringUtil.each_element(func, p_parent, tag);

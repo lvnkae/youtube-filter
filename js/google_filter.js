@@ -1,4 +1,9 @@
 const detach_func = (elem) => { elem.remove(); }
+function cut_video_id(url) {
+    return urlWrapper.is_youtube_shortend_movie_page(url)
+            ? YoutubeUtil.cut_shortened_movie_hash(url)
+            : YoutubeUtil.cut_movie_hash(url);
+}
 /*!
  *  @brief  Googleフィルタ
  */
@@ -50,7 +55,7 @@ class GoogleFilter extends FilterBase {
      *  @param  detach  detach関数
      */
     youtube_video_filter(elem, title, url, detach) {
-        const video_id = YoutubeUtil.cut_movie_hash(url);
+        const video_id = cut_video_id(url);
         this.youtube_video_filter_core(elem, title, video_id, detach);
     }
     /*!
@@ -155,7 +160,7 @@ class GoogleFilter extends FilterBase {
             if (storage.channel_and_title_filter(channel, title)) {
                 mov.remove();
             } else {
-                const video_id = YoutubeUtil.cut_movie_hash(link);
+                const video_id = cut_video_id(link);
                 const channel_id = video_info_accessor.get_channel_id(video_id);
                 if (channel_id != null) {
                     if (storage.channel_id_filter(channel_id, title)) {
@@ -211,7 +216,8 @@ class GoogleFilter extends FilterBase {
                 }
             }
             const detach = (e)=> { e.parentNode.remove(); };
-            if (urlW.in_youtube_movie_page()) {
+            if (urlW.in_youtube_movie_page() ||
+                urlW.in_youtube_shortend_movie_page()) {
                 this.youtube_video_filter(a.parentNode, title, url, detach);
             } else if (urlW.in_youtube_short_page()) {
                 this.youtube_shorts_filter(a.parentNode, title, url, detach);
@@ -233,7 +239,8 @@ class GoogleFilter extends FilterBase {
                 continue;
             }
             const title = a_tag.firstChild.textContent;
-            if (urlW.in_youtube_movie_page()) {
+            if (urlW.in_youtube_movie_page() ||
+                urlW.in_youtube_shortend_movie_page()) {
                 this.youtube_video_filter(elem, title, url, detach_func);
             } else if (urlW.in_youtube_any_channel_page()) {
                 this.youtube_channel_filter(elem, title, url, detach_func);
@@ -248,7 +255,8 @@ class GoogleFilter extends FilterBase {
             for (const lnk of video.getElementsByTagName("a")) {
                 const url = lnk.href;
                 const urlW = new urlWrapper(url);
-                if (urlW.in_youtube_movie_page()) {
+                if (urlW.in_youtube_movie_page() ||
+                    urlW.in_youtube_shortend_movie_page()) {
                     const divs = lnk.getElementsByTagName("div");
                     if (divs.length < 3) {
                         continue;
@@ -258,7 +266,7 @@ class GoogleFilter extends FilterBase {
                     if (storage.channel_and_title_filter(channel, title)) {
                         video.remove();
                     } else {
-                        const video_id = YoutubeUtil.cut_movie_hash(url);
+                        const video_id = cut_video_id(url);
                         const channel_id = video_info_accessor.get_channel_id(video_id);
                         if (channel_id != null) {
                             if (storage.channel_id_filter(channel_id, title)) {
@@ -334,7 +342,8 @@ class GoogleFilter extends FilterBase {
                     continue;
                 }
                 //
-                if (urlW.in_youtube_movie_page()) {
+                if (urlW.in_youtube_movie_page() ||
+                    urlW.in_youtube_shortend_movie_page()) {
                     this.youtube_video_filter(pict, title, url, detach_func);
                 } else if (urlW.in_youtube_any_channel_page()) {
                     this.youtube_channel_filter(pict, title, url, detach_func);
@@ -369,7 +378,8 @@ class GoogleFilter extends FilterBase {
         }
         const title = elem_title.textContent;
         const detach = GoogleUtil.detach_search_node;
-        if (urlW.in_youtube_movie_page()) {
+        if (urlW.in_youtube_movie_page() ||
+            urlW.in_youtube_shortend_movie_page()) {
             this.youtube_video_filter(s_node, title, url, detach);
         } else if (urlW.in_youtube_short_page()) {
             this.youtube_shorts_filter(s_node, title, url, detach);
@@ -413,13 +423,14 @@ class GoogleFilter extends FilterBase {
             return;
         }
         const title = e_span.textContent;
-        if (urlW.in_youtube_movie_page()) {
+        if (urlW.in_youtube_movie_page() ||
+            urlW.in_youtube_shortend_movie_page()) {
             this.youtube_video_filter(elem, title, url, detach_func);
         } else if (urlW.in_youtube_short_page()) {
             this.youtube_shorts_filter(elem, title, url, detach_func);
         } else if (urlW.in_youtube_any_channel_page()) {
-        const channel_url = HTMLUtil.cut_url_query_param(url);
-            this.youtube_channel_filter(elem, title, url, detach_func);
+            const channel_url = HTMLUtil.cut_url_query_param(url);
+            this.youtube_channel_filter(elem, title, channel_url, detach_func);
         }
         return true;
     }
