@@ -1,22 +1,19 @@
 // video-id:11byte author:50byte json-overhead:20byte -> 81byte
 // author:50byte channel-name:50byte channel-id:24byte json-overhead:20byte ->144byte
-// video-id:author = 4:6くらいの想定
-// 10keys -> v*4+a*6 -> 1188byte
-// 8MB -> 1024*1024*8 -> 8,388,608byte -> 7062*10keys程度
-// 全部authorだった場合を考慮(144*65535=9,437,040=約9MB)
-const NUM_REQUIRING_PRUNE = 65535;
+const SIZE_AUTHOR = 81;
+const SIZE_NAMEID = 144;
+const SIZE_REQUIRING_PRUNE = 7*1024*1024;
 class BGSessionAccessor {
     /*!
      *  @brief  authorでチャンネル情報を得る
      */
-    static async author_to_channel_info(author) {
-        const channel_data = await chrome.storage.session.get(author);
-        const channel_id = channel_data[author]?.id;
-        if (channel_id != null) {
+    author_to_channel_info(author) {
+        const channel_info = this.channel_info_nameid.get(author);
+        if (channel_info != null) {
             return {
                 author: author,
-                name: channel_data[author]?.name,
-                id: channel_id,
+                name: channel_info.name,
+                id: channel_info.id
             };
         } else {
             return null;
@@ -25,46 +22,54 @@ class BGSessionAccessor {
     /*!
      *  @brief  動画IDでauthorを得る
      */
-    static async video_id_to_author(video_id) {
-        const author_data = await chrome.storage.session.get(video_id);
-        return author_data[video_id]?.author;
+    video_id_to_author(video_id) {
+        return this.channel_info_author.get(video_id);
     }
 
     /*!
      *  @brief  動画IDをkeyとしたauthor登録
      */
-    async set_channel_author(video_id, author) {
-        await chrome.storage.session.set({ [video_id]: { author: author } });
+    set_channel_author(video_id, author) {
+        this.channel_info_author.set(video_id, author);
+        this.num_video_id_keys++;
         this.prune();
     }
     /*!
      *  @brief  author_urlをkeyとしたチャンネル情報登録
      */
-    async set_channel_info(author, channel_info) {
-        await chrome.storage.session.set(
-                { [author]:{ name: channel_info.name, id: channel_info.id } });
+    set_channel_info(author, channel_info) {
+        this.channel_info_nameid.set(author, {name: channel_info.name,
+                                              id:channel_info.id});
+        this.num_author_keys++;                                              
         this.prune();
     }
 
     async prune() {
-        if (++this.num_keys < NUM_REQUIRING_PRUNE) {
+        const estimated_size = this.num_author_keys*SIZE_NAMEID
+                             + this.num_video_id_keys*SIZE_AUTHOR;
+        if (estimated_size < SIZE_REQUIRING_PRUNE) {
             return;
         }
-        const data = await chrome.storage.session.get(null);
-        const keys = Object.keys(data);
-        const num_delete_keys = Math.floor(keys.length * 0.3); // 3割消す
-        const delete_keys = keys.slice(0, num_delete_keys);
-        await chrome.storage.session.remove(delete_keys);
-        this.num_keys = keys.length - num_delete_keys;
-    }
-
-    async initialize() {
-        const data = await chrome.storage.session.get(null);
-        this.num_keys = Object.keys(data).length;
+        const video_id_keys = Object.keys(this.channel_info_author);
+        const author_keys = Object.keys(this.channel_info_nameid);
+        const num_delete_vkeys = Math.floor(video_id_keys.length * 0.3);
+        const num_delete_akeys = Math.floor(author_keys.length * 0.3);
+        const delete_vkeys = video_id_keys.slice(0, num_delete_vkeys);
+        const delete_akeys = author_keys.slice(0, num_delete_akeys);
+        for (const key of delete_vkeys) {
+            this.channel_info_author.delete(key);
+        }
+        for (const key of delete_akeys) {
+            this.channel_info_nameid.delete(key);
+        }
+        this.num_video_id_keys = delete_vkeys.length - num_delete_vkeys;
+        this.num_author_keys = delete_akeys.length - num_delete_akeys;
     }
 
     constructor() {
-        this.num_keys = 0;
-        this.ready = this.initialize();
+        this.num_video_id_keys = 0;
+        this.num_author_keys = 0;
+        this.channel_info_author = new Map();
+        this.channel_info_nameid = new Map();
     }
 };

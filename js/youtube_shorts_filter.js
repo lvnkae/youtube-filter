@@ -1241,10 +1241,11 @@ class YoutubeShortsFilter {
                 const lv_reel = YoutubeShortsFilter.s_get_reel(lv_reel_id);
                 const nx_reel_id = this.next_reel_id;
                 const nx_reel = YoutubeShortsFilter.s_get_reel(nx_reel_id);
-                const scr_now = this.scroll.get_scroll_now();
+                const sc = ShortScrollInfo.get_shorts_container();
+                const scr_now = sc.scrollTop;
                 const diff = scr_now - this.scroll.top;
                 const tm = YoutubeShortsFilter.SCROLL_TERMINATE_DIFF;
-                const near = (nx_reel != null) ?Math.abs(scr_now - nx_reel.offsetTop) :0;
+                const near = (nx_reel != null) ?Math.abs(scr_now - (nx_reel.offsetTop-sc.offsetTop)) :0;
                 const b_same_pos = this.is_stop_scroll();
                 this.push_scroll_pos(scr_now);
                 let b_end_scroll = false;
@@ -1261,7 +1262,7 @@ class YoutubeShortsFilter {
                         b_end_scroll = true;
                     } else {
                         const termin = Math.abs(diff) - lv_reel.offsetHeight;
-                        if (termin == tm || (b_same_pos && termin > 0 && near <= tm)) {
+                        if (termin == tm || (b_same_pos && near <= tm)) {
                             // 最上段例外(↑ボタンがなかったら最上段)
                             //  特殊処理A(*1)のスライド前に↑ボタンがない瞬間があるため
                             //  動画playerがappendされるのを待って判定
@@ -1292,7 +1293,6 @@ class YoutubeShortsFilter {
                     b_end_scroll = (termin == tm)
                                  ||((nx_reel == null) && diff == 0)
                                  ||((nx_reel != null) && b_same_pos
-                                                      && termin > 0
                                                       && near <= tm);
                 }
                 if (b_end_scroll) {

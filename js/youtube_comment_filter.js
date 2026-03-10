@@ -37,6 +37,40 @@ function remove_author_text(elem) {
         e_author.removeAttribute("href")
     }
 }
+function get_author_link_elem(elem, handle) {
+    if (handle != null) {
+        const elems_a = elem.querySelectorAll("a:not([hidden])");
+        for (const a of elems_a) {
+            if (a.href.endsWith(handle)) {
+                return a;
+            }
+        }
+    }
+    return null;
+}
+function get_author_text_elem(elem, handle) {
+    const elem_author_link = get_author_link_elem(elem, handle);
+    if (elem_author_link == null) {
+        return null;
+    }
+    const id = elem_author_link.id;
+    if (id === "author-text") {
+        return HTMLUtil.search_children(elem_author_link, (e)=> {
+            return e.localName === "span";
+        });
+    } else if (id === "name") {
+        return elem_author_link.querySelector("yt-formatted-string");
+    } else {
+        return null;
+    }
+}
+function replace_handle_to_chname(elem, handle, chname) {
+    const elem_author_text = get_author_text_elem(elem, handle);
+    if (elem_author_text != null) {
+        elem_author_text.textContent = chname;
+    }
+}
+
 /*!
  *  @brief  問い合わせ待ちmapにelemを登録
  *  @param[out] wait_map    問い合わせ待ちmap
@@ -111,6 +145,8 @@ function filtering_unit(wait_map, elem, channel_info_accessor, storage) {
                 ret.state = YoutubeFilteringUtil.STATE_REMOVE;
             } else {
                 ret.state = YoutubeFilteringUtil.STATE_COMPLETE;
+                // ハンドルをチャンネル名にすげ替える
+                replace_handle_to_chname(elem, handle, username);
             }
         }
     } else
