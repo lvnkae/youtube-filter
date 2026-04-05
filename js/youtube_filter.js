@@ -1294,6 +1294,7 @@ class YoutubeFilter extends FilterBase {
             this.shorts_filter.clear_slim_videos_marker2(t_rich);
         } else if (loc.in_youtube_movie_page()) {
             this.recommend_filter.clear_contents_state();
+            this.recommend_filter.clear_fullscreen_videowall();
             const t_reel = YoutubeUtil.get_reel_shelf_header2_tag();
             this.shorts_filter.clear_slim_videos_marker2(t_reel);
             const t_reel_login = YoutubeUtil.get_reel_shelf_header_tag();

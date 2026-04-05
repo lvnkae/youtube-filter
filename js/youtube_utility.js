@@ -252,6 +252,9 @@ class YoutubeUtil {
     static get_lockup_vm_metadata_tag2() {/* 2025/08/28以降 */
         return "div.yt-content-metadata-view-model__metadata-row";
     }
+    static get_lockup_vm_metadata_tag3() {/* 2026/04/04以降 */
+        return "div.ytContentMetadataViewModelMetadataRow";
+    }
     static get_lockup_vm_channel_tag() {
         return "a.yt-core-attributed-string__link";
     }
@@ -440,12 +443,15 @@ class YoutubeUtil {
      *  @note   25年07月以降の構成(lockup-view-model)用
      */
     static get_lockup_vm_metadata_elem(elem) {
-        const elem_rows = elem.querySelector(YoutubeUtil.get_lockup_vm_metadata_tag2());
-        if (elem_rows != null) {
-            return elem_rows;
-        } else {
-            return elem.querySelector(YoutubeUtil.get_lockup_vm_metadata_tag());
+        const elem_rows3 = elem.querySelector(YoutubeUtil.get_lockup_vm_metadata_tag3());
+        if (elem_rows3 != null) {
+            return elem_rows3;
         }
+        const elem_rows2 = elem.querySelector(YoutubeUtil.get_lockup_vm_metadata_tag2());
+        if (elem_rows2 != null) {
+            return elem_rows2;
+        }
+        return elem.querySelector(YoutubeUtil.get_lockup_vm_metadata_tag());
     }
     /*!
      *  @brief  動画linkノードを得る
@@ -548,7 +554,6 @@ class YoutubeUtil {
             + ".yt-core-attributed-string"
             + ".yt-core-attributed-string--white-space-pre-wrap";
         const elem_wrap = elem_comment.querySelector(wrap);
-        let err = 0;
         if (elem_wrap != null) {
             for (const ch of elem_wrap.childNodes) {
                 if (ch.nodeName === "#text") {
@@ -563,7 +568,10 @@ class YoutubeUtil {
                     } else if (ch.className.indexOf("string--inline") > 0) {
                         const elem_img = ch.querySelector("img");
                         const src = elem_img.getAttribute("src");
-                        if (src != null) {
+                        if (src == null) {
+                            ret.src_error = true;
+                            break;
+                        } else {
                             const emoji_key = '/emoji_u';
                             const emoji_top = src.indexOf(emoji_key);
                             if (emoji_top > 0) {
@@ -583,7 +591,7 @@ class YoutubeUtil {
                     }
                 }
             }
-         }
+        }
         return ret;
     }
 
@@ -716,7 +724,7 @@ class YoutubeUtil {
      *  @brief  自動再生を無効化する
      */
     static disable_autoplay() {
-        const e_controls = document.querySelector("div.ytp-right-controls-left");
+        const e_controls = document.body.querySelector("div.ytp-right-controls-left");
         if (e_controls == null) {
             return;
         }
@@ -742,7 +750,10 @@ class YoutubeUtil {
                 // 連打禁止
                 if (!btn.hasAttribute(ATTR_CLICKED)) {
                     btn.setAttribute(ATTR_CLICKED, "");
-                    btn.click();
+                    // delayをかける(すっぽ抜け対策)
+                    setTimeout(()=>{
+                        btn.click();
+                    }, 500); /* 0.5sec */
                 }
             } else
             if (btn.hasAttribute(ATTR_CLICKED)) {

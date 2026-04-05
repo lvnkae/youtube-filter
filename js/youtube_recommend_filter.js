@@ -221,7 +221,10 @@ function filtering_lockup_vm_by_channel_id(elem, author, channel_id, storage) {
     YoutubeUtil.set_renderer_node_channel_id(renderer_root, channel_id);
 }
 
-
+function get_fullscreen_container() {
+    const tag_fullscreen_container = "div.ytp-fullscreen-grid-stills-container"
+    return document.body.querySelector(tag_fullscreen_container);
+}
 
 /*!
  *  @class  Youtubeおすすめフィルタ
@@ -463,8 +466,7 @@ class YoutubeRecommendFilter {
      *  @nbote  26/01/17時点では動画終了時に出るおすすめも同形式
      */
     filtering_fullscreen_videowall() {
-        const tag_fulluscreen_container = "div.ytp-fullscreen-grid-stills-container"
-        const root = document.body.querySelector(tag_fulluscreen_container);
+        const root = get_fullscreen_container();
         if (root == null) {
             return;
         }
@@ -615,6 +617,21 @@ class YoutubeRecommendFilter {
                 // 共通(a∋b)であるため、(b)フィルタ処理でchannel_id取得済み。
                 // (a)独自に取得要求を出す必要はない。
             }
+        }
+    }
+
+    /*!
+     *  @note   NGID追加(ContextMenu)用
+     *  @note   stateを一回消して全fullscreen_videowallに再度フィルタをかける
+     */
+    clear_fullscreen_videowall() {
+        const root = get_fullscreen_container();
+        if (root == null) {
+            return;
+        }
+        const tag_a = "a.ytp-modern-videowall-still";
+        for (const elem_a of root.querySelectorAll(tag_a)) {
+            YoutubeFilteringUtil.remove_state(elem_a);
         }
     }
 

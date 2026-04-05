@@ -829,6 +829,11 @@ class YoutubeShortsFilter {
 
     no_disp_initialize() {
         if (this.no_disp_mode == YoutubeShortsFilter.NO_DISP_INIT) {
+            if (this.b_skip_hidden_start) {
+                this.no_disp_mode = YoutubeShortsFilter.NO_DISP_WAIT;
+                this.b_skip_hidden_start = false;
+                return;
+            }
             if (this.pause_video()) {
                 this.no_disp_mode = YoutubeShortsFilter.NO_DISP_PAUSE;
             }
@@ -975,6 +980,11 @@ class YoutubeShortsFilter {
                 if (vol_obj.b_muted) {
                     return true;
                 }
+                // 削除時にmuteすると解除されない
+                // pauseされるので要らないはず
+                if (YoutubeShortsFilter.is_active_detached(act_reel)) {
+                    return true;
+                }
                 vol_obj.button.click();
                 this.state_mute_button = STATE_MUTE_BUTTON_MUTED;
                 break;
@@ -1047,7 +1057,13 @@ class YoutubeShortsFilter {
         const author_url = YoutubeShortsFilter.get_author_url(lv_reel);
         const info_title = YoutubeShortsFilter.s_get_video_info_title(lv_reel);
         if (author_url == null || info_title == null) {
-            return false;
+            // 26/04/04
+            // player類の次reelへの移動タイミングが変わった(早まった)
+            // "取得失敗＝間に合わなかった"なのでfalseを返す意味がない
+            // resetしてtrueを返す
+            // ※旧仕様環境でもとりあえずは動くはず
+            this.reel_info.reset();
+            return true;
         }
         this.reel_info.update(author_url, info_title);
         this.reel_info.b_first = false;
@@ -1071,15 +1087,15 @@ class YoutubeShortsFilter {
      *  @brief  reel切替中に行う処理
      */
     process_in_leaving_reel() {
+        if (!this.b_update_reel_info) {
+            if (this.update_reel_info()) {
+                this.b_update_reel_info = true;
+            }
+        }
         if (this.scroll.is_more_than_half()) {
             if (!this.b_hide_prev) {
                 if (this.hide_leaving_reel_video_renderer()) {
                     this.b_hide_prev = true;
-                }
-            }
-            if (!this.b_update_reel_info) {
-                if (this.update_reel_info()) {
-                    this.b_update_reel_info = true;
                 }
             }
             this.fill_in_thumnail();
@@ -1240,10 +1256,13 @@ class YoutubeShortsFilter {
                 const lv_reel = YoutubeShortsFilter.s_get_reel(lv_reel_id);
                 const nx_reel_id = this.next_reel_id;
                 const nx_reel = YoutubeShortsFilter.s_get_reel(nx_reel_id);
-                const scr_now = this.scroll.get_scroll_now();
+                const sc = ShortScrollInfo.get_shorts_container();
+                const scr_now = sc.scrollTop;
                 const diff = scr_now - this.scroll.top;
                 const tm = YoutubeShortsFilter.SCROLL_TERMINATE_DIFF;
-                const near = (nx_reel != null) ?Math.abs(scr_now - nx_reel.offsetTop) :0;
+                const near = (nx_reel != null)
+                            ?Math.abs(scr_now - (nx_reel.offsetTop-sc.offsetTop))
+                            :0;
                 const b_same_pos = this.is_stop_scroll();
                 this.push_scroll_pos(scr_now);
                 let b_end_scroll = false;
@@ -1257,10 +1276,11 @@ class YoutubeShortsFilter {
                      || (num_upper_reel == 1 && diff == 0)
                      || (num_upper_reel == 2 && near <= tm)) {
                         this.b_skip_switch_mute = true;
+                        this.b_skip_hidden_start = true;
                         b_end_scroll = true;
                     } else {
                         const termin = Math.abs(diff) - lv_reel.offsetHeight;
-                        if (termin == tm || (b_same_pos && termin > 0 && near <= tm)) {
+                        if (termin == tm || (b_same_pos && near <= tm)) {
                             // 最上段例外(↑ボタンがなかったら最上段)
                             //  特殊処理A(*1)のスライド前に↑ボタンがない瞬間があるため
                             //  動画playerがappendされるのを待って判定
@@ -1272,9 +1292,14 @@ class YoutubeShortsFilter {
                                     = button_up.querySelector(tag_tooltip);
                                 const plc
                                     = YoutubeShortsFilter.s_get_player_container(nx_reel);
-                                if (plc != null
-                                && button_up_tip != null
-                                && button_up_tip.hasAttribute("disable-upgrade")) {
+                                const v_renderer
+                                    = nx_reel.querySelector("ytd-reel-video-renderer");
+                                const b_srscrb
+                                    = v_renderer != null 
+                                   && v_renderer.hasAttribute("should-render-scrubber");
+                                if (plc != null && b_srscrb
+                                 && button_up_tip != null
+                                 && button_up_tip.hasAttribute("disable-upgrade")) {
                                     b_end_scroll = true;
                                 }
                             }
@@ -1291,7 +1316,6 @@ class YoutubeShortsFilter {
                     b_end_scroll = (termin == tm)
                                  ||((nx_reel == null) && diff == 0)
                                  ||((nx_reel != null) && b_same_pos
-                                                      && termin > 0
                                                       && near <= tm);
                 }
                 if (b_end_scroll) {
@@ -1434,6 +1458,7 @@ class YoutubeShortsFilter {
         this.state_mute_button = STATE_MUTE_BUTTON_FAST_MUTE;
         this.switch_mute_button_timer = null;
         this.b_skip_switch_mute = false;
+        this.b_skip_hidden_start = false;
         //
         this.b_force_act_zero = false;
         this.req_recalculation = false;
