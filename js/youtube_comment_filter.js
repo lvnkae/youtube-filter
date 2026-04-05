@@ -89,11 +89,12 @@ function add_wait_comment_map(wait_map, handle, elem) {
 /*!
  *  @brief  コメントフィルタ(1コメント分)
  *  @param[out] wait_map                問い合わせ待ちmap
+ *  @param[out] src_set                 src設定待ちset
  *  @param[in]  elem                    コメントノード
  *  @param[in]  channel_info_accessor   ChannelInfoAccessorクラスインスタンス
  *  @param[in]  storage                 StorageDataクラスインスタンス
  */
-function filtering_unit(wait_map, elem, channel_info_accessor, storage) {
+function filtering_unit(wait_map, src_set, elem, channel_info_accessor, storage) {
     let ret = { error: true };
     if (elem == null) {
         return ret;
@@ -124,8 +125,16 @@ function filtering_unit(wait_map, elem, channel_info_accessor, storage) {
     } else {
         return ret;
     }
-    ret.error = false;
     const comment_info = YoutubeUtil.get_comment(elem_comment);
+    if (comment_info.src_error) {
+        src_set.add(elem);
+        return ret;
+    } else {
+        if (src_set.has(elem)) {
+            src_set.delete(elem);
+        }
+    }
+    ret.error = false;
     if (comment_info.reply_id != null) {
         if (storage.comment_filter_by_id(comment_info.reply_id)) {
             ret.result = true;
@@ -165,19 +174,21 @@ function filtering_unit(wait_map, elem, channel_info_accessor, storage) {
 /*!
  *  @brief  コメントフィルタ(呼び出し部分)
  *  @param[out] wait_map                        問い合わせ待ちmap
+ *  @param[out] src_set                         src設定待ちset
  *  @param[out] candidate_additional_ng_id      NG登録候補者ID
  *  @param[in]  comment_root                    親コメントノード
  *  @param[in]  state_func                      状態判定関数
  *  @param[in]  channel_info_accessor           ChannelInfoAccessorクラスインスタンス
  *  @param[in]  storage                         StorageDataクラスインスタンス
  */
-function filtering_comment_calling(wait_map, candidate_additional_ng_id,
+function filtering_comment_calling(wait_map, src_set, candidate_additional_ng_id,
                                    comment_root, state_func,
                                    channel_info_accessor, storage) {
     if (state_func(comment_root)) {
         const tag_elem = "div#main";
         const elem = comment_root.querySelector(tag_elem);
-        const ret = filtering_unit(wait_map, elem, channel_info_accessor, storage);
+        const ret = filtering_unit(wait_map, src_set,
+                                   elem, channel_info_accessor, storage);
         if (!ret.error) {
             if (ret.result) {
                 remove_comment(comment_root);
@@ -185,7 +196,7 @@ function filtering_comment_calling(wait_map, candidate_additional_ng_id,
                     candidate_additional_ng_id.push(ret.userid);
                 }
             } else {
-                filtering_replies(wait_map, candidate_additional_ng_id,
+                filtering_replies(wait_map, src_set, candidate_additional_ng_id,
                                   comment_root, state_func,
                                   channel_info_accessor, storage);
             }
@@ -194,7 +205,7 @@ function filtering_comment_calling(wait_map, candidate_additional_ng_id,
             }
         }
     } else {
-        filtering_replies(wait_map, candidate_additional_ng_id,
+        filtering_replies(wait_map, src_set, candidate_additional_ng_id,
                           comment_root, state_func,
                           channel_info_accessor, storage);
     }
@@ -202,6 +213,7 @@ function filtering_comment_calling(wait_map, candidate_additional_ng_id,
 /*!
  *  @brief  リプライコメント群フィルタ
  *  @param[out] wait_map                        問い合わせ待ちmap
+ *  @param[out] src_set                         src設定待ちset
  *  @param[out] candidate_additional_ng_id      NG登録候補者ID
  *  @param[in]  parent_root                     親コメントノード
  *  @param[in]  state_func                      状態判定関数
@@ -210,7 +222,7 @@ function filtering_comment_calling(wait_map, candidate_additional_ng_id,
  */
 const TAG_REPLIES_ROOT = "div#expanded-threads";
 const TAG_REPLY = "yt-sub-thread";
-function filtering_replies(wait_map, candidate_additional_ng_id,
+function filtering_replies(wait_map, src_set, candidate_additional_ng_id,
                            parent_root, state_func,
                            channel_info_accessor, storage) {
     const e_replies = parent_root.querySelector(TAG_REPLIES_ROOT);
@@ -225,7 +237,7 @@ function filtering_replies(wait_map, candidate_additional_ng_id,
         if (comment_root == null) {
             continue;
         }
-        filtering_comment_calling(wait_map, candidate_additional_ng_id,
+        filtering_comment_calling(wait_map, src_set, candidate_additional_ng_id,
                                   comment_root, state_func,
                                   channel_info_accessor, storage);
     }
@@ -304,6 +316,7 @@ class YoutubeCommentFilter {
             return;
         }
         let wait_map = this.wait_comment_map;
+        let src_set = this.src_preparing_set;
         let candidate_additional_ng_id = [];
         const channel_info_accessor = this.channel_info_accessor;
         const storage = this.storage;
@@ -311,7 +324,7 @@ class YoutubeCommentFilter {
             if (e.localName !== TAG_COMMENT_ROOT) {
                 continue;
             }
-            filtering_comment_calling(wait_map, candidate_additional_ng_id,
+            filtering_comment_calling(wait_map, src_set, candidate_additional_ng_id,
                                       e, state_func,
                                       channel_info_accessor, storage);
         }
@@ -331,6 +344,7 @@ class YoutubeCommentFilter {
             }
             let candidate_additional_ng_id = [];
             let wait_map = new Map();
+            let src_set = new Set();
             const channel_info_accessor = this.channel_info_accessor;
             const storage = this.storage;
             const check_complete = e=>{
@@ -342,7 +356,7 @@ class YoutubeCommentFilter {
                 if (e.localName !== TAG_COMMENT_ROOT) {
                     continue;
                 }
-                filtering_comment_calling(wait_map, candidate_additional_ng_id,
+                filtering_comment_calling(wait_map, src_set, candidate_additional_ng_id,
                                           e, check_complete,
                                           channel_info_accessor, storage);
             }
@@ -377,6 +391,29 @@ class YoutubeCommentFilter {
         }
         HTMLUtil.remove_children_all(e_contents);
     }
+    /*!
+     *  @brief  全コメントのstate削除&コメント本体削除
+     *  @note   shortでcommnet-rootを削除すると
+     *  @note    shortA→comment-open→close→B→A
+     *  @note   という操作でreplyが多重登録されてしまう
+     *  @note   stateとcoment本体を消してごまかしたい
+     */
+    remove_comments_state_and_body(e_contents) {
+        if (e_contents == null) {
+            return;
+        }
+        for (const e of e_contents.children) {
+            if (e.localName !== TAG_COMMENT_ROOT) {
+                continue;
+            }
+            YoutubeFilteringUtil.remove_state(e);
+            comeback_comment(e);
+            remove_replies_state(e);
+        }        
+        for (const e of e_contents.querySelectorAll("ytd-comment-view-model#comment")) {
+            e.remove();
+        } 
+    }
 
     /*!
     *  @brief  コメントエリアclick-callback
@@ -385,27 +422,12 @@ class YoutubeCommentFilter {
         // 並び替えdropdown-menu監視
         const tag_menu = 'a.yt-simple-endpoint.style-scope.yt-dropdown-menu';
         const dmenu = e.target.closest(tag_menu);
-        if (this.prev_dmenu == null) {
-            for (const menu of document.body.querySelectorAll(tag_menu)) {
-                if (menu.getAttribute("tabindex") === "0") {
-                    this.prev_dmenu = menu;
-                    break;
-                }
-            }
-        }
         if (dmenu != null) {
             const e_root = this.click_listener[tag].root;
             const tag_comment_contents = "div#contents.style-scope.ytd-item-section-renderer";
             const e_contents = e_root.querySelector(tag_comment_contents);
-            const tab_index = dmenu.getAttribute("tabindex");
-            console.log("tab_index:" + tab_index);
-            if (dmenu != this.prev_dmenu) {
-                this.remove_comments_state(e_contents);
-                this.prev_dmenu = dmenu;
-            } else {
-                // 現在と同じsort条件が選ばれたら全消し
-                this.remove_comments_node(e_contents);
-            }
+            // state削除では新旧混在が回避出来ないのでnode削除する
+            this.remove_comments_node(e_contents);
         }
     }
     add_click_listener(tags, tag_parent) {
@@ -431,7 +453,7 @@ class YoutubeCommentFilter {
      *  @brief  observer生成
      *  @note   node追加をフィルタトリガにしたい
      */
-    create_observer(tag_parent, tag) {
+    create_observer(tag_parent, tag, urlw) {
         if (has_key(this.renderer_observer, tag_parent)) {
             return;
         }
@@ -446,9 +468,7 @@ class YoutubeCommentFilter {
         };
         const check_fresh = e=>{
             // 未処理のものだけ対象
-            // 非表示は弾く(shortsの使いまわしバグ対策)
-            return null == YoutubeFilteringUtil.get_state(e) &&
-                   e.offsetParent != null;
+            return null == YoutubeFilteringUtil.get_state(e);
         };
         // 要素追加監視
         let observer = new MutationObserver((records, observer)=> {
@@ -469,7 +489,11 @@ class YoutubeCommentFilter {
         });
         // 要素変更監視
         let observer_attr = new MutationObserver((records, observer)=> {
-            //this.filtering(observer, check_fresh);
+            //console.log(`src_set_size:${this.src_preparing_set.size}`);
+            if (this.src_preparing_set.size > 0) {
+                this.filtering(observer, check_fresh);
+                this.channel_info_accessor.kick();
+            }
         });
         observer_attr.observe(ob_elem, {
             attributes: true,
@@ -481,6 +505,10 @@ class YoutubeCommentFilter {
                 obs:observer,
                 obs_attr:observer_attr,
                 elem:ob_elem });
+        // shorts対策
+        // comment追加がpanel-open前に行われることがある
+        this.filtering(observer, check_fresh);
+        this.channel_info_accessor.kick();    
     }
     /*!
      *  @brief  element追加callback
@@ -540,6 +568,7 @@ class YoutubeCommentFilter {
         this.required_observer = -1;
         //
         this.wait_comment_map = new Map();
+        this.src_preparing_set = new Set();
         // event-listener削除
         for (const key in this.click_listener) {
             const ls = this.click_listener[key];
@@ -547,7 +576,6 @@ class YoutubeCommentFilter {
         }
         this.click_listener = [];
         this.required_listener = -1
-        this.prev_dmenu = null;
         // 使い回されるのでstateは消す
         for (const e_parent of renderer_parent) {
             const e_contents = HTMLUtil.search_children(e_parent, is_contents);
@@ -566,6 +594,8 @@ class YoutubeCommentFilter {
             renderer_parent.push(obj.elem);
         }
         this.renderer_observer = [];
+        this.wait_comment_map = new Map();
+        this.src_preparing_set = new Set();
         // 使い回し対策
         // state削除では対処しきれないのでnode削除する
         // ※author更新済み&コメント未更新の状態が存在し得る
@@ -578,6 +608,7 @@ class YoutubeCommentFilter {
 
     tell_get_channel_id(unique_name) {
         let wait_map = this.wait_comment_map;
+        let src_set = this.src_preparing_set;
         let array = wait_map.get(unique_name);
         if (array == null) {
             return;
@@ -589,7 +620,8 @@ class YoutubeCommentFilter {
             const comment_root = HTMLUtil.search_parent_node(it, e=>{
                 return e.localName === TAG_COMMENT_ROOT;
             });
-            const ret = filtering_unit(wait_map, it, channel_info_accessor, storage);
+            const ret = filtering_unit(wait_map, src_set,
+                                       it, channel_info_accessor, storage);
             if (ret.result) {
                 if (ret.add_ng_id) {
                     candidate_additional_ng_id.push(ret.userid);
@@ -614,8 +646,8 @@ class YoutubeCommentFilter {
         this.required_observer = -1;
         this.channel_info_accessor = channel_info_accessor;
         this.wait_comment_map = new Map();
+        this.src_preparing_set = new Set();
         this.click_listener = [];
         this.required_listener = -1;
-        this.prev_dmenu = null;
     }
 }
