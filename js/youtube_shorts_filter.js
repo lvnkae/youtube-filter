@@ -1070,6 +1070,7 @@ class YoutubeShortsFilter {
         return true;
     }
     mute_leaving_reel_video_renderer() {
+        return true;
         const lv_reel = YoutubeShortsFilter.s_get_reel(this.leaving_reel_id);
         const vol_obj = YoutubeShortsFilter.get_volume_button(lv_reel);
         if (vol_obj == null) {
