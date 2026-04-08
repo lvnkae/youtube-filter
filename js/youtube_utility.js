@@ -240,6 +240,9 @@ class YoutubeUtil {
     static get_lockup_vm_title_tag2() { /* 2025/08/28以降 */
         return "a.yt-lockup-metadata-view-model__title";
     }
+    static get_lockup_vm_title_tag3() { /* 2026/04/08以降 */
+        return "a.ytLockupMetadataViewModelTitle";
+    }
     static get_lockup_vm_link_tag() {
         return "a.yt-lockup-view-model-wiz__content-image";
     }
@@ -470,12 +473,15 @@ class YoutubeUtil {
      *  @note   25年07月以降の構成(lockup-view-model)用
      */
     static get_lockup_vm_title_elem(elem) {
-        const elem_title = elem.querySelector(YoutubeUtil.get_lockup_vm_title_tag2());
-        if (elem_title != null) {
-            return elem_title;
-        } else {
-            return elem.querySelector(YoutubeUtil.get_lockup_vm_title_tag());
+        const elem_title3 = elem.querySelector(YoutubeUtil.get_lockup_vm_title_tag3());
+        if (elem_title3 != null) {
+            return elem_title3;
         }
+        const elem_title2 = elem.querySelector(YoutubeUtil.get_lockup_vm_title_tag2());
+        if (elem_title2 != null) {
+            return elem_title2;
+        }
+        return elem.querySelector(YoutubeUtil.get_lockup_vm_title_tag());
     }
     /*!
      *  @brief  チャンネルノードを得る
