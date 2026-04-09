@@ -36,8 +36,10 @@ class YoutubeFilteringUtil {
      *  @note   24年11月以降のrecommend用
      */
     static detach_lower_lockup_vm_node(base_node) {
+        // 2026/04/09以降
+        HTMLUtil.detach_lower_node(base_node, "div.ytLockupViewModelHost");
+        // 2025/08/28以降
         HTMLUtil.detach_lower_node(base_node, "div.yt-lockup-view-model");
-        HTMLUtil.detach_lower_node(base_node, "div.yt-lockup-view-model-wiz");
         YoutubeFilteringUtil.removed(base_node);
     }
 
