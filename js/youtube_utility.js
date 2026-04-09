@@ -246,6 +246,9 @@ class YoutubeUtil {
     static get_lockup_vm_link_tag2() { /* 2025/08/28以降 */
         return "a.yt-lockup-view-model__content-image";
     }
+    static get_lockup_vm_link_tag3() { /* 2025/04/09以降 */
+        return "a.ytLockupViewModelContentImage";
+    }
     static get_lockup_vm_metadata_tag() {
         return "div.yt-content-metadata-view-model-wiz__metadata-row";
     }
@@ -458,12 +461,15 @@ class YoutubeUtil {
      *  @note   25年07月以降の構成(lockup-view-model)用
      */
     static get_lockup_vm_link_elem(elem) {
-        const elem_link = elem.querySelector(YoutubeUtil.get_lockup_vm_link_tag2());
-        if (elem_link != null) {
-            return elem_link;
-        } else {
-            return elem.querySelector(YoutubeUtil.get_lockup_vm_link_tag());
+        const elem_link3 = elem.querySelector(YoutubeUtil.get_lockup_vm_link_tag3());
+        if (elem_link3 != null) {
+            return elem_link3;
         }
+        const elem_link2 = elem.querySelector(YoutubeUtil.get_lockup_vm_link_tag2());
+        if (elem_link2 != null) {
+            return elem_link2;
+        }
+        return elem.querySelector(YoutubeUtil.get_lockup_vm_link_tag());
     }
     /*!
      *  @brief  動画タイトルノードを得る
