@@ -236,7 +236,7 @@ class YoutubeRecommendFilter {
         if (elem_channel == null) {
             return null;
         }
-        return elem_channel.querySelector("a.yt-core-attributed-string__link");
+        return YoutubeUtil.get_attribute_string_link(elem);
     }
 
     call_contents_filter(fl_func) {
