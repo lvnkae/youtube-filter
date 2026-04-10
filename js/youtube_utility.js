@@ -231,9 +231,6 @@ class YoutubeUtil {
     static get_channel_link_tag() {
         return "a.yt-simple-endpoint.style-scope.yt-formatted-string";
     }
-    static get_popup_container_tag() {
-        return "ytd-popup-container.style-scope.ytd-app";
-    }
     static get_lockup_vm_title_tag() {
         return "a.yt-lockup-metadata-view-model-wiz__title";
     }
@@ -263,6 +260,9 @@ class YoutubeUtil {
     }
     static get_lockup_vm_channel_tag() {
         return "a.yt-core-attributed-string__link";
+    }
+    static get_lockup_vm_channel_tag2() {/* 2026/04/11以降 */
+        return "a.ytAttributedStringLink";
     }
 
     static remove_title_href(elem, tag_title) {
@@ -316,19 +316,6 @@ class YoutubeUtil {
     static get_channel_name_element(elem) {
         const ch_tag = YoutubeUtil.get_channel_name_tag();
         return HTMLUtil.find_first_appearing_element(elem, ch_tag);
-    }
-    /*!
-     *  @brief  チャンネルリンクノードを得る
-     *  @note   elem    基準ノード
-     */
-    static get_channel_link_element(elem) {
-        const e_channel_name = YoutubeUtil.get_channel_name_element(elem);
-        if (e_channel_name != null) {
-            const ch_tag = YoutubeUtil.get_channel_link_tag();
-            return HTMLUtil.find_first_appearing_element_fast(e_channel_name, ch_tag);
-        } else {
-            return null;
-        }
     }
 
     /*!
@@ -489,6 +476,20 @@ class YoutubeUtil {
         }
         return elem.querySelector(YoutubeUtil.get_lockup_vm_title_tag());
     }
+    static get_attribute_string_link(elem) {
+        const elem_channel2 = elem.querySelector(YoutubeUtil.get_lockup_vm_channel_tag2());
+        if (elem_channel2 != null) {
+            return elem_channel2;
+        }
+        return elem.querySelector(YoutubeUtil.get_lockup_vm_channel_tag());
+    }
+    static get_attribute_string(elem) {
+        const elem_str2 = elem.querySelector("span.ytAttributedStringHost");
+        if (elem_str2 != null) {
+            return elem_str2;
+        }
+        return elem.querySelector("span.yt-core-attributed-string");
+    }
     /*!
      *  @brief  チャンネルノードを得る
      *  @note   25年07月以降の構成(lockup-view-model)用
@@ -501,7 +502,7 @@ class YoutubeUtil {
         if (rows == null) {
             return null;
         }
-        return rows.querySelector("span.yt-core-attributed-string");
+        return YoutubeUtil.get_attribute_string(rows);
     }
     /*!
      *  @note   チャンネルページ専用/チャンネル名なしを考慮
@@ -513,7 +514,8 @@ class YoutubeUtil {
         } else {
             return HTMLUtil.search_parent_node(elem_link, (e)=> {
                 return e.localName === "span" &&
-                       e.className.startsWith("yt-core-attributed-string");
+                       (e.className.startsWith("ytAttributedStringHost") ||
+                        e.className.startsWith("yt-core-attributed-string"));
             });
         }
     }
@@ -529,7 +531,7 @@ class YoutubeUtil {
         if (rows == null) {
             return null;
         }
-        const elem_link = rows.querySelector(YoutubeUtil.get_lockup_vm_channel_tag());
+        const elem_link = YoutubeUtil.get_attribute_string_link(rows);
         if (elem_link == null) {
             // チャンネル名ノードが無いパターン/[MIXリスト]含む
             return null;
@@ -561,11 +563,19 @@ class YoutubeUtil {
         let ret = {};
         ret.comment = "";
         ret.reply_id = null;
-        const wrap
+        let elem_wrap = null;
+        const wrap2 
             = "span"
-            + ".yt-core-attributed-string"
-            + ".yt-core-attributed-string--white-space-pre-wrap";
-        const elem_wrap = elem_comment.querySelector(wrap);
+            + ".ytAttributedStringHost"
+            + ".ytAttributedStringWhiteSpacePreWrap";
+        elem_wrap = elem_comment.querySelector(wrap2);
+        if (elem_wrap == null) {
+            const wrap
+                = "span"
+                + ".yt-core-attributed-string"
+                + ".yt-core-attributed-string--white-space-pre-wrap";
+            elem_wrap = elem_comment.querySelector(wrap);
+        }
         if (elem_wrap != null) {
             for (const ch of elem_wrap.childNodes) {
                 if (ch.nodeName === "#text") {
@@ -577,7 +587,9 @@ class YoutubeUtil {
                         if (elem_a != null) {
                             ret.reply_id = YoutubeUtil.cut_channel_id(elem_a.href);
                         }
-                    } else if (ch.className.indexOf("string--inline") > 0) {
+                    } else 
+                    if (ch.className.indexOf("StringInline") > 0
+                     || ch.className.indexOf("string--inline") > 0) {
                         const elem_img = ch.querySelector("img");
                         const src = elem_img.getAttribute("src");
                         if (src == null) {
