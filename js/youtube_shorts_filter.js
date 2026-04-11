@@ -22,7 +22,7 @@ class ShortScrollInfo {
         }
         this.top = sc.scrollTop;
         this.height = sc.offsetHeight;
-        this.half = this.height * 0.5;
+        this.half = this.height * 0.33333;
         this.b_first = true;
         return sc;
     }
@@ -1070,6 +1070,12 @@ class YoutubeShortsFilter {
         return true;
     }
     mute_leaving_reel_video_renderer() {
+        // 暫定処置 04/11 //
+        // short切り替えごとにvolue-objの表示がおかしくなる
+        // ミュートon/offが判定できないため無条件完了で回避
+        // (公式修正待ち)
+        this.state_mute_button = STATE_MUTE_BUTTON_COMP;
+        return true;
         const lv_reel = YoutubeShortsFilter.s_get_reel(this.leaving_reel_id);
         const vol_obj = YoutubeShortsFilter.get_volume_button(lv_reel);
         if (vol_obj == null) {
